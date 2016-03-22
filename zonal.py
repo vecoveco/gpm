@@ -108,7 +108,8 @@ lonstart = ilon[0][0]	#erstes Element
 lonend = ilon[0][-1]	#letztes Element
 gp_lon1 = gp_lon[lonstart:lonend]
 
-
+# einfach kommentar
+print(lonend)
 xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], projection_target=proj_gk)
 print ("xgrid.shape",xgrid.shape,latstart, latend, gp_lon.shape, gp_lon1.shape)
 gprof_pp_a[gprof_pp_a == -9999] = np.nan
