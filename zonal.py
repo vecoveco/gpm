@@ -8,6 +8,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.colors import from_levels_and_colors
 import matplotlib.patches as patches
 import datetime as dt
+import matplotlib as plt
 import wradlib
 import glob
 import h5py
@@ -103,18 +104,25 @@ lonend = ilon[0][-1]	#letztes Element
 latstart = ilat[0][0]
 latend = ilat[0][-1]
 gp_lon = gprof_lon_a[latstart:latend]
-ilon= np.where((gp_lon>6.40000) & (gp_lon<8.10000))
+ilon= np.where((gp_lon>6.40000) & (gp_lon<8.10000)) #Hier eventuell doppelt ? s.o.
 lonstart = ilon[0][0]	#erstes Element
 lonend = ilon[0][-1]	#letztes Element
-gp_lon1 = gp_lon[lonstart:lonend]
-
+gp_lon1 = gp_lon[lonstart:lonend] # Index Eingrenzung HIER KOORDINATEN RAUSSUCHEN!
 
 xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], projection_target=proj_gk)
 print ("xgrid.shape",xgrid.shape,latstart, latend, gp_lon.shape, gp_lon1.shape)
 gprof_pp_a[gprof_pp_a == -9999] = np.nan
 gprof_lon = gprof_pp_a[latstart:latend]
-gprof_lon1 = gprof_lon[lonstart:lonend]
+gprof_lon1 = gprof_lon[lonstart:lonend]#Werte von gprof eingegrenzt mit lon lat Limits
+
 print (gprof_pp_a.shape, gprof_lon.shape,gprof_lon1.shape)
-# Todo: gprof mxnx5x2 Koo Eckpunkte Funktion
-zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_pp_a, srs=proj_gk, buf=0.)
+
+gprof_gitter = gprof_lon1  # Hier Funktion!
+
+plt.plot(gprof_gitter)
+# AttributeError: 'module' object has no attribute 'plot'
+
+
+# Todo: gprof_lon1 mxnx5x2 Koo Eckpunkte Funktion
+zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_gitter, srs=proj_gk, buf=0.)
 
