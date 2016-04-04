@@ -152,6 +152,7 @@ for i in range(0,len(LISTE)):
     gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=50,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
     #PLOT###################################################################################################
+    # Todo: Plot schoener machen !!!! 2x2x2
     fig = plt.figure(figsize=(13,10))
 #Levels berechnen
     maxvl = np.max([np.max(np.log10(gridded)),np.max(np.log10(np.ma.masked_invalid(gprof_pp_a)[latstart:latend]))])
@@ -185,7 +186,7 @@ for i in range(0,len(LISTE)):
 #Nullen entfernen
     TH2 = 0.5
     C[C<TH2]=np.nan
-    D[D<TH2]=np.nan
+    #D[D<TH2]=np.nan
 
 #Scatter mit regrssion
     from scipy import stats
@@ -198,7 +199,7 @@ for i in range(0,len(LISTE)):
     plt.ylim(0,maxCD)						#control quadratic x y axis
     plt.xlabel("gprof")
     plt.ylabel("ppi BoxPol")
-    plt.title("Scatterplot (gprof/ppi),TH:"+str(TH)+" cor: " + str(r_value1))
+    plt.title("Scatterplot (gprof/ppi),TH:"+str(TH2)+" cor: " + str(r_value1))
 
 
 ##
@@ -278,12 +279,10 @@ for i in range(0,len(LISTE)):
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
 
+    plt.tight_layout()
 
-    plt.savefig('plot/' + ppi_datapath[-28:-8] + '_Vergleich_Difflog_nn50p2.png')
+    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich_Difflog_nn50p2.png')
     plt.close()
-#--------------------------------------------------------------------------------------------------------
-### ------- Alle Korrelationen ----------- ##
-#--------------------------------------------------------------------------------------------------------
 
 
 

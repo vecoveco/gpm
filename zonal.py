@@ -113,16 +113,20 @@ xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend], gprof_lat_
 print ("xgrid.shape",xgrid.shape,latstart, latend, gp_lon.shape, gp_lon1.shape)
 gprof_pp_a[gprof_pp_a == -9999] = np.nan
 gprof_lon = gprof_pp_a[latstart:latend]
-gprof_lon1 = gprof_lon[lonstart:lonend]#Werte von gprof eingegrenzt mit lon lat Limits
+gprof_lon1 = gprof_lon[lonstart:lonend]# Werte von gprof eingegrenzt mit lon lat Limits
 
-print (gprof_pp_a.shape, gprof_lon.shape,gprof_lon1.shape)
+# Nur Ideen
+print ('SHAPE: gprof_lon1')
+print (gprof_lon1.shape, gprof_lon1.dtype)
+
+
 
 gprof_gitter = gprof_lon1  # Hier Funktion!
 
-plt.plot(gprof_gitter)
+
 # AttributeError: 'module' object has no attribute 'plot'
 
 
 # Todo: gprof_lon1 mxnx5x2 Koo Eckpunkte Funktion
-zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_gitter, srs=proj_gk, buf=0.)
+# zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_gitter, srs=proj_gk, buf=0.)
 

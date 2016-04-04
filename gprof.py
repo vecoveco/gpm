@@ -84,7 +84,8 @@ for i in range(0,len(LISTE)):
 #Umwandeln von Z in RR Marshal-Palmer Z(R)
     Z = wradlib.trafo.idecibel(ZH)
     R = wradlib.zr.z2r(Z, a=200., b=1.6) 
-    #Verbesserung
+    # Todo: Verbesserung Regenraten Berechnung
+    # Todo: Daempfung enthalten ?
     #PHIDP = np.deg2rad(PHIDP)
     #kdp = wradlib.dp.kdp_from_phidp_linregress(PHIDP)
     #R_kdp = wradlib.trafo.kdp2r(kdp,10, a=129.0, b=0.85)
@@ -217,8 +218,8 @@ for i in range(0,len(LISTE)):
     cbar.set_label("Boxpol_ppi_interpolation RR [mm/h]")
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
-
-    plt.savefig('plot/' + ppi_datapath[-28:-8] + '_Vergleich_nn4p1.png')
+    plt.tight_layout()
+    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich_nn4p1.png')
     plt.close()
 #--------------------------------------------------------------------------------------------------------
 ### ------- Alle Korrelationen ----------- ##
