@@ -120,7 +120,7 @@ print ('SHAPE: gprof_lon1')
 print (gprof_lon1.shape, gprof_lon1.dtype)
 
 
-#Idee
+#Todo: Gridd mit i+i+2/2 berechnen
 gprof_gitter = gprof_lon1[i] + gprof_lon1[i+1]/2  # Hier Funktion!
 
 
