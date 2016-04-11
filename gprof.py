@@ -152,41 +152,35 @@ for i in range(0,len(LISTE)):
     xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
     gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=50,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
-    #PLOT###################################################################################################
+    # ========== PLOT ========== #
     fig = plt.figure(figsize=(13,10))
-#Levels berechnen
-    maxv = np.max([np.max(gridded),np.max(np.ma.masked_invalid(gprof_pp_a)[latstart:latend])])
-#
-    plt.subplot(221)
 
+    maxvl = np.max([np.max(np.log10(gridded)),np.max(np.log10(np.ma.masked_invalid(gprof_pp_a)[latstart:latend]))])
+    maxv = np.max([np.max(gridded),np.max(np.ma.masked_invalid(gprof_pp_a)[latstart:latend])])
+
+    plt.subplot(221) # ==== Scatterplot GPM/boxpol ==== #
     A = gridded
     B = np.ma.masked_invalid(gprof_pp_a)[latstart:latend]
-#Nullen entfernen
     A[A<TH]=np.nan
     B[B<TH]=np.nan
 
-
-#Scatter mit regrssion
     from scipy import stats
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
     plt.plot(B,line,'r-',B,A,'o')
-#plt.gca().set_aspect('equal', adjustable='box')		#control quadratic x y axis
-#plt.axis('equal')						#control quadratic x y axis
-    plt.xlim(0,maxv)						#control quadratic x y axis
-    plt.ylim(0,maxv)						#control quadratic x y axis
-    plt.xlabel("gprof")
-    plt.ylabel("ppi BoxPol")
+    maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
+    plt.xlim(0,maxAB)
+    plt.ylim(0,maxAB)
+    plt.xlabel("GPROF RR [mm/h]")
+    plt.ylabel("BoxPol RR [mm/h]")
+    plt.grid(True)
     plt.title("Scatterplot (gprof/ppi), cor: " + str(r_value))
 
-
-##
-    plt.subplot(222)
-#rainrate
+    plt.subplot(222) # ==== RainRate boxpol ==== #
     ax1, pm2 = wradlib.vis.plot_ppi(R,r,az,vmin=0,vmax=maxv)
     cbar = plt.colorbar(pm2, shrink=0.75)
-    cbar.set_label("RR [mm/h]")
+    cbar.set_label("RainRate Boxpol [mm/h]")
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
     plt.xticks(())
@@ -195,31 +189,28 @@ for i in range(0,len(LISTE)):
     plt.ylabel("Y Range [km]")
     plt.title(ppi_datapath[-28:-8])
 
-    plt.subplot(223)
-#gprof rainrate
-    pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(gprof_pp_a)[latstart:latend],vmin=0,vmax=maxv)
+    plt.subplot(223) # ==== RainRate Gprof ==== #
+    pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
+        gprof_pp_a)[latstart:latend],vmin=0,vmax=maxv)
     plt.xlim((bonn_lon1,bonn_lon2))
     plt.ylim((bonn_lat1,bonn_lat2))
     plt.title(pfad_boxpol_rhi01[-28:-6])
     cbar = plt.colorbar(pm2, shrink=.75)
-    cbar.set_label("GPROF surfacePrecipitation [mm/h]")
+    cbar.set_label("GPROF RainRate [mm/h]")
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
 
-    plt.subplot(224)
-#ppi rainrate
-    pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)#xgrid, ygrid,
-#plt.xlim((lon.min(),lon.max()))
-#plt.ylim((lat.min(),lat.max()))
+    plt.subplot(224) # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
+    pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
     plt.xlim((bonn_lon1,bonn_lon2))
     plt.ylim((bonn_lat1,bonn_lat2))
     plt.title(ppi_datapath[-28:-8])
     cbar = plt.colorbar(pm2, shrink=0.75)
-    cbar.set_label("Boxpol_ppi_interpolation RR [mm/h]")
+    cbar.set_label("Boxpol RainRate interpolated [mm/h]")
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
     plt.tight_layout()
-    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich_nn4p1.png')
+    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich.png')
     plt.close()
 #--------------------------------------------------------------------------------------------------------
 ### ------- Alle Korrelationen ----------- ##
