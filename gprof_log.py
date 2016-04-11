@@ -212,7 +212,7 @@ for i in range(0,len(LISTE)):
     plt.ylabel("Northing (m)")
 
     plt.tight_layout()
-    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Gprof_boxplo_Vergleich1.png')
+    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Gprof_boxpol_Vergleich1.png')
     plt.close()
 
     # ========== Plot 2 ==========
