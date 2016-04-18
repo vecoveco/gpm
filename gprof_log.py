@@ -156,7 +156,6 @@ for i in range(0,len(LISTE)):
     # ========== Plot 1 ==========
     fig = plt.figure(figsize=(13,10))
 
-    maxvl = np.max([np.max(np.log10(gridded)),np.max(np.log10(np.ma.masked_invalid(gprof_pp_a)[latstart:latend]))])
     maxv = np.max([np.max(gridded),np.max(np.ma.masked_invalid(gprof_pp_a)[latstart:latend])])
 
     plt.subplot(221) # ==== Scatterplot GPM/boxpol ==== #
@@ -242,16 +241,20 @@ for i in range(0,len(LISTE)):
     plt.subplot(222)
     E = gridded
     F = np.ma.masked_invalid(gprof_pp_a)[latstart:latend]
+    Diff = np.subtract(E,F)
+    maxv_diff = np.max([np.nanmax(E),np.nanmax(F)])
     pm_diff = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend],
-                             gridded -np.ma.masked_invalid(gprof_pp_a)[latstart:latend],vmin=-20,vmax=20)
-    # Todo: Differenz  mit np.diff...oder so
+                             Diff,vmin=0,vmax=maxv_diff)
+
     plt.xlim((bonn_lon1,bonn_lon2))
     plt.ylim((bonn_lat1,bonn_lat2))
     plt.title(ppi_datapath[-28:-8])
-    cbar = plt.colorbar(pm_diff, shrink=0.75)
-    cbar.set_label("Boxpol-Gprof RainRate [mm/h]")
+    cbar_diff = plt.colorbar(pm_diff, shrink=0.75)
+    cbar_diff.set_label("Boxpol-Gprof RainRate [mm/h]")
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
+
+    print('E - F min max : ' + str(np.nanmin(np.subtract(E, F))) + '-'+ str(np.nanmax(np.subtract(E, F))))
 
     plt.subplot(223) # ==== RainRate Gprof ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
