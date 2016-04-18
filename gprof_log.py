@@ -16,15 +16,20 @@ import pandas as pd
 import wradlib
 import glob
 import math
+from scipy import stats
 '''ftp://ftp.meteo.uni-bonn.de/pub/pablosaa/gpmdata/'''
 
 #--------------------------------------------------------------------------------------------------------
 ### Pfad mit String ##
 #--------------------------------------------------------------------------------------------------------
 TH = 0.01 #Threshold um Nullen fuer Niederschlag raus zu filtern
-
+corra = []
+error = []
+corra2 = []
+error2 = []
+time = []
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
-
+offset = 2
 #LISTE der Ueberfluege des GPM mit Niederschlagevents
 #BITTE ZEITRAUM DES PPI EINTRAGEN!
 LISTE = ("20150128172208","20140629145000","20140629145925","20140921070500","20140921071058","20141007023744","20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
@@ -82,22 +87,24 @@ for i in range(0,len(LISTE)):
     lat_ppi = attrs['VOL']['Latitude']
     alt_ppi = attrs['VOL']['Height']
 #Umwandeln von Z in RR Marshal-Palmer Z(R)
+    ZH = ZH + offset
     Z = wradlib.trafo.idecibel(ZH)
     R = wradlib.zr.z2r(Z, a=200., b=1.6)
+    R[151:165]=np.nan
     #Verbesserung
     #PHIDP = np.deg2rad(PHIDP)
     #kdp = wradlib.dp.kdp_from_phidp_linregress(PHIDP)
     #R_kdp = wradlib.trafo.kdp2r(kdp,10, a=129.0, b=0.85)
     #R = R_kdp#TESTWEISE!
-#--------------------------------------------------------------------------------------------------------
-### gprof Daten einlesen ##
-#--------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+#  gprof Daten einlesen ##
+# --------------------------------------------------------------------------------------------------------
 
     gpmgmi = h5py.File(pfad_gprof_g, 'r')
 
-#--------------------------------------------------------------------------------------------------------
-###---- GPROF ---- Einlesen von Oberflachenniederschlag und Lat/Lon von Gprof ##
-#--------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# ---- GPROF ---- Einlesen von Oberflachenniederschlag und Lat/Lon von Gprof ##
+# --------------------------------------------------------------------------------------------------------
 
     gpmgmi.keys()
     gpmgmi_S1=gpmgmi['S1']
@@ -105,21 +112,17 @@ for i in range(0,len(LISTE)):
     gprof_lon=gpmgmi_S1['Longitude']			#(2962, 221)
     gprof_pp=gpmgmi_S1['surfacePrecipitation']   	#(2962, 221)
 
-#--------------------------------------------------------------------------------------------------------
-### ------- In Arrays umwandeln ----------- ##
-#--------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# ------- In Arrays umwandeln ----------- ##
+# --------------------------------------------------------------------------------------------------------
 
     gprof_pp_a = np.array(gprof_pp)
     gprof_lon_a = np.array(gprof_lon)
     gprof_lat_a = np.array(gprof_lat)
 
-#--------------------------------------------------------------------------------------------------------
-### ------- Lon Lat Bestimmung ----------- ##
-#--------------------------------------------------------------------------------------------------------
-# Indexzugriff
-#   gprof_lat_a[[Zeile][Zeilenelement]]
-# Indexsuche
-#   itemin= np.where((gprof_lat_a<58) & (gprof_lat_a>57))
+# --------------------------------------------------------------------------------------------------------
+# ------- Lon Lat Bestimmung ----------- ##
+# --------------------------------------------------------------------------------------------------------
     bonn_lat1 = 49.9400
     bonn_lat2 = 51.3500
     bonn_lon1 = 6.40000
@@ -127,18 +130,16 @@ for i in range(0,len(LISTE)):
 
     ilat= np.where((gprof_lat_a>49.9400) & (gprof_lat_a<51.3500))
     ilon= np.where((gprof_lon_a>6.40000) & (gprof_lon_a<8.10000))
-    lonstart = ilon[0][0]	#erstes Element
-    lonend = ilon[0][-1]	#letztes Element
+    lonstart = ilon[0][0]
+    lonend = ilon[0][-1]
     latstart = ilat[0][0]
     latend = ilat[0][-1]
 
-
-
-    gprof_pp_a[gprof_pp_a==-9999] = np.nan #NAN!
-    radar_location = (lon_ppi, lat_ppi, alt_ppi) # (lon, lat, alt) in decimal degree and meters
-    elevation = 1.5 # in degree
-    azimuths = az # in degrees
-    ranges = r # in meters
+    gprof_pp_a[gprof_pp_a==-9999] = np.nan
+    radar_location = (lon_ppi, lat_ppi, alt_ppi)
+    elevation = 1.5
+    azimuths = az
+    ranges = r
     polargrid = np.meshgrid(ranges, azimuths)
     lon, lat, alt = wradlib.georef.polar2lonlatalt_n(polargrid[0], polargrid[1], elevation, radar_location)
 
@@ -158,26 +159,25 @@ for i in range(0,len(LISTE)):
 
     maxv = np.max([np.max(gridded),np.max(np.ma.masked_invalid(gprof_pp_a)[latstart:latend])])
 
-    plt.subplot(221) # ==== Scatterplot GPM/boxpol ==== #
+    plt.subplot(221)  # ==== Scatterplot GPM/boxpol ==== #
     A = gridded
     B = np.ma.masked_invalid(gprof_pp_a)[latstart:latend]
     A[A<TH]=np.nan
     B[B<TH]=np.nan
 
-    from scipy import stats
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
     plt.plot(B,line,'r-',B,A,'o')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
-    plt.xlim(0,maxAB)
-    plt.ylim(0,maxAB)
+    plt.xlim(0,maxAB + 1)
+    plt.ylim(0,maxAB + 1)
     plt.xlabel("GPROF RR [mm/h]")
     plt.ylabel("BoxPol RR [mm/h]")
     plt.grid(True)
     plt.title("Scatterplot (gprof/ppi), cor: " + str(r_value))
 
-    plt.subplot(222) # ==== RainRate boxpol ==== #
+    plt.subplot(222)  # ==== RainRate boxpol ==== #
     ax1, pm2 = wradlib.vis.plot_ppi(R,r,az,vmin=0,vmax=maxv)
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("RainRate Boxpol [mm/h]")
@@ -189,7 +189,7 @@ for i in range(0,len(LISTE)):
     plt.ylabel("Y Range [km]")
     plt.title(ppi_datapath[-28:-8])
 
-    plt.subplot(223) # ==== RainRate Gprof ==== #
+    plt.subplot(223)  # ==== RainRate Gprof ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
         gprof_pp_a)[latstart:latend],vmin=0,vmax=maxv)
     plt.xlim((bonn_lon1,bonn_lon2))
@@ -200,7 +200,7 @@ for i in range(0,len(LISTE)):
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
 
-    plt.subplot(224) # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
+    plt.subplot(224)  # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
     plt.xlim((bonn_lon1,bonn_lon2))
     plt.ylim((bonn_lat1,bonn_lat2))
@@ -220,23 +220,22 @@ for i in range(0,len(LISTE)):
 
     C = gridded
     D = np.ma.masked_invalid(gprof_pp_a)[latstart:latend]
-
+# Todo: Sinniger Threshold Venusber eliminieren
     TH2 = 0.5
     C[C<TH2]=np.nan
     D[D<TH2]=np.nan
 
-    from scipy import stats
     mask = ~np.isnan(D) & ~np.isnan(C)
-    slope, intercept, r_value1, p_value, std_err = stats.linregress(D[mask], C[mask])
+    slope, intercept, r_value2, p_value, std_err2 = stats.linregress(D[mask], C[mask])
     line = slope*D+intercept
     plt.plot(D,line,'r-',D,C,'o')
     maxCD = np.nanmax([np.nanmax(C),np.nanmax(D)])
-    plt.xlim(0,maxCD)
-    plt.ylim(0,maxCD)
-    plt.xlabel("gprof")
-    plt.ylabel("ppi BoxPol")
+    plt.xlim(0,maxCD + 1)
+    plt.ylim(0,maxCD + 1)
+    plt.xlabel("GPORF RR [mm/h]")
+    plt.ylabel("BoxPol RR [mm/h]")
     plt.grid(True)
-    plt.title("Scatterplot (gprof/ppi),TH:"+str(TH2)+" cor: " + str(r_value1))
+    plt.title("Scatterplot (gprof/ppi),TH:"+str(TH2)+" cor: " + str(r_value2))
 
     plt.subplot(222)
     E = gridded
@@ -254,9 +253,7 @@ for i in range(0,len(LISTE)):
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
 
-    print('E - F min max : ' + str(np.nanmin(np.subtract(E, F))) + '-'+ str(np.nanmax(np.subtract(E, F))))
-
-    plt.subplot(223) # ==== RainRate Gprof ==== #
+    plt.subplot(223)  # ==== RainRate Gprof ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
         gprof_pp_a)[latstart:latend],vmin=0,vmax=maxv)
     plt.xlim((bonn_lon1,bonn_lon2))
@@ -267,7 +264,7 @@ for i in range(0,len(LISTE)):
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
 
-    plt.subplot(224) # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
+    plt.subplot(224)  # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
     plt.xlim((bonn_lon1,bonn_lon2))
     plt.ylim((bonn_lat1,bonn_lat2))
@@ -281,6 +278,28 @@ for i in range(0,len(LISTE)):
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Gprof_boxpol_Vergleich2.png')
     plt.close()
 
+    # =========== APPENDS ========== #
+    corra.append(r_value)
+    error.append(std_err)
+    corra2.append(r_value2)
+    error2.append(std_err2)
+    time.append(ZP)
 
+cor = np.array(corra)
+std1 = np.array(error)
+cor2 = np.array(corra2)
+std2 = np.array(error2)
+tt = np.array(time)
 
-
+plt.plot(range(0,7,1),cor)
+plt.plot(range(0,7,1), cor + abs(std1), color = 'r')
+plt.plot(range(0,7,1), cor - abs(std1), color = 'r')
+plt.xticks(range(0,7,1), time,rotation= 20)
+plt.ylim((-1,1))
+plt.xlabel('Date')
+plt.ylabel('Correlation')
+plt.title('Correlation of all dates')
+plt.grid()
+plt.tight_layout()
+plt.savefig('/user/velibor/SHKGPM/data/plot/ALLCorrelation')
+plt.close()
