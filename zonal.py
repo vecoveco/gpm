@@ -109,11 +109,12 @@ lonstart = ilon[0][0]	#erstes Element
 lonend = ilon[0][-1]	#letztes Element
 gp_lon1 = gp_lon[lonstart:lonend] # Index Eingrenzung HIER KOORDINATEN RAUSSUCHEN!
 
-xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], projection_target=proj_gk)
-print ("xgrid.shape",xgrid.shape,latstart, latend, gp_lon.shape, gp_lon1.shape)
+xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend],
+                                        gprof_lat_a[latstart:latend], projection_target=proj_gk)
+
 gprof_pp_a[gprof_pp_a == -9999] = np.nan
 gprof_lon = gprof_pp_a[latstart:latend]
-gprof_lon1 = gprof_lon[lonstart:lonend]# Werte von gprof eingegrenzt mit lon lat Limits
+gprof_lon1 = gprof_lon[lonstart:lonend]  # Werte von gprof eingegrenzt mit lon lat Limits
 
 # Nur Ideen
 print ('SHAPE: gprof_lon1')
@@ -121,7 +122,23 @@ print (gprof_lon1.shape, gprof_lon1.dtype)
 
 
 #Todo: Gridd mit i+i+2/2 berechnen
-gprof_gitter = gprof_lon1[i] + gprof_lon1[i+1]/2  # Hier Funktion!
+gprof_gitter = []
+for i in range(0,98,1):
+    for j in range(0,221,1):
+        if j < 220 and i < 97:  # Randbedinungungen: bei j=221 und i=98 gibt es kein j+1 und i +1 Idee ji davor
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2  # erste Koo
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i + 1],[j]])/2  # zweite Koo
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j + 1]])/2  # dritte Koo
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i + 1],[j]])/2  # vierte Koo
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2  # erste Koo
+        else:
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2  # erste Koo bei RB
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i - 1],[j]])/2  # zweite Koo bei RB
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j - 1]])/2  # dritte Koo bei RB
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i - 1],[j]])/2  # vierte Koo bei RB
+            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2  # erste Koo bei RB
+
+print (gprof_gitter)
 
 
 # AttributeError: 'module' object has no attribute 'plot'
