@@ -122,21 +122,31 @@ print (gprof_lon1.shape, gprof_lon1.dtype)
 
 
 #Todo: Gridd mit i+i+2/2 berechnen
-gprof_gitter = []
+gprof_gitter = np.empty((98,221,5))
 for i in range(0,98,1):
     for j in range(0,221,1):
         if j < 220 and i < 97:  # Randbedinungungen: bei j=221 und i=98 gibt es kein j+1 und i +1 Idee ji davor
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2  # erste Koo
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i + 1],[j]])/2  # zweite Koo
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j + 1]])/2  # dritte Koo
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i + 1],[j]])/2  # vierte Koo
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2  # erste Koo
+            gprof_gitter[[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2
+            # erste Koo
+            gprof_gitter[[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i + 1],[j]])/2
+            # zweite Koo
+            gprof_gitter[[i],[j],[2]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j + 1]])/2
+            # dritte Koo
+            gprof_gitter[[i],[j],[3]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i + 1],[j]])/2
+            # vierte Koo
+            gprof_gitter[[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2
+            # erste Koo
         else:
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2  # erste Koo bei RB
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i - 1],[j]])/2  # zweite Koo bei RB
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j - 1]])/2  # dritte Koo bei RB
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i - 1],[j]])/2  # vierte Koo bei RB
-            gprof_gitter = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2  # erste Koo bei RB
+            gprof_gitter[[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2
+            # erste Koo bei RB
+            gprof_gitter[[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i - 1],[j]])/2
+            # zweite Koo bei RB
+            gprof_gitter[[i],[j],[2]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j - 1]])/2
+            # dritte Koo bei RB
+            gprof_gitter[[i],[j],[3]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i - 1],[j]])/2
+            # vierte Koo bei RB
+            gprof_gitter[[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2
+            # erste Koo bei RB
 
 print (gprof_gitter)
 
