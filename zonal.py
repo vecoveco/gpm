@@ -148,12 +148,13 @@ for i in range(0,98,1):
             gprof_gitter[[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2
             # erste Koo bei RB
 
-print (gprof_gitter)
 
+print (np.nanmax(gprof_gitter))
 
 # AttributeError: 'module' object has no attribute 'plot'
 
 
 # Todo: gprof_lon1 mxnx5x2 Koo Eckpunkte Funktion
-# zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_gitter, srs=proj_gk, buf=0.)
+zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_gitter, srs=proj_gk, buf=0.)
 
+print zd.shape
