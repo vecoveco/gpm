@@ -127,61 +127,56 @@ print ('SHAPE: gprof_lon1')
 print (gprof_lon1.shape, gprof_lon1.dtype)
 
 
-#Todo: Gridd mit i+i+2/2 berechnen
+#Todo: berechnetes Grid Fehlerhaft
 gprof_gitter_lon = np.empty((98,221,5))
 gprof_gitter_lat = np.empty((98,221,5))
 for i in range(0,98,1):
     for j in range(0,221,1):
         if j < 220 and i < 97:
-            gprof_gitter_lon [[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2
-            gprof_gitter_lat [[i],[j],[0]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] + gprof_lat1[[i],[j + 1]])/2
+            gprof_gitter_lon [[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[0]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2
 
             # erste Koo
-            gprof_gitter_lon [[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i + 1],[j]])/2
-            gprof_gitter_lat [[i],[j],[1]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] + gprof_lat1[[i + 1],[j]])/2
+            gprof_gitter_lon [[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[1]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2
             # zweite Koo
-            gprof_gitter_lon [[i],[j],[2]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j + 1]])/2
-            gprof_gitter_lat [[i],[j],[2]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] - gprof_lat1[[i],[j + 1]])/2
+            gprof_gitter_lon [[i],[j],[2]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[2]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2
             # dritte Koo
-            gprof_gitter_lon [[i],[j],[3]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i + 1],[j]])/2
-            gprof_gitter_lat [[i],[j],[3]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] - gprof_lat1[[i + 1],[j]])/2
+            gprof_gitter_lon [[i],[j],[3]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[3]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2
             # vierte Koo
-            gprof_gitter_lon [[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j + 1]])/2
-            gprof_gitter_lat [[i],[j],[4]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] + gprof_lat1[[i],[j + 1]])/2
+            gprof_gitter_lon [[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[4]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2
             # erste Koo
         else:   # Randbedinungungen: bei j=221 und i=98 gibt es kein j+1 und i +1 Idee ji davor
-            gprof_gitter_lon [[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2
-            gprof_gitter_lat [[i],[j],[0]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] + gprof_lat1[[i],[j - 1]])/2
+            gprof_gitter_lon [[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j - 1]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[0]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j - 1]] - gprof_lat1[[i],[j]])/2
             # erste Koo bei RB
-            gprof_gitter_lon [[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i - 1],[j]])/2
-            gprof_gitter_lat [[i],[j],[1]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] + gprof_lat1[[i - 1],[j]])/2
+            gprof_gitter_lon [[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i - 1],[j]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[1]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i - 1],[j]] - gprof_lat1[[i],[j]])/2
             # zweite Koo bei RB
-            gprof_gitter_lon [[i],[j],[2]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i],[j - 1]])/2
-            gprof_gitter_lat [[i],[j],[2]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] - gprof_lat1[[i],[j - 1]])/2
+            gprof_gitter_lon [[i],[j],[2]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i],[j - 1]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[2]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i],[j - 1]] - gprof_lat1[[i],[j]])/2
             # dritte Koo bei RB
-            gprof_gitter_lon [[i],[j],[3]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] - gprof_lon1[[i - 1],[j]])/2
-            gprof_gitter_lat [[i],[j],[3]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] - gprof_lat1[[i - 1],[j]])/2
+            gprof_gitter_lon [[i],[j],[3]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i - 1],[j]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[3]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i - 1],[j]] - gprof_lat1[[i],[j]])/2
             # vierte Koo bei RB
-            gprof_gitter_lon [[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j]] + gprof_lon1[[i],[j - 1]])/2
-            gprof_gitter_lat [[i],[j],[4]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j]] + gprof_lat1[[i],[j - 1]])/2
+            gprof_gitter_lon [[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j - 1]] - gprof_lon1[[i],[j]])/2
+            gprof_gitter_lat [[i],[j],[4]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j - 1]] - gprof_lat1[[i],[j]])/2
             # erste Koo bei RB
 
-lon_r = gprof_gitter_lon.reshape(98*221,5)
-lat_r = gprof_gitter_lat.reshape(98*221,5)
-
-gprof_gitter = np.dstack((lon_r, lat_r ))
-
-print ('gprof_gitter_lon.shape: ',gprof_gitter_lon.shape)
-print ('gprof_gitter_lat.shape: ',gprof_gitter_lat.shape)
-print ('lon_:',lon_r.shape )
-print ('lat_:',lat_r.shape )
-print ('gprof_gitter:',gprof_gitter.shape )
-print(type(gprof_gitter), gprof_gitter.dtype)
-
-
-# gprof_gitter = []
+gprof_gitter_lon = gprof_gitter_lon[...,np.newaxis]
+gprof_gitter_lat = gprof_gitter_lat[...,np.newaxis]
+print(gprof_gitter_lon.shape)
+gprof_gitter = np.concatenate((gprof_gitter_lon, gprof_gitter_lat ), axis=3)
+print(gprof_gitter.shape)
+gprof_gitter = gprof_gitter.reshape(98*221,5,2)
+print(gprof_gitter.shape)
+print(gprof_gitter[0,0,:])
 
 # Todo: gprof_lon1 mxnx5x2 Koo Eckpunkte Funktion
-zd = wradlib.zonalstats.ZonalDataPoint(radar_gk, gprof_gitter, srs=proj_gk, buf=0.)
+zd = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[:100], srs=proj_ll, buf=0.)
+zd.dump_vector('gprof_isect')
 
-print ('zd: ', zd.shape)
+print ('gitter100  ',gprof_gitter.shape)
