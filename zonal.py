@@ -176,7 +176,7 @@ print ('gprof_gitter_lat.shape: ',gprof_gitter_lat.shape)
 print ('lon_:',lon_r.shape )
 print ('lat_:',lat_r.shape )
 print ('gprof_gitter:',gprof_gitter.shape )
-
+print(type(gprof_gitter), gprof_gitter.dtype)
 
 
 # gprof_gitter = []
