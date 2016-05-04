@@ -149,7 +149,7 @@ for i in range(0,98,1):
             # erste Koo bei RB
 
 
-print (np.nanmax(gprof_gitter))
+print ('gprof_gitte.shape: ',gprof_gitter.shape)
 
 # AttributeError: 'module' object has no attribute 'plot'
 
