@@ -8,7 +8,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.colors import from_levels_and_colors
 import matplotlib.patches as patches
 import datetime as dt
-import matplotlib as plt
+import matplotlib.pyplot  as plt
 import wradlib
 import glob
 import h5py
@@ -150,6 +150,7 @@ for i in range(0,98,1):
             gprof_gitter_lat [[i],[j],[4]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2
             # erste Koo
         else:   # Randbedinungungen: bei j=221 und i=98 gibt es kein j+1 und i +1 Idee ji davor
+            #Todo: Randbedingungen bei j = 0 und i= 0 auch neu erstellen !
             gprof_gitter_lon [[i],[j],[0]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j - 1]] - gprof_lon1[[i],[j]])/2
             gprof_gitter_lat [[i],[j],[0]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j - 1]] - gprof_lat1[[i],[j]])/2
             # erste Koo bei RB
@@ -175,8 +176,11 @@ gprof_gitter = gprof_gitter.reshape(98*221,5,2)
 print(gprof_gitter.shape)
 print(gprof_gitter[0,0,:])
 
-# Todo: gprof_lon1 mxnx5x2 Koo Eckpunkte Funktion
+
 zd = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[:100], srs=proj_ll, buf=0.)
 zd.dump_vector('gprof_isect')
 
 print ('gitter100  ',gprof_gitter.shape)
+#Todo: BSP PLOT!
+plt.pcolormesh(gprof_gitter[:100])
+plt.show()
