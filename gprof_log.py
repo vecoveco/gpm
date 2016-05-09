@@ -16,6 +16,7 @@ import pandas as pd
 import wradlib
 import glob
 import math
+import pandas as pd
 from scipy import stats
 '''ftp://ftp.meteo.uni-bonn.de/pub/pablosaa/gpmdata/'''
 
@@ -249,7 +250,7 @@ for i in range(0,len(LISTE)):
     plt.ylim((bonn_lat1,bonn_lat2))
     plt.title(ppi_datapath[-28:-8])
     cbar_diff = plt.colorbar(pm_diff, shrink=0.75)
-    cbar_diff.set_label("Boxpol-Gprof RainRate [mm/h]")
+    cbar_diff.set_label("Rain Rate difference [mm/h]")
     plt.xlabel("Easting (m)")
     plt.ylabel("Northing (m)")
 
@@ -291,15 +292,19 @@ cor2 = np.array(corra2)
 std2 = np.array(error2)
 tt = np.array(time)
 
-plt.plot(range(0,7,1),cor)
-plt.plot(range(0,7,1), cor + abs(std1), color = 'r')
-plt.plot(range(0,7,1), cor - abs(std1), color = 'r')
+plt.plot(range(0,7,1),cor, lw=3)
+plt.fill_between(range(0,7,1),cor + abs(std1),cor - abs(std1),color='gray',alpha=0.2)
+plt.axhline(y=0, color='k')
 plt.xticks(range(0,7,1), time,rotation= 20)
 plt.ylim((-1,1))
-plt.xlabel('Date')
+# plt.xlabel('Date')
 plt.ylabel('Correlation')
 plt.title('Correlation of all dates')
 plt.grid()
 plt.tight_layout()
 plt.savefig('/user/velibor/SHKGPM/data/plot/ALLCorrelation')
 plt.close()
+
+
+pd.DataFrame(cor).to_csv('/user/velibor/SHKGPM/data/plot/cor_v.csv')
+pd.DataFrame(std1).to_csv('/user/velibor/SHKGPM/data/plot/std1_v.csv')
