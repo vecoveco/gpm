@@ -140,11 +140,11 @@ for i in range(0,98,1):
             gprof_gitter_lon [[i],[j],[1]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2 + np.tan(45)*((gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2)
             gprof_gitter_lat [[i],[j],[1]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2 + np.tan(45)*((gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2)
             # zweite Koo
-            gprof_gitter_lon [[i],[j],[2]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2 + np.tan(45)*((gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2)
-            gprof_gitter_lat [[i],[j],[2]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2 + np.tan(45)*((gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2)
+            gprof_gitter_lon [[i],[j],[2]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2 - np.tan(45)*((gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2)
+            gprof_gitter_lat [[i],[j],[2]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2 - np.tan(45)*((gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2)
             # dritte Koo
-            gprof_gitter_lon [[i],[j],[3]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2 + np.tan(45)*((gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2)
-            gprof_gitter_lat [[i],[j],[3]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2 + np.tan(45)*((gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2)
+            gprof_gitter_lon [[i],[j],[3]] = gprof_lon1[[i],[j]] - (gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2 - np.tan(45)*((gprof_lon1[[i + 1],[j]] - gprof_lon1[[i],[j]])/2)
+            gprof_gitter_lat [[i],[j],[3]] = gprof_lat1[[i],[j]] - (gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2 - np.tan(45)*((gprof_lat1[[i + 1],[j]] - gprof_lat1[[i],[j]])/2)
             # vierte Koo
             gprof_gitter_lon [[i],[j],[4]] = gprof_lon1[[i],[j]] + (gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2 + np.tan(45)*((gprof_lon1[[i],[j + 1]] - gprof_lon1[[i],[j]])/2)
             gprof_gitter_lat [[i],[j],[4]] = gprof_lat1[[i],[j]] + (gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2 + np.tan(45)*((gprof_lat1[[i],[j + 1]] - gprof_lat1[[i],[j]])/2)
