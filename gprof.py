@@ -58,7 +58,7 @@ for i in range(0,len(LISTE)):
     pfad_gprof = glob.glob(pfad2)
     pfad_gprof_g = pfad_gprof[0]
 
-    ppi_datapath=('/automount/radar/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",00.mvol")
+    ppi_datapath=('/automount/radar-archiv/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",00.mvol")
 
 #ppi_1p5deg,ppi_2p4deg, ppi_3p4deg
 #--------------------------------------------------------------------------------------------------------
@@ -168,6 +168,12 @@ for i in range(0,len(LISTE)):
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
+
+    #Todo:RMSE und BIAS berechene
+    #from sklearn.metrics import mean_squared_error
+    #RMSE = np.sqrt(np.mean((B[mask], A[mask])**2))
+    #print('RMSE:', RMSE)
+
     plt.plot(B,line,'r-',B,A,'o')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
     plt.xlim(0,maxAB)
@@ -212,6 +218,8 @@ for i in range(0,len(LISTE)):
     plt.tight_layout()
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich.png')
     plt.close()
+
+
 #--------------------------------------------------------------------------------------------------------
 ### ------- Alle Korrelationen ----------- ##
 #--------------------------------------------------------------------------------------------------------
