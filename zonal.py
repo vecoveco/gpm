@@ -202,7 +202,7 @@ print(gprof_gitter[0,0,:])
 t1 = dt.datetime.now()
 zd = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[::1], srs=proj_ll, buf=0.)
 
-#gprof_raw_gitter = np.dstack((gprof_lon_a, gprof_lat_a))
+gprof_raw_gitter = np.dstack((gprof_lon_a, gprof_lat_a))
 
 #zd1 = wradlib.zonalstats.ZonalDataPoint(gprof_raw_gitter.reshape(2962*221,2), gprof_gitter[:10], srs=proj_ll, buf=0.)
 
