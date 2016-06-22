@@ -191,16 +191,29 @@ gprof_gitter = gprof_gitter.reshape(98*221,5,2)
 print(gprof_gitter.shape)
 print(gprof_gitter[0,0,:])
 
-t1 = dt.datetime.now()
-zd = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[::1], srs=proj_ll, buf=0.)
+
+zdpoly = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[::1], srs=proj_ll, buf=0.)
 
 # Schreibe als file
-zd.dump_vector('/user/velibor/SHKGPM/data/test_zonal_poly_cart')
+zdpoly.dump_vector('/user/velibor/SHKGPM/data/test_zonal_poly_cart')
+zdpoly_new = wradlib.zonalstats.ZonalDataPoly('/user/velibor/SHKGPM/data/test_zonal_poly_cart')
+#gprof_raw_gitter = np.dstack((gprof_lon_a, gprof_lat_a))
 
 
 print ("...part two...")
 
-gprof_raw_gitter = np.dstack((gprof_lon_a, gprof_lat_a))
+
+
+# get intersections as numpy array
+#isecs = zdpoly.isecs
+#print(isecs.shape)
+# get intersections for target polygon 0
+#isec0 = zdpoly.get_isec(0)
+#print(isec0.shape)
+# get source indices referring to target polygon 0
+#ind0 = zdpoly.get_source_index(0)
+#print(ind0.shape)
+
 
 #zd1 = wradlib.zonalstats.ZonalDataPoint(gprof_raw_gitter.reshape(2962*221,2), gprof_gitter[:10], srs=proj_ll, buf=0.)
 
