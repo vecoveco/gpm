@@ -16,7 +16,7 @@ from osgeo import osr
 
 print "...zonal.py wurde gestartet..."
 
-LISTE = ("20150128172208", "20140629145000", "20140629145925", "20140921070500", "20140921071058",
+LISTE = ("20140629145000", "20140629145925", "20140921070500", "20140921071058",
          "20141007023744")
 LISTE = sorted(LISTE)
 
@@ -95,7 +95,6 @@ gprof_pp = gpmgmi_S1['surfacePrecipitation']
 gprof_pp_a = np.array(gprof_pp)
 gprof_lon_a = np.array(gprof_lon)
 gprof_lat_a = np.array(gprof_lat)
-print("gprof_lon_a.shape", gprof_lat_a.shape)
 
 ilat= np.where((gprof_lat_a>49.9400) & (gprof_lat_a<51.3500))
 ilon= np.where((gprof_lon_a>6.40000) & (gprof_lon_a<8.10000))
@@ -122,14 +121,7 @@ gprof_lon1 = gprof_lon[lonstart:lonend]  # Werte von gprof eingegrenzt mit lon l
 
 gprof_lat = gprof_lat_a[latstart:latend]
 gprof_lat1 = gprof_lat[lonstart:lonend]
-# Nur Ideen
-print ('SHAPE: gprof_lon1')
-print (gprof_lon1.shape, gprof_lon1.dtype)
 
-
-#Todo: berechnetes Grid Fehlerhaft
-
-#Todo: berechnetes Grid Fehlerhaft
 gprof_gitter_lon = np.empty((98,221,5))
 gprof_gitter_lat = np.empty((98,221,5))
 for i in range(0,98,1):
@@ -202,6 +194,12 @@ print(gprof_gitter[0,0,:])
 t1 = dt.datetime.now()
 zd = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[::1], srs=proj_ll, buf=0.)
 
+# Schreibe als file
+zd.dump_vector('/user/velibor/SHKGPM/data/test_zonal_poly_cart')
+
+
+print ("...part two...")
+
 gprof_raw_gitter = np.dstack((gprof_lon_a, gprof_lat_a))
 
 #zd1 = wradlib.zonalstats.ZonalDataPoint(gprof_raw_gitter.reshape(2962*221,2), gprof_gitter[:10], srs=proj_ll, buf=0.)
@@ -211,4 +209,3 @@ gprof_raw_gitter = np.dstack((gprof_lon_a, gprof_lat_a))
 
 
 
-print ('Fertig!')

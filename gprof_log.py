@@ -64,7 +64,7 @@ for i in range(0,len(LISTE)):
     pfad_gprof = glob.glob(pfad2)
     pfad_gprof_g = pfad_gprof[0]
 
-    ppi_datapath=('/automount/radar/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",00.mvol")
+    ppi_datapath=('/automount/radar-archiv/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",00.mvol")
 
 #ppi_1p5deg,ppi_2p4deg, ppi_3p4deg
 #--------------------------------------------------------------------------------------------------------

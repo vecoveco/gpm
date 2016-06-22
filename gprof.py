@@ -173,6 +173,19 @@ for i in range(0,len(LISTE)):
     #from sklearn.metrics import mean_squared_error
     #RMSE = np.sqrt(np.mean((B[mask], A[mask])**2))
     #print('RMSE:', RMSE)
+    from scipy import signal
+    corr = signal.correlate(B[mask], A[mask], mode='same')
+    #corr2d = signal.correlate2d(B[mask], A[mask], mode='same')
+
+    plt.subplot(3,1,1)
+    plt.plot(B[mask])
+    plt.plot(A[mask])
+    plt.grid()
+    plt.subplot(3,1,2)
+    plt.plot(corr)
+    plt.subplot(3,1,3)
+    plt.plot(corr/np.nanmax(corr))
+    plt.show()
 
     plt.plot(B,line,'r-',B,A,'o')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
