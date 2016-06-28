@@ -184,16 +184,16 @@ for i in range(0,98,1):
 
 gprof_gitter_lon = gprof_gitter_lon[...,np.newaxis]
 gprof_gitter_lat = gprof_gitter_lat[...,np.newaxis]
-print(gprof_gitter_lon.shape)
+#print(gprof_gitter_lon.shape)
 gprof_gitter = np.concatenate((gprof_gitter_lon, gprof_gitter_lat ), axis=3)
-print(gprof_gitter.shape)
+#print(gprof_gitter.shape)
 gprof_gitter = gprof_gitter.reshape(98*221,5,2)
-print(gprof_gitter.shape)
-print(gprof_gitter[0,0,:])
+#print(gprof_gitter.shape)
+#print(gprof_gitter[0,0,:])
 
 
 zdpoly = wradlib.zonalstats.ZonalDataPoly(radar_ll, gprof_gitter[::1], srs=proj_ll, buf=0.)
-
+# obj3 = wradlib.zonalstats.GridCellsToPoly(zdpoly) Dauert sehr lange
 # Schreibe als file
 zdpoly.dump_vector('/user/velibor/SHKGPM/data/test_zonal_poly_cart')
 zdpoly_new = wradlib.zonalstats.ZonalDataPoly('/user/velibor/SHKGPM/data/test_zonal_poly_cart')

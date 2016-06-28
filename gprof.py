@@ -27,7 +27,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 
 #LISTE der Ueberfluege des GPM mit Niederschlagevents
 #BITTE ZEITRAUM DES PPI EINTRAGEN!
-LISTE = ("20150128172208","20140629145000","20140629145925","20140921070500","20140921071058","20141007023744","20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
+LISTE = ("20140629145000","20140629145925","20140921070500","20140921071058","20141007023744","20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
 LISTE=sorted(LISTE)
 
 for i in range(0,len(LISTE)):
@@ -175,38 +175,33 @@ for i in range(0,len(LISTE)):
     #print('RMSE:', RMSE)
     from scipy import signal
     corr = signal.correlate(B[mask], A[mask], mode='same')
-    #corr2d = signal.correlate2d(B[mask], A[mask], mode='same')
 
-    plt.subplot(3,1,1)
-    plt.plot(B[mask])
-    plt.plot(A[mask])
-    plt.grid()
-    plt.subplot(3,1,2)
-    plt.plot(corr)
-    plt.subplot(3,1,3)
-    plt.plot(corr/np.nanmax(corr))
-    plt.show()
 
-    plt.plot(B,line,'r-',B,A,'o')
-    maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
-    plt.xlim(0,maxAB)
-    plt.ylim(0,maxAB)
-    plt.xlabel("GPROF RR [mm/h]")
-    plt.ylabel("BoxPol RR [mm/h]")
+    plt.plot(B[mask], label='Gprof RR [mm/h]')
+    plt.plot(A[mask], label='BoxPol RR [mm/h]')
+
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="GPROF_vs_BoxPol r: " + str(round(r_value,3)) +
+                                                r'$\pm$' + str(round(std_err,3)) + ', p:' +  str(round(p_value,3)))
+    plt.xlabel("Pixel Position")
+    plt.ylabel("RR [mm/h]")
     plt.grid(True)
-    plt.title("Scatterplot (gprof/ppi), cor: " + str(r_value))
 
     plt.subplot(222) # ==== RainRate boxpol ==== #
-    ax1, pm2 = wradlib.vis.plot_ppi(R,r,az,vmin=0,vmax=maxv)
-    cbar = plt.colorbar(pm2, shrink=0.75)
-    cbar.set_label("RainRate Boxpol [mm/h]")
-    plt.xlim((-101000,101000))
-    plt.ylim((-101000,101000))
-    plt.xticks(())
-    plt.yticks(())
-    plt.xlabel("X Range [km]")
-    plt.ylabel("Y Range [km]")
-    plt.title(ppi_datapath[-28:-8])
+
+    plt.scatter(B,A, color='gray', label='RR [mm/h]')
+    plt.plot(B,line,'r-')
+    plt.plot(B,line,'r-')
+    maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
+    plt.xlim(0,maxAB + 1)
+    plt.ylim(0,maxAB + 1)
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="GPROF_vs_BoxPol  slope: " + str(round(slope,3)) + ' intercept: '
+                                                +  str(round(intercept,3)))
+    plt.xlabel("GPROF RR [mm/h]")
+    plt.ylabel("BoxPol RR [mm/h]")
+    plt.title(" .")
+    plt.grid(True)
 
     plt.subplot(223) # ==== RainRate Gprof ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
@@ -233,9 +228,7 @@ for i in range(0,len(LISTE)):
     plt.close()
 
 
-#--------------------------------------------------------------------------------------------------------
-### ------- Alle Korrelationen ----------- ##
-#--------------------------------------------------------------------------------------------------------
+
 
 
 
