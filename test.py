@@ -11,7 +11,7 @@ import glob
 import h5py
 from osgeo import osr
 
-print "...test.py wurde gestartet..."
+print ("...test.py wurde gestartet...")
 
 LISTE = ("20140629145000", "20140629145925", "20140921070500", "20140921071058",
          "20141007023744")
@@ -93,12 +93,47 @@ gprof_pp_a = np.array(gprof_pp)
 gprof_lon_a = np.array(gprof_lon)
 gprof_lat_a = np.array(gprof_lat)
 
+print ("...Radar und Satellitdaten wurden eingelesen...")
+
+
 # ============================= EINLESEN DER SHP DATEN ======================================================= #
 
 zd = wradlib.zonalstats.ZonalDataPoly('/user/velibor/SHKGPM/data/test_zonal_poly_cart')
+# isecs = zd.get_isecs
 #z = wradlib.zonalstats.ZonalDataPoly.load_vector('/user/velibor/SHKGPM/data/test_zonal_poly_cart/trg.shp')
-# obj3 = wradlib.zonalstats.GridCellsToPoly(zd) Dauert sehr lange
+print("zd loaded")
+obj3 = wradlib.zonalstats.GridCellsToPoly(zd) #Dauert sehr lange
+obj3.zdata.dst.set_attribute('ix', obj3.ix)
+obj3.zdata.dst.set_attribute('w', obj3.w)
 
+print(dir(obj3))
+obj3.zdata.dump_vector('/user/velibor/SHKGPM/data/test_zonal_poly')
+#print(zd.dst.data.shape)#.shape, zd.trg.shape, zd.dst.shape)
+
+avg1 = obj3.mean(R.ravel())
+print(avg1)
+
+#exit(9)
+
+'''Dauer!?
+# get intersections as numpy array
+isecs = zd.isecs
+
+print(isecs.shape)
+'''
+
+''' Dauer!?
+gc = wradlib.zonalstats.GridCellsToPoly(zd)
+count = radar_gk.shape[0]
+data = 1000000. / np.array(range(count))
+# calculate mean and variance
+mean = gc.mean(data)
+var = gc.var(data)
+
+print("Average:", mean)
+print("Variance:", var)
+'''
+"""
 # GProf Gitter ueber Radar
 dst_shp = wradlib.util.get_wradlib_data_file('/user/velibor/SHKGPM/data/test_zonal_poly_cart/dst.shp')
 d_dataset, d_inLayer = wradlib.io.open_shape(dst_shp)
@@ -128,6 +163,24 @@ print('t_cats: ',t_cats.shape,' t_keys: ', t_keys)
 print('sbox: ',sbox)
 print('dbox: ',dbox)
 print('tbox: ',dbox)
+"""
 
 
+
+
+
+############# PLOT #######################
+fig = plt.figure(figsize=(13,10))
+plt.subplot(211)
+pm2 = wradlib.vis.plot_ppi(R,r,az)
+bbox = wradlib.zonalstats.get_bbox(t_cats[1][:, 1], t_cats[1][:, 1])
+#plt.xlim((bonn_lon1,bonn_lon2))
+#plt.ylim((bonn_lat1,bonn_lat2))
+plt.subplot(212)
+#pm2 = plt.pcolormesh(np.ma.masked_invalid(gprof_pp_a[sbox]))
+#plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich.png')
+#plt.close()
+i=1
+bbox = wradlib.zonalstats.get_bbox(t_cats, t_cats)
+plt.show()
 

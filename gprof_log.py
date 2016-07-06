@@ -33,7 +33,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 offset = 2
 #LISTE der Ueberfluege des GPM mit Niederschlagevents
 #BITTE ZEITRAUM DES PPI EINTRAGEN!
-LISTE = ("20150128172208","20140629145000","20140629145925","20140921070500","20140921071058","20141007023744","20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
+LISTE = ("20140629145000","20140629145925","20140921070500","20140921071058","20141007023744","20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
 LISTE=sorted(LISTE)
 
 for i in range(0,len(LISTE)):
@@ -292,10 +292,10 @@ cor2 = np.array(corra2)
 std2 = np.array(error2)
 tt = np.array(time)
 
-plt.plot(range(0,7,1),cor, lw=3)
-plt.fill_between(range(0,7,1),cor + abs(std1),cor - abs(std1),color='gray',alpha=0.2)
+plt.plot(range(0,len(LISTE),1),cor, lw=3)
+plt.fill_between(range(0,len(LISTE),1),cor + abs(std1),cor - abs(std1),color='gray',alpha=0.2)
 plt.axhline(y=0, color='k')
-plt.xticks(range(0,7,1), time,rotation= 20)
+plt.xticks(range(0,len(LISTE),1), time,rotation= 20)
 plt.ylim((-1,1))
 # plt.xlabel('Date')
 plt.ylabel('Correlation')
@@ -308,3 +308,6 @@ plt.close()
 
 pd.DataFrame(cor).to_csv('/user/velibor/SHKGPM/data/plot/cor_v.csv')
 pd.DataFrame(std1).to_csv('/user/velibor/SHKGPM/data/plot/std1_v.csv')
+
+print ("lonstart: ", lonstart, lonstart.shape)
+print ("lonend: ", lonend, lonend.shape)
