@@ -151,7 +151,7 @@ for i in range(0,len(LISTE)):
     grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
 
     xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
-    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=50,p=2)
+    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=500,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
     # =========== PLOTS ========== #
 
@@ -169,7 +169,7 @@ for i in range(0,len(LISTE)):
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
-    plt.plot(B,line,'r-',B,A,'o')
+    plt.plot(B,line,'r-',B,A,'ob')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
     plt.xlim(0,maxAB + 1)
     plt.ylim(0,maxAB + 1)

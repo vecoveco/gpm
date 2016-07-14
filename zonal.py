@@ -62,6 +62,7 @@ proj_ll.ImportFromEPSG(4326)
 ZH = data['SCAN0']['ZH']['data']
 PHIDP = data['SCAN0']['PHIDP']['data']
 r = attrs['SCAN0']['r']
+r = r[0:400]
 az = attrs['SCAN0']['az']
 lon_ppi = attrs['VOL']['Longitude']
 lat_ppi = attrs['VOL']['Latitude']
@@ -69,10 +70,13 @@ alt_ppi = attrs['VOL']['Height']
 # Umwandeln von Z in RR Marshal-Palmer Z(R)
 Z = wradlib.trafo.idecibel(ZH)
 R = wradlib.zr.z2r(Z, a=200., b=1.6)
-
+R = R[:,0:400]
 
 rays = az.shape[0]
 bins = r.shape[0]
+
+print ("bins: " , bins)
+print ("r: ", r, r.shape)
 
 # create polar grid polygon vertices in lat,lon
 radar_ll = wradlib.georef.polar2polyvert(r, az, (lon_ppi, lat_ppi))
