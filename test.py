@@ -13,6 +13,8 @@ from osgeo import osr
 
 print ("...test.py wurde gestartet...")
 
+radius = 400
+
 LISTE = ("20140629145000", "20140629145925", "20140921070500", "20140921071058",
          "20141007023744")
 LISTE = sorted(LISTE)
@@ -61,7 +63,7 @@ PHIDP = data['SCAN0']['PHIDP']['data']
 r = attrs['SCAN0']['r']
 print ("r: ", r.shape)
 
-r = r[0:400]
+r = r[0:radius]
 print ("r: ", r.shape)
 
 az = attrs['SCAN0']['az']
@@ -71,7 +73,7 @@ alt_ppi = attrs['VOL']['Height']
 # Umwandeln von Z in RR Marshal-Palmer Z(R)
 Z = wradlib.trafo.idecibel(ZH)
 R = wradlib.zr.z2r(Z, a=200., b=1.6)
-R = R[:,0:400]
+R = R[:,0:radius]
 print ("R: ", R.shape)
 
 rays = az.shape[0]
