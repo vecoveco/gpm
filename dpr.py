@@ -20,17 +20,15 @@ from scipy import stats
 
 # Pfad mit String
 # ---------------
-hi = 1 # Hohe von DPR
-TH = 0.01 #Threshold um Nullen fuer Niederschlag raus zu filtern
-corra = []
-error = []
-corra2 = []
-error2 = []
-time = []
+
+# Hohe von DPR
+TH = 0.1 #Threshold um Nullen fuer Niederschlag raus zu filtern
+
+
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 offset = 2
 #LISTE der Ueberfluege des GPM mit Niederschlagevents
-LISTE = ("20140629145000","20140629145925","20140921070500","20140921071058","20141007023744")#,"20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
+LISTE = ("20140629145000","20140629145925","20140921070500","20140921071058")#,"20141007023744")#,"20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
 LISTE=sorted(LISTE)
 
 for i in range(0,len(LISTE)):
@@ -129,7 +127,7 @@ for i in range(0,len(LISTE)):
     grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
 
     xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
-    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=5,p=2)
+    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=30,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
 
 
@@ -139,15 +137,15 @@ for i in range(0,len(LISTE)):
     maxv = np.max([np.max(np.ma.masked_invalid(dpr_pp)[latstart:latend]),np.nanmax(gridded)])
 
     plt.subplot(221)  # ==== Scatterplot GPM/boxpol ==== #
+
     A = gridded
     B = np.ma.masked_invalid(dpr_pp)[latstart:latend]
     A[A<TH]=np.nan
     B[B<TH]=np.nan
-    #A[A>130]=np.nan
-    #B[B>130]=np.nan
 
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
+
     line = slope*B+intercept
     plt.plot(B,line,'r-',B,A,'ob')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
@@ -166,8 +164,8 @@ for i in range(0,len(LISTE)):
     plt.ylim((-101000,101000))
     plt.xticks(())
     plt.yticks(())
-    plt.xlabel("X Range [km]")
-    plt.ylabel("Y Range [km]")
+    plt.xlabel("X Range")
+    plt.ylabel("Y Range")
     plt.title(ppi_datapath[-28:-8])
 
     plt.subplot(224)
@@ -177,8 +175,8 @@ for i in range(0,len(LISTE)):
     plt.title(ppi_datapath[-28:-8])
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("Boxpol  interpolated [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting")
+    plt.ylabel("Northing")
 
     plt.subplot(223)
     pm2 = plt.pcolormesh(dpr_lon[latstart:latend], dpr_lat[latstart:latend],np.ma.masked_invalid(dpr_pp[latstart:latend])
@@ -188,9 +186,12 @@ for i in range(0,len(LISTE)):
     plt.title(pfad_boxpol_rhi01[-28:-6])
     cbar = plt.colorbar(pm2, shrink=.75)
     cbar.set_label("DPR  [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting")
+    plt.ylabel("Northing")
 
-    plt.show()
+    plt.tight_layout()
+    plt.savefig('/user/velibor/SHKGPM/data/plot/DPR_boxpol_'+ ppi_datapath[-28:-8] + 'Vergleich.png')
+    plt.close()
+
 
 
