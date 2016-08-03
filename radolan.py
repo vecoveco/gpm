@@ -96,7 +96,7 @@ def plot_borders(ax):
 #lon, lat, alt = wradlib.georef.polar2lonlatalt_n(polargrid[0], polargrid[1], elevation, radar_location)
 
 #gk3 = wradlib.georef.epsg_to_osr(31467)
-#x, y = wradlib.georef.reproject(lon, lat, projection_target=gk3)
+#x, y = wradlib.georef.reproject(x, y, projection_target=gk3)
 #xgrid, ygrid = wradlib.georef.reproject(gprof_lon[latstart:latend], gprof_lat[latstart:latend], projection_target=gk3)
 
 #grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
@@ -117,7 +117,8 @@ plt.title('RADOLAN RW Product Polar Stereo \n' + rwattrs['datetime'].isoformat()
 plt.grid(color='r')
 
 ax = fig.add_subplot(212, aspect='equal')
-pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),vmin=0,vmax=10)
+pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
+                     cmap="spectral",vmin=0,vmax=10)
 cb = plt.colorbar(shrink=0.75)
 cb.set_label("mm/h")
 plt.xlim((bonn_lon1,bonn_lon2))
