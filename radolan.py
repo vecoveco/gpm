@@ -109,14 +109,14 @@ def plot_borders(ax):
 ## PLOT
 ## ----
 fig = plt.figure()
-ax = fig.add_subplot(211, aspect='equal')
+ax = fig.add_subplot(121, aspect='equal')
 plt.pcolormesh(x, y, rwdata, cmap="spectral",vmin=0,vmax=10)
 cb = plt.colorbar(shrink=0.75)
 cb.set_label("mm/h")
 plt.title('RADOLAN RW Product Polar Stereo \n' + rwattrs['datetime'].isoformat())
 plt.grid(color='r')
 
-ax = fig.add_subplot(212, aspect='equal')
+ax = fig.add_subplot(122, aspect='equal')
 pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      cmap="spectral",vmin=0,vmax=10)
 cb = plt.colorbar(shrink=0.75)
