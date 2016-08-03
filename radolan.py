@@ -123,8 +123,10 @@ cb = plt.colorbar(shrink=0.75)
 cb.set_label("mm/h")
 plt.xlim((bonn_lon1,bonn_lon2))
 plt.ylim((bonn_lat1,bonn_lat2))
+plt.title('GPM GPROF: \n' + str(pfad_gprof_g[66:74]))
 #plot_borders(ax)
 plt.grid(color='r')
+plt.tight_layout()
 
 
 plt.show()
