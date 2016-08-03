@@ -133,6 +133,7 @@ for i in range(0,len(LISTE)):
 
     # Plot
     # ----
+
     fig = plt.figure(figsize=(13,10))
     maxv = np.max([np.max(np.ma.masked_invalid(dpr_pp)[latstart:latend]),np.nanmax(gridded)])
 
