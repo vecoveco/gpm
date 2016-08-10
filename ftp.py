@@ -10,7 +10,7 @@ from scipy import stats
 import matplotlib as mpl
 import ftplib
 
-
+x = 3
 #Todo: WIE GEHT DAS!?!??!?!?!?!?!?!!?
 #meinftp = ftplib.FTP("ftp://arthurhou.pps.eosdis.nasa.gov")
 
