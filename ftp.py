@@ -10,7 +10,9 @@ from scipy import stats
 import matplotlib as mpl
 import ftplib
 
-x = 3
+x = 33
+y = 3
+z = 6
 #Todo: WIE GEHT DAS!?!??!?!?!?!?!?!!?
 #meinftp = ftplib.FTP("ftp://arthurhou.pps.eosdis.nasa.gov")
 
