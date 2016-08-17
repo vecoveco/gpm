@@ -146,12 +146,14 @@ for i in range(0,len(LISTE)):
 
     gk3 = wradlib.georef.epsg_to_osr(31467)
     x, y = wradlib.georef.reproject(lon, lat, projection_target=gk3)
-    xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], projection_target=gk3)
+    xgrid, ygrid = wradlib.georef.reproject(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend],
+                                            projection_target=gk3)
 
     grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
 
     xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
-    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=500,p=2)
+    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(),
+                                  ipoli[0],nnearest=500,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
     # =========== PLOTS ========== #
 
@@ -169,14 +171,21 @@ for i in range(0,len(LISTE)):
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
-    plt.plot(B,line,'r-',B,A,'ob')
+
+    plt.scatter(B,A, color='blue', label='RR [mm/h]')
+    plt.plot(B,line,'r-')
+    plt.plot(B,line,'r-')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
     plt.xlim(0,maxAB + 1)
     plt.ylim(0,maxAB + 1)
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="________GPROF_vs_BoxPol________" + "\n Slope: " + str(round(slope,3))
+                                                + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
+                                                str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
     plt.xlabel("GPROF RR [mm/h]")
     plt.ylabel("BoxPol RR [mm/h]")
+    plt.title(" .")
     plt.grid(True)
-    plt.title("Scatterplot (gprof/ppi), cor: " + str(r_value))
 
     plt.subplot(222)  # ==== RainRate boxpol ==== #
     ax1, pm2 = wradlib.vis.plot_ppi(R,r,az,vmin=0,vmax=maxv)
@@ -186,8 +195,8 @@ for i in range(0,len(LISTE)):
     plt.ylim((-101000,101000))
     plt.xticks(())
     plt.yticks(())
-    plt.xlabel("X Range [km]")
-    plt.ylabel("Y Range [km]")
+    plt.xlabel("X Range ")
+    plt.ylabel("Y Range ")
     plt.title(ppi_datapath[-28:-8])
 
     plt.subplot(223)  # ==== RainRate Gprof ==== #
@@ -198,8 +207,8 @@ for i in range(0,len(LISTE)):
     plt.title(pfad_boxpol_rhi01[-28:-6])
     cbar = plt.colorbar(pm2, shrink=.75)
     cbar.set_label("GPROF RainRate [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
 
     plt.subplot(224)  # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
@@ -208,8 +217,8 @@ for i in range(0,len(LISTE)):
     plt.title(ppi_datapath[-28:-8])
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("Boxpol RainRate interpolated [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
 
     plt.tight_layout()
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Gprof_boxpol_Vergleich1.png')
@@ -251,8 +260,8 @@ for i in range(0,len(LISTE)):
     plt.title(ppi_datapath[-28:-8])
     cbar_diff = plt.colorbar(pm_diff, shrink=0.75)
     cbar_diff.set_label("Rain Rate difference [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
 
     plt.subplot(223)  # ==== RainRate Gprof ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
@@ -262,8 +271,8 @@ for i in range(0,len(LISTE)):
     plt.title(pfad_boxpol_rhi01[-28:-6])
     cbar = plt.colorbar(pm2, shrink=.75)
     cbar.set_label("GPROF RainRate [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
 
     plt.subplot(224)  # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
@@ -272,8 +281,8 @@ for i in range(0,len(LISTE)):
     plt.title(ppi_datapath[-28:-8])
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("Boxpol RainRate interpolated [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
 
     plt.tight_layout()
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Gprof_boxpol_Vergleich2.png')

@@ -39,6 +39,7 @@ pfadg_imerg = pfadg_imerg[0]
 gpmi = h5py.File(pfad_imerg,'r')
 gpmp = h5py.File(pfadg_imerg,'r')
 
+print ("GPM Data:",gpmi.keys())
 
 gpmi_lat = gpmi[u'Grid'][u'lat']
 gpmi_lon = gpmi[u'Grid'][u'lon']
@@ -46,6 +47,7 @@ gpmi_lon = gpmi[u'Grid'][u'lon']
 #gpmi_pre = gpmi[u'Grid'][u'precipitationUncal']
 #gpmi_pre = gpmi[u'Grid'][u'probabilityLiquidPrecipitation']
 gpmi_pre = gpmi[u'Grid'][u'IRprecipitation']
+
 
 gpmp_lat = gpmp[u'S1'][u'Latitude']
 gpmp_lon = gpmp[u'S1'][u'Longitude']
