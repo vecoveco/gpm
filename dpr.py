@@ -148,14 +148,19 @@ for i in range(0,len(LISTE)):
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
 
     line = slope*B+intercept
-    plt.plot(B,line,'r-',B,A,'ob')
+    plt.scatter(B,A, color='blue', label='RR [mm/h]')
+    plt.plot(B,line,'r-')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
     plt.xlim(0,maxAB + 1)
     plt.ylim(0,maxAB + 1)
-    plt.xlabel("DPR RR [mm/h]")
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="________GPROF_vs_BoxPol________" + "\n Slope: " + str(round(slope,3))
+                                                + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
+                                                str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
+    plt.xlabel("GPROF RR [mm/h]")
     plt.ylabel("BoxPol RR [mm/h]")
+    plt.title(" .")
     plt.grid(True)
-    plt.title("Scatterplot (gprof/ppi), cor: " + str(r_value))
 
     plt.subplot(222)  # ==== RainRate boxpol ==== #
     ax1, pm2 = wradlib.vis.plot_ppi(R,r,az,vmin=0,vmax=maxv)

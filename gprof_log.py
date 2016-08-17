@@ -225,6 +225,7 @@ for i in range(0,len(LISTE)):
     plt.close()
 
     # ========== Plot 2 ==========
+    '''
     fig = plt.figure(figsize=(13,10))
     plt.subplot(221)
 
@@ -287,18 +288,93 @@ for i in range(0,len(LISTE)):
     plt.tight_layout()
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Gprof_boxpol_Vergleich2.png')
     plt.close()
+    '''
+        # ========== PLOT ========== #
+    fig = plt.figure(figsize=(13,10))
 
+    #maxvl = np.max([np.max(np.log10(gridded)),np.max(np.log10(np.ma.masked_invalid(gprof_pp_a)[latstart:latend]))])
+    #maxv = np.max([np.max(gridded),np.max(np.ma.masked_invalid(gprof_pp_a)[latstart:latend])])
+
+    plt.subplot(221) # ==== Scatterplot GPM/boxpol ==== #
+    A = gridded
+    B = np.ma.masked_invalid(gprof_pp_a)[latstart:latend]
+    A[A<TH]=np.nan
+    B[B<TH]=np.nan
+
+    from scipy import stats
+    mask = ~np.isnan(B) & ~np.isnan(A)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
+    line = slope*B+intercept
+
+    #Todo:RMSE und BIAS berechene
+    #from sklearn.metrics import mean_squared_error
+    #RMSE = np.sqrt(np.mean((B[mask], A[mask])**2))
+    #print('RMSE:', RMSE)
+    from scipy import signal
+    corr = signal.correlate(B[mask], A[mask], mode='same')
+
+
+    plt.plot(B[mask], label='Gprof RR [mm/h]')
+    plt.plot(A[mask], label='BoxPol RR [mm/h]')
+
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="GPROF_vs_BoxPol r: " + str(round(r_value,3)) +
+                                                r'$\pm$' + str(round(std_err,3)) + ', p:' +  str(round(p_value,3)))
+    plt.xlabel("Pixel Position")
+    plt.ylabel("RR [mm/h]")
+    plt.grid(True)
+
+    plt.subplot(222) # ==== RainRate boxpol ==== #
+
+    plt.scatter(B,A, color='gray', label='RR [mm/h]')
+    plt.plot(B,line,'r-')
+    plt.plot(B,line,'r-')
+    maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
+    plt.xlim(0,maxAB + 1)
+    plt.ylim(0,maxAB + 1)
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="GPROF_vs_BoxPol  Slope: " + str(round(slope,3)) + ' Intercept: '
+                                                +  str(round(intercept,3)))
+    plt.xlabel("GPROF RR [mm/h]")
+    plt.ylabel("BoxPol RR [mm/h]")
+    plt.title(" .")
+    plt.grid(True)
+
+    plt.subplot(223) # ==== RainRate Gprof ==== #
+    pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], np.ma.masked_invalid(
+        gprof_pp_a)[latstart:latend],vmin=0,vmax=maxv)
+    plt.xlim((bonn_lon1,bonn_lon2))
+    plt.ylim((bonn_lat1,bonn_lat2))
+    plt.title(pfad_boxpol_rhi01[-28:-6])
+    cbar = plt.colorbar(pm2, shrink=.75)
+    cbar.set_label("GPROF RainRate [mm/h]")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
+
+    plt.subplot(224) # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
+    pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
+    plt.xlim((bonn_lon1,bonn_lon2))
+    plt.ylim((bonn_lat1,bonn_lat2))
+    plt.title(ppi_datapath[-28:-8])
+    cbar = plt.colorbar(pm2, shrink=0.75)
+    cbar.set_label("Boxpol RainRate interpolated [mm/h]")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
+    plt.tight_layout()
+    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_Vergleich.png')
+    plt.close()
+'''
     # =========== APPENDS ========== #
     corra.append(r_value)
     error.append(std_err)
-    corra2.append(r_value2)
-    error2.append(std_err2)
+    #corra2.append(r_value2)
+    #error2.append(std_err2)
     time.append(ZP)
 
 cor = np.array(corra)
 std1 = np.array(error)
-cor2 = np.array(corra2)
-std2 = np.array(error2)
+#cor2 = np.array(corra2)
+#std2 = np.array(error2)
 tt = np.array(time)
 
 plt.plot(range(0,len(LISTE),1),cor, lw=3)
@@ -320,3 +396,4 @@ pd.DataFrame(std1).to_csv('/user/velibor/SHKGPM/data/plot/std1_v.csv')
 
 print ("lonstart: ", lonstart, lonstart.shape)
 print ("lonend: ", lonend, lonend.shape)
+'''

@@ -84,7 +84,7 @@ def plot_borders(ax):
         inLayer.SetAttributeFilter(fattr)
         # get borders and names
         borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
-        wradlib.vis.add_lines(ax, borders, color='black', lw=2, zorder=4)
+        wradlib.vis.add_lines(ax, borders, color='white', lw=2, zorder=4)
     ax.autoscale()
 
 
@@ -121,10 +121,10 @@ pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.m
                      cmap="spectral",vmin=0,vmax=10)
 cb = plt.colorbar(shrink=0.75)
 cb.set_label("mm/h")
-plt.xlim((bonn_lon1,bonn_lon2))
-plt.ylim((bonn_lat1,bonn_lat2))
 plt.title('GPM GPROF: \n' + str(pfad_gprof_g[66:74]))
-#plot_borders(ax)
+plot_borders(ax)
+plt.xlim((bonn_lon1-1,bonn_lon2+1))
+plt.ylim((bonn_lat1-1,bonn_lat2+1))
 plt.grid(color='r')
 plt.tight_layout()
 

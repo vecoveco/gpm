@@ -194,14 +194,19 @@ for i in range(0,len(LISTE)):
     mask = ~np.isnan(B) & ~np.isnan(A)
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
-    plt.plot(B,line,'r-',B,A,'o')
+    plt.scatter(B,A, color='blue', label='RR [mm/h]')
+    plt.plot(B,line,'r-')
     maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
-    plt.xlim(0,maxAB)
-    plt.ylim(0,maxAB)
+    plt.xlim(0,maxAB + 1)
+    plt.ylim(0,maxAB + 1)
+    legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title="________GPROF_vs_BoxPol________" + "\n Slope: " + str(round(slope,3))
+                                                + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
+                                                str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
     plt.xlabel("GPROF RR [mm/h]")
     plt.ylabel("BoxPol RR [mm/h]")
+    plt.title(" .")
     plt.grid(True)
-    plt.title("Scatterplot (gprof/ppi), cor: " + str(r_value))
 
     plt.subplot(222) # ==== RainRate boxpol ==== #
     ax1, pm2 = wradlib.vis.plot_ppi(R,r,az,vmin=0,vmax=maxv)
@@ -211,8 +216,8 @@ for i in range(0,len(LISTE)):
     plt.ylim((-101000,101000))
     plt.xticks(())
     plt.yticks(())
-    plt.xlabel("X Range [km]")
-    plt.ylabel("Y Range [km]")
+    plt.xlabel("X Range ")
+    plt.ylabel("Y Range ")
     plt.title(ppi_datapath[-28:-8])
 
     plt.subplot(223) # ==== RainRate Gprof ==== #
@@ -223,8 +228,8 @@ for i in range(0,len(LISTE)):
     plt.title(pfad_boxpol_rhi01[-28:-6])
     cbar = plt.colorbar(pm2, shrink=.75)
     cbar.set_label("GPROF RainRate [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
 
     plt.subplot(224) # ==== RainRate Boxpol interpolation in GPROF Grid  ==== #
     pm2 = plt.pcolormesh(gprof_lon_a[latstart:latend], gprof_lat_a[latstart:latend], gridded,vmin=0,vmax=maxv)
@@ -233,13 +238,14 @@ for i in range(0,len(LISTE)):
     plt.title(ppi_datapath[-28:-8])
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("Boxpol RainRate interpolated [mm/h]")
-    plt.xlabel("Easting (m)")
-    plt.ylabel("Northing (m)")
+    plt.xlabel("Easting ")
+    plt.ylabel("Northing ")
     plt.tight_layout()
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_JO.png')
     plt.close()
 
     # ========== Plot 2 ==========
+    '''
     fig = plt.figure(figsize=(13,10))
     plt.subplot(221)
 
@@ -302,7 +308,7 @@ for i in range(0,len(LISTE)):
     plt.tight_layout()
     plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_JO2.png')
     plt.close()
-
+    '''
     # =========== APPENDS ========== #
     corra.append(r_value)
     error.append(std_err)

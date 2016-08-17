@@ -28,6 +28,7 @@ def plot_borders(ax):
 ## Einlesen von IMERG GPM global
 ## -----------------------------
 
+#FTP:::
 pfad = ('/user/velibor/SHKGPM/data/imerg/3B*.HDF5')
 pfad_imerg = sorted(glob.glob(pfad))
 pfad_imerg = pfad_imerg[0]
@@ -69,6 +70,9 @@ gpmi_pre = np.ma.masked_invalid(gpmi_pre)
 ## Plot
 ## ----
 
+#lim1 [xmin, xmax, ymin,ymax]
+limit= np.array([-140, -90, -10, 30])
+
 fig = plt.figure()
 ax = fig.add_subplot(211, aspect='equal')
 pm2 = plt.pcolormesh(gpmi_lon, gpmi_lat, np.ma.masked_invalid(gpmi_pre),vmin=0,vmax=10)#,vmin=0,vmax=maxv)
@@ -76,10 +80,8 @@ cbar = plt.colorbar(pm2, shrink=0.75)
 plot_borders(ax)
 plt.xlabel("lon")
 plt.ylabel("lat")
-plt.xlim(-180,180)
-plt.ylim(-90,90)
-#plt.xlim(-135,-106)
-#plt.ylim(10,25)
+plt.xlim(limit[0], limit[1])
+plt.ylim(limit[2], limit[3])
 plt.title(str(pfad_imerg[-60:-1]))
 plt.grid(True)
 
@@ -89,10 +91,8 @@ cbar = plt.colorbar(pm2, shrink=0.75)
 plot_borders(ax)
 plt.xlabel("lon")
 plt.ylabel("lat")
-plt.xlim(-180,180)
-plt.ylim(-90,90)
-#plt.xlim(-135,-106)
-#plt.ylim(10,25)
+plt.xlim(limit[0], limit[1])
+plt.ylim(limit[2], limit[3])
 plt.title(str(pfadg_imerg[-60:-1]))
 plt.grid(True)
 plt.tight_layout()
