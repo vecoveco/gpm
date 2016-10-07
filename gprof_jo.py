@@ -24,6 +24,7 @@ import pandas as pd
 ### Pfad mit String ##
 #--------------------------------------------------------------------------------------------------------
 TH = 0.01 #Threshold um Nullen fuer Niederschlag raus zu filtern
+near = 500
 corra = []
 error = []
 corra2 = []
@@ -177,7 +178,7 @@ for i in range(0,len(LISTE)):
     grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
 
     xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
-    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=500,p=2)
+    gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(), ipoli[0],nnearest=near,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
     # ========== PLOT ========== #
     fig = plt.figure(figsize=(13,10))
@@ -241,7 +242,7 @@ for i in range(0,len(LISTE)):
     plt.xlabel("Easting ")
     plt.ylabel("Northing ")
     plt.tight_layout()
-    plt.savefig('/user/velibor/SHKGPM/data/plot/' + ppi_datapath[-28:-8] + '_JO.png')
+    plt.savefig('/user/velibor/SHKGPM/plot/' + ppi_datapath[-28:-8] + '_JO.png')
     plt.close()
 
     # ========== Plot 2 ==========

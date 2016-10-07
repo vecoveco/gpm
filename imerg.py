@@ -1,5 +1,6 @@
 """Einlesen und darstellen von GPM IMERG Dateien"""
 
+#wget -r --user=bregovic@gmx.de --password=bregovic@gmx.de ftp://arthurhou.pps.eosdis.nasa.gov/gpmdata/2015/01/01/imerg/
 
 import h5py
 import numpy as np
