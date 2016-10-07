@@ -30,8 +30,10 @@ def plot_borders(ax):
 ## -----------------------------
 
 #FTP:::
-pfad = ('/user/velibor/SHKGPM/data/imerg/karina/3B*.HDF5')
+
+pfad = ('/home/velibor/GPMDATA/arthurhou.pps.eosdis.nasa.gov/gpmdata/2015/01/01/imerg/3B*.HDF5')
 pfad_imerg_raw = sorted(glob.glob(pfad))
+print pfad_imerg_raw
 #Todo: Schleife  Tage
 for ii in range(0,len(pfad_imerg_raw),1):
     pfad_imerg = pfad_imerg_raw[ii]
@@ -76,8 +78,9 @@ for ii in range(0,len(pfad_imerg_raw),1):
     #limit= np.array([-140, -90, -10, 30])#pazifik
     #limit= np.array([65, 100, 5, 40]) #indien
     #limit= np.array([5, 9, 49, 53]) #bonn
-    limit= np.array([-140, -80, -5, 30])#pazifik
-    #limit= np.array([2,18,44,58]) #deutschland
+    #limit= np.array([-140, -80, -5, 30])#pazifik
+    limit= np.array([2,18,44,58]) #deutschland
+    #limit= np.array([-180,180,-90, 90]) #Welt
 
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
@@ -89,7 +92,7 @@ for ii in range(0,len(pfad_imerg_raw),1):
     plt.ylabel("lat")
     plt.xlim(limit[0], limit[1])
     plt.ylim(limit[2], limit[3])
-    plt.title(str(pfad_imerg[-60:-1]))
+    plt.title(str(pfad_imerg[-39:-14]))
     plt.grid(True)
 
     #ax = fig.add_subplot(212, aspect='equal')
@@ -106,7 +109,7 @@ for ii in range(0,len(pfad_imerg_raw),1):
     #plt.show()
 
     plt.tight_layout()
-    plt.savefig('/user/velibor/SHKGPM/data/plot/BHKarina' + str(pfad_imerg[-39:-14]) + '.png')
+    plt.savefig('/home/velibor/GPMPLOT/3B' + str(pfad_imerg[-39:-14]) + '.png')
     plt.close()
     print (pfad_imerg[-39:-14])
 
