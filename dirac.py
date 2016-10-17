@@ -1,12 +1,15 @@
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mmm
 import pandas as pd
 import wradlib
 import glob
 import math
 import pandas as pd
 from scipy import stats
+import matplotlib.cm as cm
+
 
 
 x = np.array([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1.0])  # Werte
@@ -32,3 +35,5 @@ plt.plot(y, 'ok')
 
 plt.grid()
 plt.show()
+
+

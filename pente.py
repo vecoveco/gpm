@@ -74,22 +74,7 @@ for ii in range(0,len(pfad_imerg_raw),1):
 
     gpmi_lat = gpmi[u'Grid'][u'lat']
     gpmi_lon = gpmi[u'Grid'][u'lon']
-    #gpmi_pre = gpmi[u'Grid'][u'HQprecipitation']
-    #gpmi_pre = gpmi[u'Grid'][u'precipitationUncal']
-    #gpmi_pre = gpmi[u'Grid'][u'probabilityLiquidPrecipitation']
     gpmi_pre = gpmi[u'Grid'][u'IRprecipitation']
-
-
-    #gpmp_lat = gpmp[u'S1'][u'Latitude']
-    #gpmp_lon = gpmp[u'S1'][u'Longitude']
-    ##gpmi_pre = gpmi[u'Grid'][u'HQprecipitation']
-    ##gpmi_pre = gpmi[u'Grid'][u'precipitationUncal']
-    ##gpmi_pre = gpmi[u'Grid'][u'probabilityLiquidPrecipitation']
-    #gpmp_pre = gpmp[u'S1'][u'surfacePrecipitation']
-
-    #gpmp_pre = np.array(gpmp_pre)#.transpose()
-    #gpmp_pre[gpmp_pre==-9999.9] = np.nan
-    #gpmp_pre = np.ma.masked_invalid(gpmp_pre)
 
     gpmi_pre = np.array(gpmi_pre).transpose()
     gpmi_pre[gpmi_pre==-9999.9] = np.nan
