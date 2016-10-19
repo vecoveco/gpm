@@ -4,6 +4,7 @@
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as col
 import pandas as pd
 import wradlib
 import glob
@@ -12,6 +13,11 @@ import pandas as pd
 from scipy import stats
 import matplotlib as mpl
 from osgeo import osr
+import os
+import matplotlib.ticker as ticker
+from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 
@@ -77,7 +83,8 @@ gpmgmi_S1=gpmgmi['S1']
 gprof_lat=np.array(gpmgmi_S1['Latitude'])
 gprof_lon=np.array(gpmgmi_S1['Longitude'])
 gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
-gprof_pp[gprof_pp==-9999] = np.nan
+gprof_pp[gprof_pp<=0] = np.nan
+
 
 
 bonn_lat1 = 47.9400
@@ -91,6 +98,13 @@ lonstart = ilon[0][0]
 lonend = ilon[0][-1]
 latstart = ilat[0][0]
 latend = ilat[0][-1]
+
+def plot_ocean(ax):
+    # open the input data source and get the layer
+    filename = os.path.join('/automount/db01/python/data/NED/10m/physical/10m_physical/ne_10m_ocean.shp')
+    dataset, inLayer = wradlib.io.open_shape(filename)
+    ocean, keys = wradlib.georef.get_shape_coordinates(inLayer)
+    wradlib.vis.add_lines(ax, ocean, color='black', lw=2 , zorder=4)
 
 def plot_borders(ax):
     # plot country borders from esri vector shape, filter by attribute
@@ -115,40 +129,96 @@ def plot_borders(ax):
         inLayer.SetAttributeFilter(fattr)
         # get borders and names
         borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
-        wradlib.vis.add_lines(ax, borders, color='white', lw=2, zorder=4)
+        wradlib.vis.add_lines(ax, borders, color='black', lw=2, zorder=3)
     ax.autoscale()
+'''
+def plot_dem(ax):
+    filename = wradlib.util.get_wradlib_data_file('/home/velibor/cosmo_de_4326.tif')
+    # pixel_spacing is in output units (lonlat)
+    rastercoords, rastervalues = wradlib.io.read_raster_data(filename,
+                                                         spacing=0.005)
+    # specify kwargs for plotting, using terrain colormap and LogNorm
+    dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
+                        rastervalues, cmap=plt.cm.gist_earth, norm=LogNorm(),
+                        vmin=1, vmax=3000, zorder=1)
+    # make some space on the right for colorbar axis
+    div1 = make_axes_locatable(ax)
+    #cax1 = div1.append_axes("right", size="5%", pad=0.1)
+    # add colorbar and title
+    # we use LogLocator for colorbar
+    #cb = plt.gcf().colorbar(dem, cax=cax1,
+                           #ticks=ticker.LogLocator(subs=range(10)))
+    #cb.set_label('terrain height [m]')
+
+def get_miub_cmap ():
+    startcolor = 'white' # a dark olive
+    color1 = '#8ec7ff' #'cyan' # a bright yellow
+    color2 = 'dodgerblue'
+    color3 = 'lime'
+    color4 = 'yellow'
+    color5 = 'darkorange'
+    color6 = 'red'
+    color7 = 'purple'
+    #color6 = 'grey'
+    endcolor = 'darkmagenta' # medium dark red
+    colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
+    return col.LinearSegmentedColormap.from_list('miub1' ,colors)
+'''
+
+import matplotlib.cm as cm
+my_cmap = cm.get_cmap('jet',40)
+my_cmap.set_under('lightgrey')
+my_cmap.set_over('darkred')
 
 
 
-print ('PARAMETER:')
-print ('Radolan: ', rwdata.shape, ' GPROF: ', np.ma.masked_invalid(gprof_pp[latstart:latend]).shape)
-
+#veli = np.ma.masked_where(rwdata<=0, rwdata)
+print pfad_radolan
 ## PLOT
 ## ----
+ff = 15
 fig = plt.figure()
 ax1 = fig.add_subplot(121, aspect='equal')
-plt.pcolormesh(lon1, lat1, rwdata, cmap="spectral",vmin=0,vmax=10)
-cb = plt.colorbar(shrink=0.5)
-cb.set_label("mm/h")
+plt.pcolormesh(lon1, lat1, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+cb = plt.colorbar(shrink=0.3)
+cb.set_label("Rainrate (mm/h)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
-plt.title('RADOLAN RW Product Polar Stereo \n' + rwattrs['datetime'].isoformat())
+plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-23:-21])+'-'+str(pfad_radolan[-21:-19])+'-'+str(pfad_radolan[-19:-17])+' T: '+str(pfad_radolan[-17:-13]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+#plot_dem(ax1)
+plot_ocean(ax1)
+plt.xlabel("Longitude",fontsize=ff)
+plt.ylabel("Latitude ",fontsize=ff)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
 plt.grid(color='r')
+plt.xlim(5,15.5)
+plt.ylim(47, 55)
 
 
 ax2 = fig.add_subplot(122, aspect='equal')
 pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
-                     cmap="spectral",vmin=0,vmax=10)
-cb = plt.colorbar(shrink=0.5)
-cb.set_label("mm/h")
-plt.title('GPM GPROF: \n' + str(pfad_gprof_g[66:90]))
+                     cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+cb = plt.colorbar(shrink=0.3)
+cb.set_label("Rainrate (mm/h)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.xlabel("Longitude",fontsize=ff)
+plt.ylabel("Latitude ",fontsize=ff)
+plt.title('GPM GPROF Rainrate: \n' + str(pfad_gprof_g[66:70]) + '-' +str(pfad_gprof_g[70:72])+ '-' +
+          str(pfad_gprof_g[72:74]) + ' T: ' +str(pfad_gprof_g[76:82]) + '-' + str(pfad_gprof_g[84:90]) + ' UTC',fontsize=ff)
+plot_ocean(ax2)
+#plot_dem(ax2)
 plot_borders(ax2)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
 plt.xlim((bonn_lon1-1,bonn_lon2+1))
 plt.ylim((bonn_lat1-1,bonn_lat2+1))
 plt.grid(color='r')
 plt.tight_layout()
 #Limits Setzen
-ax1.set_xlim(ax2.get_xlim())
-ax1.set_ylim(ax2.get_ylim())
+ax2.set_xlim(ax1.get_xlim())
+ax2.set_ylim(ax1.get_ylim())
 plt.show()
 
 
