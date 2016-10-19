@@ -11,33 +11,64 @@ import math
 import pandas as pd
 from scipy import stats
 import matplotlib as mpl
+from osgeo import osr
 
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 
 ## Read RADOLAN
 ## ------------
-
+iii = 1
 pfad = ('/user/velibor/SHKGPM/data/radolan/*.gz')
 pfad_radolan= sorted(glob.glob(pfad))
-pfad_radolan = pfad_radolan[0]
+pfad_radolan = pfad_radolan[iii]
+
 
 rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
+#sec = rwattrs['secondary']
+#rwdata.flat[sec] = -9999
+#rwdata = np.ma.masked_equal(rwdata, -9999)
+#radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
+#x = radolan_grid_xy[:,:,0]
+#y = radolan_grid_xy[:,:,1]
+
+
+
+## Radolan lat lon
+# mask data
 sec = rwattrs['secondary']
 rwdata.flat[sec] = -9999
 rwdata = np.ma.masked_equal(rwdata, -9999)
 
-radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
-x = radolan_grid_xy[:,:,0]
-y = radolan_grid_xy[:,:,1]
+# create radolan projection object
+proj_stereo = wradlib.georef.create_osr("dwd-radolan")
+
+# create wgs84 projection object
+proj_wgs = osr.SpatialReference()
+proj_wgs.ImportFromEPSG(4326)
+
+# get radolan grid
+radolan_grid_xy = wradlib.georef.get_radolan_grid(900, 900)
+x1 = radolan_grid_xy[:, :, 0]
+y1 = radolan_grid_xy[:, :, 1]
+
+# convert to lonlat
+radolan_grid_ll = wradlib.georef.reproject(radolan_grid_xy,
+                                       projection_source=proj_stereo,
+                                       projection_target=proj_wgs)
+lon1 = radolan_grid_ll[:, :, 0]
+lat1 = radolan_grid_ll[:, :, 1]
+
+
 
 ## Read GPROF
 ## ------------
-
 pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 pfad_gprof_g = pfad_gprof[0]
+
+print pfad_gprof_g
 
 gpmgmi = h5py.File(pfad_gprof_g, 'r')
 
@@ -88,45 +119,59 @@ def plot_borders(ax):
     ax.autoscale()
 
 
-#radar_location = (lon_ppi, lat_ppi, alt_ppi)
-#elevation = 1.5
-#azimuths = az
-#ranges = r
-#polargrid = np.meshgrid(ranges, azimuths)
-#lon, lat, alt = wradlib.georef.polar2lonlatalt_n(polargrid[0], polargrid[1], elevation, radar_location)
 
-#gk3 = wradlib.georef.epsg_to_osr(31467)
-#x, y = wradlib.georef.reproject(x, y, projection_target=gk3)
-#xgrid, ygrid = wradlib.georef.reproject(gprof_lon[latstart:latend], gprof_lat[latstart:latend], projection_target=gk3)
-
-#grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
-
-#xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
-#gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), rwdata.ravel(), ipoli[0],nnearest=30,p=2)
-#gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
-
+print ('PARAMETER:')
+print ('Radolan: ', rwdata.shape, ' GPROF: ', np.ma.masked_invalid(gprof_pp[latstart:latend]).shape)
 
 ## PLOT
 ## ----
 fig = plt.figure()
-ax = fig.add_subplot(121, aspect='equal')
-plt.pcolormesh(x, y, rwdata, cmap="spectral",vmin=0,vmax=10)
-cb = plt.colorbar(shrink=0.75)
+ax1 = fig.add_subplot(121, aspect='equal')
+plt.pcolormesh(lon1, lat1, rwdata, cmap="spectral",vmin=0,vmax=10)
+cb = plt.colorbar(shrink=0.5)
 cb.set_label("mm/h")
+plot_borders(ax1)
 plt.title('RADOLAN RW Product Polar Stereo \n' + rwattrs['datetime'].isoformat())
 plt.grid(color='r')
 
-ax = fig.add_subplot(122, aspect='equal')
+
+ax2 = fig.add_subplot(122, aspect='equal')
 pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      cmap="spectral",vmin=0,vmax=10)
-cb = plt.colorbar(shrink=0.75)
+cb = plt.colorbar(shrink=0.5)
 cb.set_label("mm/h")
-plt.title('GPM GPROF: \n' + str(pfad_gprof_g[66:74]))
-plot_borders(ax)
+plt.title('GPM GPROF: \n' + str(pfad_gprof_g[66:90]))
+plot_borders(ax2)
 plt.xlim((bonn_lon1-1,bonn_lon2+1))
 plt.ylim((bonn_lat1-1,bonn_lat2+1))
 plt.grid(color='r')
 plt.tight_layout()
-
-
+#Limits Setzen
+ax1.set_xlim(ax2.get_xlim())
+ax1.set_ylim(ax2.get_ylim())
 plt.show()
+
+
+
+
+
+#INTERLOLATION
+'''
+gk3 = wradlib.georef.epsg_to_osr(31467)
+x, y = wradlib.georef.reproject(lon1, lat1, projection_target=gk3)
+xgrid, ygrid = wradlib.georef.reproject(gprof_lon[latstart:latend], gprof_lat[latstart:latend],
+                                        projection_target=gk3)
+
+grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
+
+xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
+
+print (x.shape, y.shape, xgrid.shape, ygrid.shape, grid_xy.shape, xy.shape )
+
+#gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(),ipoli[0],nnearest=5,p=2)
+#gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
+grid = wradlib.ipol.Idw(xy, grid_xy, nnearest=4, p=2.)
+print grid
+# Interpolation objects
+#idw = ipol.Idw(src, trg)
+'''

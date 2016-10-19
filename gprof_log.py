@@ -152,6 +152,7 @@ for i in range(0,len(LISTE)):
     grid_xy = np.vstack((xgrid.ravel(), ygrid.ravel())).transpose()
 
     xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1)
+
     gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([x.mean(), y.mean()]), R.ravel(),
                                   ipoli[0],nnearest=500,p=2)
     gridded = np.ma.masked_invalid(gridded).reshape(xgrid.shape)
