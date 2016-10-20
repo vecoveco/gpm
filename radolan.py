@@ -102,11 +102,12 @@ latend = ilat[0][-1]
 
 ## GPM lon/lat in GK
 ## ------------
-proj_gk = osr.SpatialReference()
-proj_gk.ImportFromEPSG(31466)
-proj_ll = osr.SpatialReference()
-proj_ll.ImportFromEPSG(4326)
-gk3 = wradlib.georef.epsg_to_osr(31467)
+#proj_gk = osr.SpatialReference()
+#proj_gk.ImportFromEPSG(31466)
+#proj_ll = osr.SpatialReference()
+#proj_ll.ImportFromEPSG(4326)
+#gk3 = wradlib.georef.epsg_to_osr(31467)
+
 proj_stereo = wrl.georef.create_osr("dwd-radolan")
 proj_wgs = osr.SpatialReference()
 proj_wgs.ImportFromEPSG(4326)
@@ -122,13 +123,57 @@ print gpm_x.shape, gpm_y.shape
 
 ## Landgrenzenfunktion
 ## -------------------
-
+'''
 def plot_ocean(ax):
     # open the input data source and get the layer
     filename = os.path.join('/automount/db01/python/data/NED/10m/physical/10m_physical/ne_10m_ocean.shp')
     dataset, inLayer = wradlib.io.open_shape(filename)
     ocean, keys = wradlib.georef.get_shape_coordinates(inLayer)
     wradlib.vis.add_lines(ax, ocean, color='black', lw=2 , zorder=4)
+'''
+def plot_ocean(ax):
+    # open the input data source and get the layer
+    filename = os.path.join('/automount/db01/python/data/NED/10m/physical/10m_physical/ne_10m_ocean.shp')
+    dataset, inLayer = wradlib.io.open_shape(filename)
+    inLayer.SetSpatialFilterRect(1, 45, 19, 56.5)
+    borders, keys = wradlib.georef.get_shape_coordinates(inLayer)
+    proj_gk = osr.SpatialReference()
+    proj_gk.ImportFromEPSG(31466)
+    proj_ll = osr.SpatialReference()
+    proj_ll.ImportFromEPSG(4326)
+    gk3 = wradlib.georef.epsg_to_osr(31467)
+    proj_stereo = wrl.georef.create_osr("dwd-radolan")
+    proj_wgs = osr.SpatialReference()
+    proj_wgs.ImportFromEPSG(4326)
+    print borders.shape
+    #print borders[12][:,1]
+    #print borders[12][:,0]
+    for j in range(borders.shape[0]):
+        bu = np.array(borders[j].shape)
+        #print bu.shape
+        a = np.array(bu.shape)
+        #print borders[j].shape
+        #print borders[0]
+        #print a
+        #print borders[j].shape[0]
+        if a==1:
+            for i in range(0,borders[j].shape[0],1):
+                bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
+                bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
+                #print bord_xy
+                wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
+        if a==2:    #richtig
+            bordx, bordy = wrl.georef.reproject(borders[j][:,0], borders[j][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
+            bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
+        #print bord_xy
+            wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
+        #print j
+        #print bordx
+        bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
+        #print bord_xy
+        wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
+    #print bordx.shape, bordy.shape, bord_xy.shape
+    ax.autoscale()
 
 def plot_borders(ax):
     # plot country borders from esri vector shape, filter by attribute
@@ -150,14 +195,14 @@ def plot_borders(ax):
     proj_wgs.ImportFromEPSG(4326)
 
     # country list
-    countries = ['Germany']
+    countries = ['Germany', 'Belgium']
     # open the input data source and get the layer
     filename = wradlib.util.get_wradlib_data_file('geo/ne_10m_admin_0_boundary_'
                                               'lines_land.shp')
     dataset, inLayer = wradlib.io.open_shape(filename)
     # iterate over countries, filter accordingly, get coordinates and plot
     for item in countries:
-        print item
+        #print item
         # SQL-like selection syntax
         fattr = "(adm0_left = '" + item + "' or adm0_right = '" + item + "')"
         inLayer.SetAttributeFilter(fattr)
@@ -166,14 +211,14 @@ def plot_borders(ax):
         #print borders[0].shape
         #print borders[12][:,1]
         #print borders[12][:,0]
-        for j in range(14):
+        for j in range(borders.shape[0]):
             bu = np.array(borders[j].shape)
             #print bu.shape
             a = np.array(bu.shape)
-            print borders[j].shape
+            #print borders[j].shape
             #print borders[0]
             #print a
-            print borders[j].shape[0]
+            #print borders[j].shape[0]
             if a==1:
                 for i in range(0,borders[j].shape[0],1):
                     bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
@@ -248,12 +293,15 @@ cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
 plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-23:-21])+'-'+str(pfad_radolan[-21:-19])+'-'+str(pfad_radolan[-19:-17])+' T: '+str(pfad_radolan[-17:-13]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
-#plot_dem(ax1)
+
 #plot_ocean(ax1)
-plt.xlabel("Longitude",fontsize=ff)
-plt.ylabel("Latitude ",fontsize=ff)
-plt.xticks(fontsize=ff)
-plt.yticks(fontsize=ff)
+plt.xlabel("Longitude ",fontsize=ff)
+plt.ylabel("Latitude  ",fontsize=ff)
+
+#plt.xticks(fontsize=0)
+#plt.yticks(fontsize=0)
+
+
 
 plt.grid(color='r')
 plt.xlim(-420,390)
@@ -268,12 +316,12 @@ pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]
 cb = plt.colorbar(shrink=0.3)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
-plt.xlabel("Longitude",fontsize=ff)
-plt.ylabel("Latitude ",fontsize=ff)
+plt.xlabel("Longitude ",fontsize=ff)
+plt.ylabel("Latitude  ",fontsize=ff)
 plt.title('GPM GPROF Rainrate: \n' + str(pfad_gprof_g[66:70]) + '-' +str(pfad_gprof_g[70:72])+ '-' +
           str(pfad_gprof_g[72:74]) + ' T: ' +str(pfad_gprof_g[76:82]) + '-' + str(pfad_gprof_g[84:90]) + ' UTC',fontsize=ff)
 #plot_ocean(ax2)
-#plot_dem(ax2)
+
 plot_borders(ax2)
 plt.xticks(fontsize=ff)
 plt.yticks(fontsize=ff)
@@ -284,6 +332,10 @@ plt.tight_layout()
 #Limits Setzen
 ax2.set_xlim(ax1.get_xlim())
 ax2.set_ylim(ax1.get_ylim())
+#plt.xticks(fontsize=0)
+#plt.yticks(fontsize=0)
+
+
 plt.show()
 
 
