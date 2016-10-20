@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import wradlib
 import glob
+import wradlib as wrl
 
 '''ftp://ftp.meteo.uni-bonn.de/pub/pablosaa/gpmdata/'''
 
