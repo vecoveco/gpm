@@ -1,5 +1,9 @@
 # Global Precipitation Measuring Validation
-======================================
+============================================
+![pic](https://pmm.nasa.gov/sites/default/files/imce/GPM_banner_3_droplets.jpg) 
+> The Global Precipitation Measurement (GPM) mission is an international network of satellites that provide the next-generation global observations of rain and snow. 
+> [pmm.nasa.gov]
+
 
 ## Description:
 ----------------
