@@ -20,27 +20,26 @@ capabilities are exploited in order to estimate high quality rain rate fields wi
 Therefore the BoxPol retrievals are used to evaluate the corresponding products from the different suit of algorithms
 currently used by GPM. For each overpass of GPM on the region detected by the Bonner radar, two and three dimensional data is created. This provides information about the current precipitation. To compare the GPM and BoXPol data, the polar data of the Bonn radar have to be interpolated on the GPM grid.
 
-wip...
+folgt...
 
-## Verwendung:
+## Application:
 ---------------
-folgt ...
+Verwendung folgt ...
 
 
-## Skripte und Programstruktur:
+## Scripts and 	program structure:
 --------------------------------
 folgt...
 
 
-## Satelliten Informationen
+## Satellite Information:
 ------------------------------
 
 Satellit | GPM Global Precipitation Measuring
 --------------|---
 Typ |  Erdoberflächensatellit
-Start | 27.02.2014
-Startort | Space Center Tanegashima Japan
-Koordinatenursprung | Erde
+Launch date | 27.02.2014
+Launch site | Space Center Tanegashima Japan
 Bahnhöhe | 407 km
 Umlaufzeit | 93 min
 Bahnneigung | 65 Grad
