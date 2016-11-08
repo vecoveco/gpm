@@ -38,11 +38,16 @@ folgt...
 Satellit | GPM Global Precipitation Measuring
 --------------|---
 Typ |  Erdoberflächensatellit
+Manufacturer | NASA JAXA
 Launch date | 27.02.2014
 Launch site | Space Center Tanegashima Japan
-Bahnhöhe | 407 km
-Umlaufzeit | 93 min
-Bahnneigung | 65 Grad
+Path height | 407 km
+Orbital period | 93 min
+Path inclination | 65 Grad
+Contractor  |  Mitsubishi
+Rocket  | 	H-IIA 202
+Reference system |	Geocentric
+Regime |	Low Earth
 
 Instrument | Abk. | Spur | Typ  | Produkt
 ------------|-----|------|------|----------
