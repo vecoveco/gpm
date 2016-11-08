@@ -20,6 +20,10 @@ capabilities are exploited in order to estimate high quality rain rate fields wi
 Therefore the BoxPol retrievals are used to evaluate the corresponding products from the different suit of algorithms
 currently used by GPM. For each overpass of GPM on the region detected by the Bonner radar, two and three dimensional data is created. This provides information about the current precipitation. To compare the GPM and BoXPol data, the polar data of the Bonn radar have to be interpolated on the GPM grid.
 
+[References by NASA](http://svs.gsfc.nasa.gov/Gallery/GPM.html)
+
+[References by JAXA](http://global.jaxa.jp/projects/sat/gpm/)
+
 folgt...
 
 ## Application:
