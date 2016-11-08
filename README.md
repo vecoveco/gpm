@@ -28,6 +28,8 @@ folgt...
 
 ## Application:
 ---------------
+These scripts are used to compare satellites and radar data and provide a statement about their quality or correlation.
+
 Verwendung folgt ...
 
 
