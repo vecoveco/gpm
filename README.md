@@ -24,6 +24,8 @@ currently used by GPM. For each overpass of GPM on the region detected by the Bo
 
 [References by JAXA](http://global.jaxa.jp/projects/sat/gpm/)
 
+[References by FTP ](ftp://arthurhou.pps.eosdis.nasa.gov/)
+
 folgt...
 
 ## Application:
