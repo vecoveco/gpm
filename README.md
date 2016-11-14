@@ -50,7 +50,7 @@ Manufacturer | NASA JAXA
 Launch date | 27.02.2014
 Launch site | Space Center Tanegashima Japan
 Path height | 407 km
-Orbital period | 93 min
+Orbital period | 92.6 min
 Path inclination | 65 Grad
 Contractor  |  Mitsubishi
 Rocket  | 	H-IIA 202
