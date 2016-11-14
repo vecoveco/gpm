@@ -55,7 +55,7 @@ Path inclination | 65 Grad
 Contractor  |  Mitsubishi
 Rocket  | 	H-IIA 202
 Reference system |	Geocentric
-Regime |	Low Earth
+Orbit Type |	Low Earth Orbit LEO
 
 Instrument | Abk. | Spur | Typ  | Produkt
 ------------|-----|------|------|----------
