@@ -239,7 +239,7 @@ Resolution | Region - Dates  |	Latency  | 	Format   | 	Source
 
 Resolution | Region - Dates  |	Latency  | 	Format   | 	Source  
 -----------|------------------|-----------|-----------|----------
-5.2km x 125m - 16 orbits per day|	Latitudes 70°N-S, Past 2 Weeks (NRT); March 2014 - present (Prod) |	20 - 120 minutes (NRT); 24 hours (Prod)|HDF5 |	FTP (PPS) (/YYYY/MM/DD/2A.GPM.Ku)
+5.2km x 125m - 16 orbits per day|	Latitudes 70°N-S, Past 2 Weeks (NRT); March 2014 - present (Prod) |	20 - 120 minutes (NRT); 24 hours (Prod)|HDF5 |	FTP (PPS) (/YYYY/MM/DD/2A.GPM.Ka)
 
 
 
@@ -250,7 +250,7 @@ Resolution | Region - Dates  |	Latency  | 	Format   | 	Source
 
 Resolution | Region - Dates  |	Latency  | 	Format   | 	Source  
 -----------|------------------|-----------|-----------|----------
-5.2km x 125m - 16 orbits per day|	Latitudes 70°N-S, Past 2 Weeks (NRT); March 2014 - present (Prod) |	20 - 120 minutes (NRT); 24 hours (Prod)|HDF5 |	FTP (PPS) (/YYYY/MM/DD/2A.GPM.Ku)
+5.2km x 125m - 16 orbits per day|	Latitudes 70°N-S, Past 2 Weeks (NRT); March 2014 - present (Prod) |	20 - 120 minutes (NRT); 24 hours (Prod)|HDF5 |	FTP (PPS) (/YYYY/MM/DD/2A.GPM.DPR)
 
 
 
