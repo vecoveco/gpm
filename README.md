@@ -63,6 +63,19 @@ Microwave Imager | GMI | 885 km | 13 channels | 2dGPROF
 Dual_Frequency Precipitation Radar | DPR Ka-Band | 120 km | 35.5 GHz | 3dKa
 Dual_Frequency Precipitation Radar | DPR Ku-Band | 245 km | 13.6 GHz | 3dKu
 
+Satellite | Agency | | Short | Nation
+----------|---------|--------| -------
+Megha-Tropiques | Centre National d’Études Spatiales,  Indian Space Research Organization  | CNES, ISRO | France, India
+NOAA 18 |  National Oceanic and Atmospheric Administration | NOAA | USA
+NOAA 19 |  National Oceanic and Atmospheric Administration | NOAA | USA
+GCOM_W1 |  Japan Aerospace Exploration Agency | JAXA | Japan
+DMSP F17 |  Department of Defense | DOD | USA
+DMSP F18 |  Department of Defense | DOD | USA
+DMSP F19 |  Department of Defense | DOD | USA
+DMSP F20 |  Department of Defense | DOD | USA
+
+
+
 ==================
 # GPM Public Data
 ==================
