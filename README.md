@@ -65,7 +65,7 @@ Dual_Frequency Precipitation Radar | DPR Ku-Band | 245 km | 13.6 GHz | 3dKu
 
 
 
-Satellite | Agency | | Short | Nation
+Satellite | Agency | Short | Nation
 ----------|---------|--------| -------
 Megha-Tropiques | Centre National d’Études Spatiales,  Indian Space Research Organization  | CNES, ISRO | France, India
 NOAA 18 |  National Oceanic and Atmospheric Administration | NOAA | USA
