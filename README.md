@@ -75,6 +75,12 @@ DMSP F17 |  Department of Defense | DOD | USA
 DMSP F18 |  Department of Defense | DOD | USA
 DMSP F19 |  Department of Defense | DOD | USA
 DMSP F20 |  Department of Defense | DOD | USA
+JPSS-1 | National Oceanic and Atmospheric Administration | NOAA | USA
+TRMM |  National Aeronautics and Space Administration ,Japan Aerospace Exploration Agency | NASA, JAXA | USA, Japan
+MetOp B |  European Organization for the Exploitation of Meteorological Satellites | EUMETSAT | Europa
+MetOp C |  European Organization for the Exploitation of Meteorological Satellites | EUMETSAT | Europa
+Suomi NPP | National Aeronautics and Space Administration, National Oceanic and Atmospheric Administration | NASA, NOA | USA
+
 
 
 
