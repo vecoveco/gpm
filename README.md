@@ -24,7 +24,7 @@ currently used by GPM. For each overpass of GPM on the region detected by the Bo
 
 [References by JAXA](http://global.jaxa.jp/projects/sat/gpm/)
 
-> ftp://arthurhou.pps.eosdis.nasa.gov/
+
 
 folgt...
 
@@ -66,6 +66,8 @@ Dual_Frequency Precipitation Radar | DPR Ku-Band | 245 km | 13.6 GHz | 3dKu
 ==================
 # GPM Public Data
 ==================
+
+> ftp://arthurhou.pps.eosdis.nasa.gov/
 
 /gpmdata contains the latest version of available data products. 
 
