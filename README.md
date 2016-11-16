@@ -63,6 +63,8 @@ Microwave Imager | GMI | 885 km | 13 channels | 2dGPROF
 Dual_Frequency Precipitation Radar | DPR Ka-Band | 120 km | 35.5 GHz | 3dKa
 Dual_Frequency Precipitation Radar | DPR Ku-Band | 245 km | 13.6 GHz | 3dKu
 
+
+
 Satellite | Agency | | Short | Nation
 ----------|---------|--------| -------
 Megha-Tropiques | Centre National d’Études Spatiales,  Indian Space Research Organization  | CNES, ISRO | France, India
