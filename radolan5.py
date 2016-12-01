@@ -32,7 +32,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
 iii = 2
-pfad = ('/user/velibor/SHKGPM/data/radolan/*.gz')
+pfad = ('/user/velibor/SHKGPM/data/radolan/*bin')
 pfad_radolan= sorted(glob.glob(pfad))
 pfad_radolan = pfad_radolan[iii]
 
@@ -40,13 +40,19 @@ pfad_radolan = pfad_radolan[iii]
 rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
-sec = rwattrs['secondary']
-rwdata.flat[sec] = -9999
-rwdata = np.ma.masked_equal(rwdata, -9999)
+for key, value in rwattrs.items():
+    print(key + ':', value)
+
+rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
+
+#sec = rwattrs['secondary']
+#rwdata.flat[sec] = -9999
+#rwdata = np.ma.masked_equal(rwdata, -9999)
 radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
 x = radolan_grid_xy[:,:,0]
 y = radolan_grid_xy[:,:,1]
-
+Z = wradlib.trafo.idecibel(rwdata)
+rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
 ## Radolan lat lon Koordinaten
 # ------------------------------
@@ -346,18 +352,5 @@ plt.show()
 
 
 
-print gpm_x
-
-#INTERLOLATION
-
-gk3 = wradlib.georef.epsg_to_osr(31467)
-
-grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
-
-xy=np.concatenate([x.ravel()[:,None],y.ravel()[:,None]], axis=1) #Radolan grid erschaffen
-
-
-#gridded = wradlib.comp.togrid(xy, grid_xy,0, np.array([x.mean(), y.mean()]), rwdata.ravel(), ipoli[0],nnearest=30,p=2)
-#gridded = np.ma.masked_invalid(gridded).reshape(gpm_x.shape)
 
 
