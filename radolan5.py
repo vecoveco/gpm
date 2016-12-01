@@ -31,7 +31,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
-iii = 2
+iii = 1
 pfad = ('/user/velibor/SHKGPM/data/radolan/*bin')
 pfad_radolan= sorted(glob.glob(pfad))
 pfad_radolan = pfad_radolan[iii]
@@ -129,7 +129,7 @@ proj_wgs.ImportFromEPSG(4326)
 gpm_x, gpm_y = wradlib.georef.reproject(gprof_lon[latstart:latend], gprof_lat[latstart:latend], projection_target=proj_stereo , projection_source=proj_wgs)
 grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
-print gpm_x.shape, gpm_y.shape
+
 
 
 
@@ -207,16 +207,15 @@ def plot_borders(ax):
     proj_wgs.ImportFromEPSG(4326)
 
     # country list
-    countries = ['Germany', 'Belgium']
+    countries = ['Germany']#,'France','Denmark', 'Netherlands', 'Poland']
     # open the input data source and get the layer
-    filename = wradlib.util.get_wradlib_data_file('geo/ne_10m_admin_0_boundary_'
-                                              'lines_land.shp')
+    filename = wradlib.util.get_wradlib_data_file('/automount/db01/python/data/NED/10m/cultural/10m_cultural/10m_cultural/ne_10m_admin_0_countries.shp')
     dataset, inLayer = wradlib.io.open_shape(filename)
     # iterate over countries, filter accordingly, get coordinates and plot
     for item in countries:
         #print item
         # SQL-like selection syntax
-        fattr = "(adm0_left = '" + item + "' or adm0_right = '" + item + "')"
+        fattr = "(name='"+item+"')"
         inLayer.SetAttributeFilter(fattr)
         # get borders and names
         borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
@@ -292,35 +291,41 @@ my_cmap.set_over('darkred')
 
 
 
-#veli = np.ma.masked_where(rwdata<=0, rwdata)
-print pfad_radolan
+#INTERLOLATION
+gk3 = wradlib.georef.epsg_to_osr(31467)
+grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
+xy = np.vstack((x.ravel(), y.ravel())).transpose()
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=40)
+result = np.ma.masked_invalid(result)
+#Todo: rwdata muss vonn 900x900 reshaped werden auf die gleiche Form wie xy (810000, 2)
+#SCHEMA http://wradlib.org/wradlib-docs/latest/notebooks/interpolation/wradlib_ipol_example.html
+
+
+
 ## PLOT
 ## ----
 ff = 15
 fig = plt.figure()
-ax1 = fig.add_subplot(121, aspect='equal')
+ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.3)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
-plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-23:-21])+'-'+str(pfad_radolan[-21:-19])+'-'+str(pfad_radolan[-19:-17])+' T: '+str(pfad_radolan[-17:-13]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 
 #plot_ocean(ax1)
 plt.xlabel("Longitude ",fontsize=ff)
 plt.ylabel("Latitude  ",fontsize=ff)
-
 #plt.xticks(fontsize=0)
 #plt.yticks(fontsize=0)
-
-
-
 plt.grid(color='r')
 plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
 
 
-ax2 = fig.add_subplot(122, aspect='equal')
+ax2 = fig.add_subplot(222, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 #pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
@@ -333,7 +338,32 @@ plt.ylabel("Latitude  ",fontsize=ff)
 plt.title('GPM GPROF Rainrate: \n' + str(pfad_gprof_g[66:70]) + '-' +str(pfad_gprof_g[70:72])+ '-' +
           str(pfad_gprof_g[72:74]) + ' T: ' +str(pfad_gprof_g[76:82]) + '-' + str(pfad_gprof_g[84:90]) + ' UTC',fontsize=ff)
 #plot_ocean(ax2)
+plot_borders(ax2)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+#plt.xlim((bonn_lon1-1,bonn_lon2+1))
+#plt.ylim((bonn_lat1-1,bonn_lat2+1))
+plt.grid(color='r')
+plt.tight_layout()
+#Limits Setzen
+ax2.set_xlim(ax1.get_xlim())
+ax2.set_ylim(ax1.get_ylim())
+#plt.xticks(fontsize=0)
+#plt.yticks(fontsize=0)
 
+ax2 = fig.add_subplot(223, aspect='equal')
+pm2 = plt.pcolormesh(gpm_x, gpm_y,result.reshape(640,221),
+                     cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+#pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
+                     #cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+cb = plt.colorbar(shrink=0.3)
+cb.set_label("Rainrate (mm/h)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.xlabel("Longitude ",fontsize=ff)
+plt.ylabel("Latitude  ",fontsize=ff)
+plt.title('RADOLAN Rainrate Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+#plot_ocean(ax2)
 plot_borders(ax2)
 plt.xticks(fontsize=ff)
 plt.yticks(fontsize=ff)
@@ -348,9 +378,31 @@ ax2.set_ylim(ax1.get_ylim())
 #plt.yticks(fontsize=0)
 
 
+ax2 = fig.add_subplot(224, aspect='equal')
+
+A = result.reshape(640,221)
+B = np.ma.masked_invalid(gprof_pp[latstart:latend])
+A[A<0.1] = np.nan
+A[A>=10] = np.nan
+B[B<0.1] = np.nan
+
+mask = ~np.isnan(B) & ~np.isnan(A)
+slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
+
+line = slope*B+intercept
+plt.scatter(B,A, color='blue', label='RR [mm/h]')
+plt.plot(B,line,'r-')
+maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
+plt.xlim(0,maxAB + 1)
+plt.ylim(0,maxAB + 1)
+legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                    fontsize='small', title="________"+"_vs_BoxPol________" + "\n Slope: " + str(round(slope,3))
+                                            + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
+                                            str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
+plt.xlabel("GPROF RR [mm/h]")
+plt.ylabel("RADOLAN RR [mm/h]")
+plt.title(" .")
+plt.grid(True)
 plt.show()
-
-
-
 
 
