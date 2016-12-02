@@ -31,8 +31,9 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
-iii = 1
-pfad = ('/user/velibor/SHKGPM/data/radolan/*bin')
+iii = 0
+#pfad = ('/user/velibor/SHKGPM/data/radolan/*bin')
+pfad = ('/automount/radar/dwd/rx/2014/2014-10/2014-10-16/raa01-rx_10000-1410162310-dwd---bin')
 pfad_radolan= sorted(glob.glob(pfad))
 pfad_radolan = pfad_radolan[iii]
 
@@ -85,7 +86,9 @@ lat1 = radolan_grid_ll[:, :, 1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
+#pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/20141016/gprof/*.HDF5')
+
 pfad_gprof = glob.glob(pfad2)
 pfad_gprof_g = pfad_gprof[0]
 
@@ -144,7 +147,7 @@ def plot_ocean(ax):
     wradlib.vis.add_lines(ax, ocean, color='black', lw=2 , zorder=4)
 '''
 def plot_ocean(ax):
-    # open the input data source and get the layer
+
     filename = os.path.join('/automount/db01/python/data/NED/10m/physical/10m_physical/ne_10m_ocean.shp')
     dataset, inLayer = wradlib.io.open_shape(filename)
     inLayer.SetSpatialFilterRect(1, 45, 19, 56.5)
@@ -158,38 +161,29 @@ def plot_ocean(ax):
     proj_wgs = osr.SpatialReference()
     proj_wgs.ImportFromEPSG(4326)
     print borders.shape
-    #print borders[12][:,1]
-    #print borders[12][:,0]
+
     for j in range(borders.shape[0]):
         bu = np.array(borders[j].shape)
-        #print bu.shape
+
         a = np.array(bu.shape)
-        #print borders[j].shape
-        #print borders[0]
-        #print a
-        #print borders[j].shape[0]
+
         if a==1:
             for i in range(0,borders[j].shape[0],1):
                 bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
                 bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-                #print bord_xy
                 wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
         if a==2:    #richtig
             bordx, bordy = wrl.georef.reproject(borders[j][:,0], borders[j][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
             bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-        #print bord_xy
             wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-        #print j
-        #print bordx
+
         bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-        #print bord_xy
+
         wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-    #print bordx.shape, bordy.shape, bord_xy.shape
     ax.autoscale()
 
 def plot_borders(ax):
-    # plot country borders from esri vector shape, filter by attribute
-    # create wgs84 and india osr objects (spatial reference system)
+
     from osgeo import osr
     wgs84 = osr.SpatialReference()
     wgs84.ImportFromEPSG(4326)
@@ -219,34 +213,26 @@ def plot_borders(ax):
         inLayer.SetAttributeFilter(fattr)
         # get borders and names
         borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
-        #print borders[0].shape
-        #print borders[12][:,1]
-        #print borders[12][:,0]
+
         for j in range(borders.shape[0]):
             bu = np.array(borders[j].shape)
-            #print bu.shape
             a = np.array(bu.shape)
-            #print borders[j].shape
-            #print borders[0]
-            #print a
-            #print borders[j].shape[0]
+
             if a==1:
                 for i in range(0,borders[j].shape[0],1):
                     bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
                     bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-                    #print bord_xy
+
                     wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
             if a==2:    #richtig
                 bordx, bordy = wrl.georef.reproject(borders[j][:,0], borders[j][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
                 bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-            #print bord_xy
+
                 wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-            #print j
-            #print bordx
+
             bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-            #print bord_xy
+
             wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-        #print bordx.shape, bordy.shape, bord_xy.shape
     ax.autoscale()
 '''
 def plot_dem(ax):
@@ -293,11 +279,15 @@ my_cmap.set_over('darkred')
 
 #INTERLOLATION
 gk3 = wradlib.georef.epsg_to_osr(31467)
+
 grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
+
 xy = np.vstack((x.ravel(), y.ravel())).transpose()
+
 result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=40)
+
 result = np.ma.masked_invalid(result)
-#Todo: rwdata muss vonn 900x900 reshaped werden auf die gleiche Form wie xy (810000, 2)
+#Todo: rwdata muss vonn 900x900 reshaped werden auf die gleiche Form wie xy (810000, 2) FEHLER IWO
 #SCHEMA http://wradlib.org/wradlib-docs/latest/notebooks/interpolation/wradlib_ipol_example.html
 
 
@@ -308,7 +298,7 @@ ff = 15
 fig = plt.figure()
 ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-cb = plt.colorbar(shrink=0.3)
+cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
@@ -330,7 +320,7 @@ pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 #pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      #cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-cb = plt.colorbar(shrink=0.3)
+cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("Longitude ",fontsize=ff)
@@ -351,12 +341,15 @@ ax2.set_ylim(ax1.get_ylim())
 #plt.xticks(fontsize=0)
 #plt.yticks(fontsize=0)
 
+
+rrr = result.reshape(gpm_x.shape)
+rrr[rrr==10] = np.nan
+
 ax2 = fig.add_subplot(223, aspect='equal')
-pm2 = plt.pcolormesh(gpm_x, gpm_y,result.reshape(640,221),
+pm2 = plt.pcolormesh(gpm_x, gpm_y,rrr,
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-#pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
-                     #cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-cb = plt.colorbar(shrink=0.3)
+
+cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("Longitude ",fontsize=ff)
@@ -380,15 +373,14 @@ ax2.set_ylim(ax1.get_ylim())
 
 ax2 = fig.add_subplot(224, aspect='equal')
 
-A = result.reshape(640,221)
+A = rrr
 B = np.ma.masked_invalid(gprof_pp[latstart:latend])
 A[A<0.1] = np.nan
-A[A>=10] = np.nan
 B[B<0.1] = np.nan
+#A[A==10] = np.nan
 
 mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
-
 line = slope*B+intercept
 plt.scatter(B,A, color='blue', label='RR [mm/h]')
 plt.plot(B,line,'r-')
@@ -402,6 +394,7 @@ legend = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancy
 plt.xlabel("GPROF RR [mm/h]")
 plt.ylabel("RADOLAN RR [mm/h]")
 plt.title(" .")
+
 plt.grid(True)
 plt.show()
 
