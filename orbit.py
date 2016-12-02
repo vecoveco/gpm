@@ -91,7 +91,8 @@ pos = ((lonstart + lonend) /2) #+ offset
 lon_scan = gprof_lon[pos,gprof_lon.shape[1]/2]
 lat_scan = gprof_lat[pos,gprof_lat.shape[1]/2]
 
-
+grad = 0.1
+np.where((lon_scan+grad>=SC_lon)&(lon_scan-grad<=SC_lon))
 
 dx, dy = [47,55,55,47], [6,6,15,15]
 
