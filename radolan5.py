@@ -29,11 +29,17 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 
+# Zeitstempel nach YYYYMMDDhhmmss
+ZP = '20150128170000'
+year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
+ye = ZP[2:4]
+
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
 iii = 0
 #pfad = ('/user/velibor/SHKGPM/data/radolan/*bin')
-pfad = ('/automount/radar/dwd/rx/2014/2014-10/2014-10-16/raa01-rx_10000-1410162310-dwd---bin')
+pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin')
+print pfad
 pfad_radolan= sorted(glob.glob(pfad))
 pfad_radolan = pfad_radolan[iii]
 
@@ -87,7 +93,7 @@ lat1 = radolan_grid_ll[:, :, 1]
 ## Read GPROF
 ## ------------
 #pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
-pfad2 = ('/home/velibor/shkgpm/data/20141016/gprof/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/gprof/*.HDF5')
 
 pfad_gprof = glob.glob(pfad2)
 pfad_gprof_g = pfad_gprof[0]
@@ -284,7 +290,7 @@ grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose() # GPM Grid e
 
 xy = np.vstack((x.ravel(), y.ravel())).transpose()
 
-result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=40)
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
 
 result = np.ma.masked_invalid(result)
 #Todo: rwdata muss vonn 900x900 reshaped werden auf die gleiche Form wie xy (810000, 2) FEHLER IWO
@@ -343,7 +349,8 @@ ax2.set_ylim(ax1.get_ylim())
 
 
 rrr = result.reshape(gpm_x.shape)
-rrr[rrr==10] = np.nan
+#Todo: Problem beheben !?!!?!?
+#rrr[rrr==10] = np.nan
 
 ax2 = fig.add_subplot(223, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,rrr,
