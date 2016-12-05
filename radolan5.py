@@ -30,7 +30,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20150128170000'
+ZP = '20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -282,18 +282,22 @@ my_cmap.set_under('lightgrey')
 my_cmap.set_over('darkred')
 
 
-
-#INTERLOLATION
+##################################################################INTERLOLATION
 gk3 = wradlib.georef.epsg_to_osr(31467)
 
 grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
 
 xy = np.vstack((x.ravel(), y.ravel())).transpose()
 
-result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+mask = ~np.isnan(rwdata)
+
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
 
 result = np.ma.masked_invalid(result)
-#Todo: rwdata muss vonn 900x900 reshaped werden auf die gleiche Form wie xy (810000, 2) FEHLER IWO
+
+rrr = result.reshape(gpm_x.shape)
+
+#Todo:  FEHLER IWO...wahrscheinlich Randbedingungen!? Fehler Wert 10
 #SCHEMA http://wradlib.org/wradlib-docs/latest/notebooks/interpolation/wradlib_ipol_example.html
 
 
@@ -348,7 +352,6 @@ ax2.set_ylim(ax1.get_ylim())
 #plt.yticks(fontsize=0)
 
 
-rrr = result.reshape(gpm_x.shape)
 #Todo: Problem beheben !?!!?!?
 #rrr[rrr==10] = np.nan
 
@@ -384,11 +387,44 @@ A = rrr
 B = np.ma.masked_invalid(gprof_pp[latstart:latend])
 A[A<0.1] = np.nan
 B[B<0.1] = np.nan
-#A[A==10] = np.nan
+A[A==10] = np.nan
 
 mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
 line = slope*B+intercept
+
+##############################################################################
+#plt.hist2d(B[mask],A[mask], bins=100, norm=LogNorm())
+#plt.hexbin(B[mask],A[mask])
+#plt.colorbar()
+#plt.show()
+
+xx = B[mask]
+yy = A[mask]
+xedges, yedges = np.linspace(-4, 4, 42), np.linspace(-25, 25, 42)
+hist, xedges, yedges = np.histogram2d(xx, yy, (xedges, yedges))
+xidx = np.clip(np.digitize(xx, xedges), 0, hist.shape[0]-1)
+yidx = np.clip(np.digitize(yy, yedges), 0, hist.shape[1]-1)
+c = hist[xidx, yidx]
+plt.scatter(xx, yy, c=c)
+plt.colorbar()
+plt.plot(B,line,'r-')
+maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
+plt.xlim(0,maxAB + 1)
+plt.ylim(0,maxAB + 1)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                    fontsize='small', title="________"+"_vs_BoxPol________" + "\n Slope: " + str(round(slope,3))
+                                            + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
+                                            str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
+plt.xlabel("GPROF RR [mm/h]")
+plt.ylabel("RADOLAN RR [mm/h]")
+plt.title(" .")
+
+plt.grid(True)
+
+plt.show()
+###############################################################################
+'''
 plt.scatter(B,A, color='blue', label='RR [mm/h]')
 plt.plot(B,line,'r-')
 maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
@@ -405,4 +441,5 @@ plt.title(" .")
 plt.grid(True)
 plt.show()
 
+'''
 

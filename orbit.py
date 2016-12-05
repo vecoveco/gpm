@@ -26,7 +26,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # Zeitstempel nach YYYYMMDDhhmmss
 # 20140921070500, 20150128170000 "20140629145000","20140629145925","20141007023744"
-ZP = '20150128170000'
+ZP = '20141007023744'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
