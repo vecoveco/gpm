@@ -55,3 +55,24 @@ def rmse(predictions, targets):
     # RMS sqrt(1/n SUM/d_i - pi)^2
     return np.sqrt(((predictions - targets) ** 2).mean())
 
+
+
+#### Idee
+#Todo: Korrelation von Radar und Satellit Daten in bestimmten Bereichen
+# Z.B. Nur bestimmte Niederschlagsintensiteten!
+#RR1_3 = A[mask]
+#GR1_3 = B[mask]
+#
+#Rmin, Rmax = 2, 6#
+#
+#RR1_3[RR1_3 < Rmin] = np.nan
+#GR1_3[GR1_3< Rmax] = np.nan
+#
+#RR1_3[RR1_3 > Rmin] = np.nan
+#GR1_3[GR1_3> Rmax] = np.nan
+#
+#plt.scatter(RR1_3,GR1_3)
+#from pcc import rmse
+#plt.title(str(rmse(RR1_3,GR1_3)))
+#plt.show()
+

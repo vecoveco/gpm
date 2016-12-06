@@ -305,7 +305,7 @@ rrr = result.reshape(gpm_x.shape)
 ## PLOT
 ## ----
 ff = 15
-fig = plt.figure(figsize=(11,11))
+fig = plt.figure(figsize=(10,10))
 ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
@@ -325,7 +325,7 @@ plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
 
 
-ax2 = fig.add_subplot(222, aspect='equal')
+ax2 = fig.add_subplot(224, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 #pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
@@ -382,7 +382,7 @@ ax2.set_ylim(ax1.get_ylim())
 #plt.yticks(fontsize=0)
 
 
-ax2 = fig.add_subplot(224, aspect='equal')
+ax2 = fig.add_subplot(222, aspect='equal')
 
 A = rrr
 B = np.ma.masked_invalid(gprof_pp[latstart:latend])
@@ -444,3 +444,20 @@ plt.show()
 
 '''
 
+
+
+RR1_3 = A
+GR1_3 = B
+# forschleife in ein scatter mit verschiedenen farben
+Rmin, Rmax = 1, 10
+
+RR1_3[RR1_3 < Rmin] = np.nan
+GR1_3[GR1_3 > Rmax] = np.nan
+
+RR1_3[RR1_3 < Rmin] = np.nan
+GR1_3[GR1_3 > Rmax] = np.nan
+
+plt.scatter(RR1_3,GR1_3)
+from pcc import rmse
+plt.title(str(rmse(RR1_3,GR1_3)))
+plt.show()
