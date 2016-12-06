@@ -305,7 +305,7 @@ rrr = result.reshape(gpm_x.shape)
 ## PLOT
 ## ----
 ff = 15
-fig = plt.figure()
+fig = plt.figure(figsize=(11,11))
 ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
@@ -316,8 +316,8 @@ plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 
 #plot_ocean(ax1)
-plt.xlabel("Longitude ",fontsize=ff)
-plt.ylabel("Latitude  ",fontsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("y [km]  ",fontsize=ff)
 #plt.xticks(fontsize=0)
 #plt.yticks(fontsize=0)
 plt.grid(color='r')
@@ -333,8 +333,8 @@ pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
-plt.xlabel("Longitude ",fontsize=ff)
-plt.ylabel("Latitude  ",fontsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("y [km]  ",fontsize=ff)
 plt.title('GPM GPROF Rainrate: \n' + str(pfad_gprof_g[66:70]) + '-' +str(pfad_gprof_g[70:72])+ '-' +
           str(pfad_gprof_g[72:74]) + ' T: ' +str(pfad_gprof_g[76:82]) + '-' + str(pfad_gprof_g[84:90]) + ' UTC',fontsize=ff)
 #plot_ocean(ax2)
@@ -352,8 +352,8 @@ ax2.set_ylim(ax1.get_ylim())
 #plt.yticks(fontsize=0)
 
 
-#Todo: Problem beheben !?!!?!?
-#rrr[rrr==10] = np.nan
+#Todo: Problem beheben !?!!?!? Error 10 mm/h
+rrr[rrr==10] = np.nan
 
 ax2 = fig.add_subplot(223, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,rrr,
@@ -362,14 +362,14 @@ pm2 = plt.pcolormesh(gpm_x, gpm_y,rrr,
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
-plt.xlabel("Longitude ",fontsize=ff)
-plt.ylabel("Latitude  ",fontsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("y [km]  ",fontsize=ff)
 plt.title('RADOLAN Rainrate Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 #plot_ocean(ax2)
 plot_borders(ax2)
-plt.xticks(fontsize=ff)
-plt.yticks(fontsize=ff)
+#plt.xticks(fontsize=ff)
+#plt.yticks(fontsize=ff)
 #plt.xlim((bonn_lon1-1,bonn_lon2+1))
 #plt.ylim((bonn_lat1-1,bonn_lat2+1))
 plt.grid(color='r')
@@ -406,14 +406,14 @@ hist, xedges, yedges = np.histogram2d(xx, yy, (xedges, yedges))
 xidx = np.clip(np.digitize(xx, xedges), 0, hist.shape[0]-1)
 yidx = np.clip(np.digitize(yy, yedges), 0, hist.shape[1]-1)
 c = hist[xidx, yidx]
-plt.scatter(xx, yy, c=c)
+plt.scatter(xx, yy, c=c, label='RR [mm/h]')
 plt.colorbar()
 plt.plot(B,line,'r-')
 maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
 plt.xlim(0,maxAB + 1)
 plt.ylim(0,maxAB + 1)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
-                    fontsize='small', title="________"+"_vs_BoxPol________" + "\n Slope: " + str(round(slope,3))
+                    fontsize='small', title= "Slope: " + str(round(slope,3))
                                             + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
                                             str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
 plt.xlabel("GPROF RR [mm/h]")
