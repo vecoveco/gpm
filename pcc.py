@@ -48,3 +48,10 @@ def dscat(xdat, ydat):
 
 
 
+
+def rmse(predictions, targets):
+
+    import numpy as np
+    # RMS sqrt(1/n SUM/d_i - pi)^2
+    return np.sqrt(((predictions - targets) ** 2).mean())
+
