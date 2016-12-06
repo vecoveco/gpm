@@ -85,11 +85,11 @@ latend = ilat[0][-1]
 #else:
 #    offset = 50
 
-pos = ((lonstart + lonend) /2) #+ offset
+pos1 = ((lonstart + lonend) /2) #+ offset
 
 #Mittelpunkt von GMI Path
-lon_scan = gprof_lon[pos,gprof_lon.shape[1]/2]
-lat_scan = gprof_lat[pos,gprof_lat.shape[1]/2]
+lon_scan = gprof_lon[pos1,gprof_lon.shape[1]/2]
+lat_scan = gprof_lat[pos1,gprof_lat.shape[1]/2]
 
 grad = 0.1
 np.where((lon_scan+grad>=SC_lon)&(lon_scan-grad<=SC_lon))
@@ -98,10 +98,13 @@ dx, dy = [47,55,55,47], [6,6,15,15]
 
 
 #### PLOT ####
-for i in [1,2,3,4]:
+positionsvector = np.array([-50,0, 50])
+for i in range(len(positionsvector)):
     fig1 = plt.figure()
-    pos = pos + i
+    pos = pos1 + (positionsvector[i])
+    print pos
     plt.plot(SC_lon, SC_lat, label='Satellitenbahn')
+    plt.scatter(SC_lon, SC_lat, label='Satellitenbahn')
     plt.scatter(SC_lon[pos], SC_lat[pos], color='magenta', label='Satellitenposition')
 
     #plt.scatter((gprof_lon[pos,-1]+gprof_lon[pos,0])/2, (gprof_lat[pos,-1]+gprof_lat[pos,0])/2, label= 'Position GMI-Scan')
@@ -129,7 +132,7 @@ for i in [1,2,3,4]:
     plt.grid()
 plt.show()
 
-for jj in range(10):
+for jj in range(60):
     pos1 =  jj
     print str(sc_y[pos1]) +'-'+ str(sc_M[pos1])+'-'+str(sc_dom[pos1])+' '+str(sc_h[pos1])+':'+str(sc_m[pos1])+':'+\
           str(sc_sec[pos1])+ ' UTC,'+ ' H: ' + str(SC_alt[pos1]), 'Lon '+str(SC_lon[pos1])+ ' Orientation: '+ str(SC_ori[pos1])

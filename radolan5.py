@@ -445,19 +445,48 @@ plt.show()
 '''
 
 
+'''
+plt.hist(A[mask],bins=200, color='red', alpha=0.4, label='RADOLAN interpoliert')
+
+plt.hist(B[mask], bins=200, color='blue', alpha=0.4, label='GPROF')
+#pdf = stats.norm.pdf(sorted(B[mask]), B[mask], B[mask])
+#plt.plot(sorted(B[mask]), pdf)
+plt.xlabel("RR [mm/h]")
+plt.ylabel("frequency")
+plt.legend(loc='upper right')
+plt.grid()
+plt.show()
+
 
 RR1_3 = A
 GR1_3 = B
 # forschleife in ein scatter mit verschiedenen farben
-Rmin, Rmax = 1, 10
+colors = ['blue', 'red','green']
+rmin = [1,5,9]
+rmax = [5,9,40]
 
-RR1_3[RR1_3 < Rmin] = np.nan
-GR1_3[GR1_3 > Rmax] = np.nan
+for ii in range(3):
+    Rmin, Rmax = rmin[ii], rmax[ii]
 
-RR1_3[RR1_3 < Rmin] = np.nan
-GR1_3[GR1_3 > Rmax] = np.nan
+    RR1_3[RR1_3 < Rmin] = np.nan
+    GR1_3[GR1_3 > Rmax] = np.nan
 
-plt.scatter(RR1_3,GR1_3)
-from pcc import rmse
-plt.title(str(rmse(RR1_3,GR1_3)))
+    RR1_3[RR1_3 < Rmin] = np.nan
+    GR1_3[GR1_3 > Rmax] = np.nan
+
+    mask = ~np.isnan(GR1_3) & ~np.isnan(RR1_3)
+    slope, intercept, r_v, p_value, std_err = stats.linregress(GR1_3[mask], RR1_3[mask])
+    line = slope*GR1_3+intercept
+
+    plt.scatter(RR1_3,GR1_3, color=colors[ii], label=str(rmse(RR1_3,GR1_3))+'___'+str(r_v))
+    plt.plot(GR1_3,line,color=colors[ii])
+
+
+    from pcc import rmse
+
+plt.legend(loc='lower right')
+plt.grid()
 plt.show()
+
+
+'''
