@@ -79,7 +79,9 @@ lat1 = radolan_grid_ll[:, :, 1]
 
 ## Read GPROF
 ## ------------
+#pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
 pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
+
 pfad_gprof = glob.glob(pfad2)
 pfad_gprof_g = pfad_gprof[0]
 

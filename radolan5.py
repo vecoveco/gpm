@@ -30,7 +30,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20141007023500'
+ZP = '20160405174500'#'20160917102000'#'20160805054500'#'20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -38,13 +38,14 @@ ye = ZP[2:4]
 ## ----------------------------
 iii = 0
 #pfad = ('/user/velibor/SHKGPM/data/radolan/*bin')
-pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin')
-print pfad
-pfad_radolan= sorted(glob.glob(pfad))
-pfad_radolan = pfad_radolan[iii]
+pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
+#print pfad
+#pfad_radolan= sorted(glob.glob(pfad))
+#print pfad_radolan
+#pfad_radolan = pfad_radolan[iii]
+pfad_radolan = pfad[:-3]
 
-
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 for key, value in rwattrs.items():
@@ -92,13 +93,12 @@ lat1 = radolan_grid_ll[:, :, 1]
 
 ## Read GPROF
 ## ------------
-#pfad2 = ('/home/velibor/shkgpm/data/20140921/gprof/*.HDF5')
 pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/gprof/*.HDF5')
-
 pfad_gprof = glob.glob(pfad2)
 pfad_gprof_g = pfad_gprof[0]
 
-print pfad_gprof_g
+
+
 
 gpmgmi = h5py.File(pfad_gprof_g, 'r')
 
@@ -108,6 +108,7 @@ gprof_lat=np.array(gpmgmi_S1['Latitude'])
 gprof_lon=np.array(gpmgmi_S1['Longitude'])
 gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
 gprof_pp[gprof_pp<=0] = np.nan
+
 
 bonn_lat1 = 47.9400
 bonn_lat2 = 55.3500
@@ -328,6 +329,7 @@ plt.ylim(-4700, -3700)
 ax2 = fig.add_subplot(224, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+
 #pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      #cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
@@ -388,7 +390,7 @@ A = rrr
 B = np.ma.masked_invalid(gprof_pp[latstart:latend])
 A[A<0.1] = np.nan
 B[B<0.1] = np.nan
-A[A==10] = np.nan
+#A[A==10] = np.nan
 
 mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
@@ -410,7 +412,7 @@ c = hist[xidx, yidx]
 plt.scatter(xx, yy, c=c, label='RR [mm/h]')
 plt.colorbar()
 plt.plot(B,line,'r-')
-maxAB = np.nanmax([np.nanmax(A),np.nanmax(B)])
+maxAB = np.nanmax([np.nanmax(xx),np.nanmax(yy)])
 plt.xlim(0,maxAB + 1)
 plt.ylim(0,maxAB + 1)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
