@@ -292,7 +292,7 @@ xy = np.vstack((x.ravel(), y.ravel())).transpose()
 
 mask = ~np.isnan(rwdata)
 
-result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)  #Idw
 
 result = np.ma.masked_invalid(result)
 
@@ -309,6 +309,7 @@ ff = 15
 fig = plt.figure(figsize=(10,10))
 ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+#plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
