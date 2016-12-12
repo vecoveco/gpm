@@ -31,7 +31,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20141007023500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20160607155500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -46,7 +46,7 @@ pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+
 
 pfad_radolan = pfad[:-3]
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 #sec = rwattrs['secondary']
