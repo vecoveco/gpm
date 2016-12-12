@@ -31,7 +31,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20160405174500'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -46,13 +46,15 @@ pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(ye
 #pfad_radolan = pfad_radolan[iii]
 pfad_radolan = pfad[:-3]
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+####### pfad
+
+rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
+for key, value in rwattrs.items():
+    print(key + ':', value)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
-
-#mask = ~np.isnan(rwdata)
 
 #sec = rwattrs['secondary']
 #rwdata.flat[sec] = -9999
@@ -60,8 +62,8 @@ rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
 x = radolan_grid_xy[:,:,0]
 y = radolan_grid_xy[:,:,1]
-Z = wradlib.trafo.idecibel(rwdata)
-rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
+#Z = wradlib.trafo.idecibel(rwdata)
+#rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
 ## Radolan lat lon Koordinaten
 # ------------------------------
@@ -94,21 +96,26 @@ lat1 = radolan_grid_ll[:, :, 1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/gprof/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
+print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
 
 
+gpmdprs = h5py.File(pfad_gprof_g, 'r')
+gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
+gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
+gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
 
 
-gpmgmi = h5py.File(pfad_gprof_g, 'r')
+#gpmgmi = h5py.File(pfad_gprof_g, 'r')
 
-gpmgmi.keys()
-gpmgmi_S1=gpmgmi['S1']
-gprof_lat=np.array(gpmgmi_S1['Latitude'])
-gprof_lon=np.array(gpmgmi_S1['Longitude'])
-gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
-gprof_pp[gprof_pp<=0] = np.nan
+#gpmgmi.keys()
+#gpmgmi_S1=gpmgmi['S1']
+#gprof_lat=np.array(gpmgmi_S1['Latitude'])
+#gprof_lon=np.array(gpmgmi_S1['Longitude'])
+#gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
+#gprof_pp[gprof_pp<=0] = np.nan
 
 
 bonn_lat1 = 47.9400
@@ -302,6 +309,11 @@ rrr = result.reshape(gpm_x.shape)
 #Todo:  FEHLER IWO...wahrscheinlich Randbedingungen!? Fehler Wert 10
 #SCHEMA http://wradlib.org/wradlib-docs/latest/notebooks/interpolation/wradlib_ipol_example.html
 
+Z = wradlib.trafo.idecibel(rwdata)
+rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
+
+Zr = wradlib.trafo.idecibel(rrr)
+rrr = wradlib.zr.z2r(Zr, a=200., b=1.6)
 
 ## PLOT
 ## ----
@@ -356,7 +368,7 @@ ax2.set_ylim(ax1.get_ylim())
 
 
 #Todo: Problem beheben !?!!?!? Error 10 mm/h
-#rrr[rrr==10] = np.nan
+rrr[rrr==10] = np.nan
 
 
 ax2 = fig.add_subplot(223, aspect='equal')
