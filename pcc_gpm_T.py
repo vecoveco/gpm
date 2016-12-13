@@ -307,11 +307,46 @@ for ii in range(9):
     slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
     line = slope*B+intercept
 
-    ##############################################################################
-    #plt.hist2d(B[mask],A[mask], bins=100, norm=LogNorm())
-    #plt.hexbin(B[mask],A[mask])
+    xx = B[mask]
+    yy = A[mask]
+    xedges, yedges = np.linspace(-4, 4, 42), np.linspace(-25, 25, 42)
+    hist, xedges, yedges = np.histogram2d(xx, yy, (xedges, yedges))
+    xidx = np.clip(np.digitize(xx, xedges), 0, hist.shape[0]-1)
+    yidx = np.clip(np.digitize(yy, yedges), 0, hist.shape[1]-1)
+    c = hist[xidx, yidx]
+    plt.scatter(xx, yy, c=c, label='RR [mm/h]')
     #plt.colorbar()
-    #plt.show()
+    plt.plot(B,line,'r-')
+    maxA = np.nanmax(yy)
+    maxB = np.nanmax(xx)
+    minA = np.nanmin(yy)
+    minB = np.nanmin(xx)
+
+    plt.xlim(minB,maxB + 1)
+    plt.ylim(minA,maxA + 10)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title= str(S1[ii]) + "\n Correlation: " +
+                                                str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
+    plt.xlabel("GPROF RR [mm/h]")
+    plt.ylabel("Tb [K]")
+    plt.title(" .")
+    plt.tight_layout()
+    plt.grid(True)
+
+plt.show()
+
+
+for ii in range(4):
+    A = T2_pp[:,:,ii][latstart:latend]
+    B = np.ma.masked_invalid(gprof_pp[latstart:latend])
+    #A[A<TH_rain] = np.nan
+    B[B<2] = np.nan
+    #A[A==10] = np.nan
+
+    plt.subplot(2,2,ii+1)
+    mask = ~np.isnan(B) & ~np.isnan(A)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
+    line = slope*B+intercept
 
     xx = B[mask]
     yy = A[mask]
@@ -321,7 +356,7 @@ for ii in range(9):
     yidx = np.clip(np.digitize(yy, yedges), 0, hist.shape[1]-1)
     c = hist[xidx, yidx]
     plt.scatter(xx, yy, c=c, label='RR [mm/h]')
-    plt.colorbar()
+    #plt.colorbar()
     plt.plot(B,line,'r-')
     maxA = np.nanmax(yy)
     maxB = np.nanmax(xx)
@@ -329,15 +364,40 @@ for ii in range(9):
     minB = np.nanmin(xx)
 
     plt.xlim(minB,maxB + 1)
-    plt.ylim(minA,maxA + 1)
+    plt.ylim(minA,maxA + 10)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
-                        fontsize='small', title= "Slope: " + str(round(slope,3))
-                                                + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
+                        fontsize='small', title= str(S1[ii]) + "\n Correlation: " +
                                                 str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
     plt.xlabel("GPROF RR [mm/h]")
     plt.ylabel("Tb [K]")
     plt.title(" .")
-
+    plt.tight_layout()
     plt.grid(True)
+
+plt.show()
+
+# Nach TRMM TMI
+#SI = (451.9 - 0.044 * T_pp[:,:,2]-1.775 * T_pp[:,:,4] + 0.00575 * (T_pp[:,:,4]**2) - T_pp[:,:,7])
+#RR = 0.00513 * (SI **1.9468)
+
+# Nach GPM GMI 2010
+RR_conv = -0.000011769 * (T_pp[:,:,7]**3)  + 0.0080267 * (T_pp[:,:,7]**2) +1.9461* T_pp[:,:,7]+182.677
+RR_strat = -0.0708* T_pp[:,:,7]+19.7034
+
+CSP = 0.5
+RR = RR_conv * CSP + RR_strat * (1-CSP)
+
+ax3 = plt.subplot(1,1,1)
+TT = RR[latstart:latend]
+plt.pcolormesh(T_x, T_y, np.ma.masked_invalid(TT), cmap=my_cmap, vmin=np.nanmin(TT), vmax=np.nanmax(TT))
+cb = plt.colorbar(shrink=0.5)
+cb.set_label("RR (mm/h)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plot_borders(ax3)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("y [km]  ",fontsize=ff)
+plt.xlim(-420,390)
+plt.ylim(-4700, -3700)
+plt.tight_layout()
 
 plt.show()
