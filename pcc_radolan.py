@@ -12,38 +12,28 @@ Einlesen und darstellen von GPM und Radolan Dateien
 Radolanpfad:
 
 """
-
-
-import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as col
-import pandas as pd
 import wradlib
-import glob
-import math
-import pandas as pd
-from scipy import stats
-import matplotlib as mpl
 import wradlib as wrl
-from osgeo import osr
-import os
-import matplotlib.ticker as ticker
-from matplotlib.colors import LogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-#import mpl_toolkits.basemap.pyproj as pyproj
+import pandas as pd
 
 
 
-# Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20160707155500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+
+############################################### Zeitstempel nach YYYYMMDDhhmmss
+#Atime = pd.date_range('01/01/2014', periods=2, freq='5min')
+#A = pd.Timestamp('20120501120500')
+
+ZP = '20160917102000'
+
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
 
 
-## Read RADOLAN GK Koordinaten
-## ----------------------------
+################################################### Read RADOLAN GK Koordinaten
+
 iii = 0
 pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
         str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+
@@ -60,52 +50,12 @@ radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
 x = radolan_grid_xy[:,:,0]
 y = radolan_grid_xy[:,:,1]
 
+Z = wradlib.trafo.idecibel(rwdata)
 
-## Landgrenzenfunktion
-## -------------------
-'''
-def plot_ocean(ax):
-    # open the input data source and get the layer
-    filename = os.path.join('/automount/db01/python/data/NED/10m/physical/10m_physical/ne_10m_ocean.shp')
-    dataset, inLayer = wradlib.io.open_shape(filename)
-    ocean, keys = wradlib.georef.get_shape_coordinates(inLayer)
-    wradlib.vis.add_lines(ax, ocean, color='black', lw=2 , zorder=4)
-'''
-def plot_ocean(ax):
+# Marshall and Palmer 1948
+rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
-    filename = os.path.join('/automount/db01/python/data/NED/10m/physical/10m_physical/ne_10m_ocean.shp')
-    dataset, inLayer = wradlib.io.open_shape(filename)
-    inLayer.SetSpatialFilterRect(1, 45, 19, 56.5)
-    borders, keys = wradlib.georef.get_shape_coordinates(inLayer)
-    proj_gk = osr.SpatialReference()
-    proj_gk.ImportFromEPSG(31466)
-    proj_ll = osr.SpatialReference()
-    proj_ll.ImportFromEPSG(4326)
-    gk3 = wradlib.georef.epsg_to_osr(31467)
-    proj_stereo = wrl.georef.create_osr("dwd-radolan")
-    proj_wgs = osr.SpatialReference()
-    proj_wgs.ImportFromEPSG(4326)
-    print borders.shape
-
-    for j in range(borders.shape[0]):
-        bu = np.array(borders[j].shape)
-
-        a = np.array(bu.shape)
-
-        if a==1:
-            for i in range(0,borders[j].shape[0],1):
-                bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
-                bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-                wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-        if a==2:    #richtig
-            bordx, bordy = wrl.georef.reproject(borders[j][:,0], borders[j][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
-            bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-            wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-
-        bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-
-        wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-    ax.autoscale()
+########################################################### Landgrenzenfunktion
 
 def plot_borders(ax):
 
@@ -159,39 +109,7 @@ def plot_borders(ax):
 
             wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
     ax.autoscale()
-'''
-def plot_dem(ax):
-    filename = wradlib.util.get_wradlib_data_file('/home/velibor/cosmo_de_4326.tif')
-    # pixel_spacing is in output units (lonlat)
-    rastercoords, rastervalues = wradlib.io.read_raster_data(filename,
-                                                         spacing=0.005)
-    # specify kwargs for plotting, using terrain colormap and LogNorm
-    dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
-                        rastervalues, cmap=plt.cm.gist_earth, norm=LogNorm(),
-                        vmin=1, vmax=3000, zorder=1)
-    # make some space on the right for colorbar axis
-    div1 = make_axes_locatable(ax)
-    #cax1 = div1.append_axes("right", size="5%", pad=0.1)
-    # add colorbar and title
-    # we use LogLocator for colorbar
-    #cb = plt.gcf().colorbar(dem, cax=cax1,
-                           #ticks=ticker.LogLocator(subs=range(10)))
-    #cb.set_label('terrain height [m]')
 
-def get_miub_cmap ():
-    startcolor = 'white' # a dark olive
-    color1 = '#8ec7ff' #'cyan' # a bright yellow
-    color2 = 'dodgerblue'
-    color3 = 'lime'
-    color4 = 'yellow'
-    color5 = 'darkorange'
-    color6 = 'red'
-    color7 = 'purple'
-    #color6 = 'grey'
-    endcolor = 'darkmagenta' # medium dark red
-    colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
-    return col.LinearSegmentedColormap.from_list('miub1' ,colors)
-'''
 
 dataset1, inLayer1 = wradlib.io.open_shape('/automount/db01/python/data/ADM/'
                                            'germany/vg250_0101.gk3.shape.ebenen'
@@ -201,11 +119,6 @@ import matplotlib.cm as cm
 my_cmap = cm.get_cmap('jet',40)
 my_cmap.set_under('lightgrey')
 my_cmap.set_over('darkred')
-
-
-
-Z = wradlib.trafo.idecibel(rwdata)
-rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
 
 ########################################################################## PLOT
@@ -233,5 +146,5 @@ plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
 
 
-
 plt.show()
+
