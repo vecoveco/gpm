@@ -253,7 +253,7 @@ S1 = ['10.65 GHz V-Pol', '10.65 GHz H-Pol','18.7 GHz V-Pol' , '18.7 GHz H-Pol',
 
 S2 = ['166.0 GHz V-Pol', '166.0 GHz H-Pol','183.31 +/-3 GHz V-Pol', '183.31 +/-7 GHz V-Pol']
 
-qmin,qmax  = 10,90
+qmin,qmax  = 20,80
 maxi, mini = 300, 100
 
 s2qmin = []

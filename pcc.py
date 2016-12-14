@@ -56,6 +56,12 @@ def rmse(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
 
 
+def histo(data1, data2, bino):
+
+    import matplotlib.pyplot as plt
+    plt.hist(data1, bin=bino)
+    plt.hist(data2, bin=bino)
+    plt.show()
 
 #### Idee
 #Todo: Korrelation von Radar und Satellit Daten in bestimmten Bereichen

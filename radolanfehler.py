@@ -358,8 +358,6 @@ mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
 line = slope*B+intercept
 
-
-
 xx = B[mask]
 yy = A[mask]
 xedges, yedges = np.linspace(-4, 4, 42), np.linspace(-25, 25, 42)
