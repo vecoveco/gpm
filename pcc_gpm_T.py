@@ -253,6 +253,11 @@ S1 = ['10.65 GHz V-Pol', '10.65 GHz H-Pol','18.7 GHz V-Pol' , '18.7 GHz H-Pol',
 
 S2 = ['166.0 GHz V-Pol', '166.0 GHz H-Pol','183.31 +/-3 GHz V-Pol', '183.31 +/-7 GHz V-Pol']
 
+qmin,qmax  = 10,90
+maxi, mini = 300, 100
+
+s2qmin = []
+s2qmax = []
 
 ff = 15
 fig = plt.figure(figsize=(20,15))
@@ -260,7 +265,8 @@ fig = plt.figure(figsize=(20,15))
 for jj in range(9):
     ax3 = plt.subplot(3,3,jj+1)
     TT = T_pp[:,:,jj][latstart:latend]
-    plt.pcolormesh(T_x, T_y, np.ma.masked_invalid(TT), cmap=my_cmap, vmin=np.nanmin(TT), vmax=np.nanmax(TT))
+    plt.pcolormesh(T_x, T_y, np.ma.masked_invalid(TT), cmap='jet',#,vmin = mini, vmax = maxi)
+                   vmin=np.nanpercentile(TT,qmin), vmax=np.nanpercentile(TT,qmax))
     cb = plt.colorbar(shrink=0.5)
     cb.set_label("Tb (K)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
@@ -280,8 +286,9 @@ fig = plt.figure(figsize=(20,15))
 
 for jj in range(4):
     ax3 = plt.subplot(2,2,jj+1)
-    TT = T2_pp[:,:,jj][latstart:latend]
-    plt.pcolormesh(T2_x, T2_y, np.ma.masked_invalid(TT), cmap=my_cmap, vmin=np.nanmin(TT), vmax=np.nanmax(TT))
+    TT2 = T2_pp[:,:,jj][latstart:latend]
+    plt.pcolormesh(T2_x, T2_y, np.ma.masked_invalid(TT2), cmap='jet',
+                   vmin=np.nanpercentile(TT2,qmin), vmax=np.nanpercentile(TT2,qmax))
     cb = plt.colorbar(shrink=0.5)
     cb.set_label("Tb (K)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
@@ -294,7 +301,7 @@ for jj in range(4):
     plt.tight_layout()
 
 plt.show()
-
+'''
 for ii in range(9):
     A = T_pp[:,:,ii][latstart:latend]
     B = np.ma.masked_invalid(gprof_pp[latstart:latend])
@@ -324,7 +331,7 @@ for ii in range(9):
 
     plt.xlim(minB,maxB + 1)
     plt.ylim(minA,maxA + 10)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=2, fancybox=True, shadow=True,
                         fontsize='small', title= str(S1[ii]) + "\n Correlation: " +
                                                 str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
     plt.xlabel("GPROF RR [mm/h]")
@@ -337,36 +344,36 @@ plt.show()
 
 
 for ii in range(4):
-    A = T2_pp[:,:,ii][latstart:latend]
-    B = np.ma.masked_invalid(gprof_pp[latstart:latend])
+    A2 = T2_pp[:,:,ii][latstart:latend]
+    B2 = np.ma.masked_invalid(gprof_pp[latstart:latend])
     #A[A<TH_rain] = np.nan
-    B[B<2] = np.nan
+    B2[B2<2] = np.nan
     #A[A==10] = np.nan
 
     plt.subplot(2,2,ii+1)
-    mask = ~np.isnan(B) & ~np.isnan(A)
-    slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
-    line = slope*B+intercept
+    mask = ~np.isnan(B2) & ~np.isnan(A2)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(B2[mask], A2[mask])
+    line = slope*B2+intercept
 
-    xx = B[mask]
-    yy = A[mask]
-    xedges, yedges = np.linspace(-4, 4, 42), np.linspace(-25, 25, 42)
-    hist, xedges, yedges = np.histogram2d(xx, yy, (xedges, yedges))
-    xidx = np.clip(np.digitize(xx, xedges), 0, hist.shape[0]-1)
-    yidx = np.clip(np.digitize(yy, yedges), 0, hist.shape[1]-1)
-    c = hist[xidx, yidx]
-    plt.scatter(xx, yy, c=c, label='RR [mm/h]')
+    xx2 = B2[mask]
+    yy2 = A2[mask]
+    xedges2, yedges2 = np.linspace(-4, 4, 42), np.linspace(-25, 25, 42)
+    hist2, xedges2, yedges2 = np.histogram2d(xx2, yy2, (xedges2, yedges2))
+    xidx2 = np.clip(np.digitize(xx2, xedges2), 0, hist.shape[0]-1)
+    yidx2 = np.clip(np.digitize(yy2, yedges2), 0, hist.shape[1]-1)
+    c = hist[xidx2, yidx2]
+    plt.scatter(xx2, yy2, c=c, label='RR [mm/h]')
     #plt.colorbar()
     plt.plot(B,line,'r-')
-    maxA = np.nanmax(yy)
-    maxB = np.nanmax(xx)
-    minA = np.nanmin(yy)
-    minB = np.nanmin(xx)
+    maxA2 = np.nanmax(yy2)
+    maxB2 = np.nanmax(xx2)
+    minA2 = np.nanmin(yy2)
+    minB2 = np.nanmin(xx2)
 
-    plt.xlim(minB,maxB + 1)
-    plt.ylim(minA,maxA + 10)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
-                        fontsize='small', title= str(S1[ii]) + "\n Correlation: " +
+    plt.xlim(minB2,maxB2 + 1)
+    plt.ylim(minA2,maxA2 + 10)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=2, fancybox=True, shadow=True,
+                        fontsize='small', title= str(S2[ii]) + "\n Correlation: " +
                                                 str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
     plt.xlabel("GPROF RR [mm/h]")
     plt.ylabel("Tb [K]")
@@ -375,7 +382,8 @@ for ii in range(4):
     plt.grid(True)
 
 plt.show()
-
+'''
+'''
 # Nach TRMM TMI
 #SI = (451.9 - 0.044 * T_pp[:,:,2]-1.775 * T_pp[:,:,4] + 0.00575 * (T_pp[:,:,4]**2) - T_pp[:,:,7])
 #RR = 0.00513 * (SI **1.9468)
@@ -401,3 +409,4 @@ plt.ylim(-4700, -3700)
 plt.tight_layout()
 
 plt.show()
+'''
