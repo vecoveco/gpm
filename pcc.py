@@ -107,9 +107,29 @@ def heidke_correction(estimate, reference, th=None):
     import numpy as np
     if th == None:
         th = 0.1
-    hit = np.array(np.where((estimate < th) & (reference < th)))
-    C = len(hit[0,:])
+    C = np.array(np.where((estimate < th) & (reference < th)))
+    #C = len(hit[0,:])
     return C
+
+
+def heidke(estimate, reference, th=None):
+    import numpy as np
+    #reshapen von arrays
+
+    estimate = estimate.reshape(estimate.shape[0]*estimate.shape[1])
+
+    reference = reference.reshape(reference.shape[0]*reference.shape[1])
+
+    if th == None:
+        th = 0.1
+
+    H = np.array(np.flatnonzero((estimate > th) & (reference > th)))
+    M = np.array(np.flatnonzero((estimate <= th) & (reference > th)))
+    F = np.array(np.flatnonzero((estimate > th) & (reference <= th)))
+    C = np.array(np.flatnonzero((estimate <= th) & (reference <= th)))
+
+    return H, M, F, C
+
 
 
 #### Idee
@@ -131,3 +151,5 @@ def heidke_correction(estimate, reference, th=None):
 #plt.title(str(rmse(RR1_3,GR1_3)))
 #plt.show()
 
+#ag = gpm_gpm.reshape(gpm_gpm.shape[0]*gpm_gpm.shape[1])
+#ar = rrr.reshape(rrr.shape[0]*rrr.shape[1])
