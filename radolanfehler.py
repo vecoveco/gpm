@@ -31,7 +31,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20160607155500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20160805054500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -281,6 +281,7 @@ fig = plt.figure(figsize=(10,10))
 
 Zrw = wradlib.trafo.idecibel(rwdata)
 Rado = wradlib.zr.z2r(Zrw, a=200., b=1.6)
+
 ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, Rado, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
@@ -321,10 +322,6 @@ ax2.set_ylim(ax1.get_ylim())
 
 
 
-#Todo: Problem beheben !?!!?!? Error 10 mm/h
-#rrr[rrr==10] = np.nan
-
-
 ax2 = fig.add_subplot(223, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,rrr,
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
@@ -350,9 +347,6 @@ A = rrr
 B = np.ma.masked_invalid(gprof_pp[latstart:latend])
 A[A<TH_rain] = np.nan
 B[B<TH_rain] = np.nan
-
-#A[A==10] = np.nan
-
 
 mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])

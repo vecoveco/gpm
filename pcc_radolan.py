@@ -26,7 +26,6 @@ import pandas as pd
 #A = pd.Timestamp('20120501120500')
 
 ZP = '20160917102000'
-
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -45,6 +44,9 @@ rw_filename = wradlib.util.get_wradlib_data_file(pfad)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
+
+radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d %H:%M:%S")
+
 
 radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
 x = radolan_grid_xy[:,:,0]
@@ -132,9 +134,7 @@ cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
-plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+
-          str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
-       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff)
+plt.title('RADOLAN Rainrate: \n'+ radolan_zeit + 'UTC',fontsize=ff)
 
 #plot_ocean(ax1)
 plt.xlabel("x [km] ",fontsize=ff)
