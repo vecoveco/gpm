@@ -59,12 +59,57 @@ def rmse(predictions, targets):
 def histo(data1, data2, bino):
 
     import matplotlib.pyplot as plt
-
+    #Todo: in arbeit
     plt.hist(data1, bins=bino)
     plt.hist(data2, bins=bino)
     plt.show()
 
 
+#Heidke Skill Score
+# Lit: J. Tan A Novel Approach to Indetify Source of Errors in IMERG for GPM Ground Validation
+
+#                   |  Estimate  |  Reference
+#-----------------------------------------------
+#Hit H :            |  Yes      |    Yes
+#Miss M :           |  No       |    Yes
+#F False:           |  Yes      |    No
+#C Correctnegative :|  No       |    No
+
+#Hit:
+def heidke_hit(estimate, reference, th=None):
+    import numpy as np
+    if th == None:
+        th = 0.1
+    hit = np.array(np.where((estimate > th) & (reference > th)))
+    H = len(hit[0,:])
+    return H
+
+
+#Miss:
+def heidke_miss(estimate, reference, th=None):
+    import numpy as np
+    if th == None:
+        th = 0.1
+    hit = np.array(np.where((estimate < th) & (reference > th)))
+    M = len(hit[0,:])
+    return M
+
+#False:
+def heidke_false(estimate, reference, th=None):
+    import numpy as np
+    if th == None:
+        th = 0.1
+    hit = np.array(np.where((estimate > th) & (reference < th)))
+    F = len(hit[0,:])
+    return F
+
+def heidke_correction(estimate, reference, th=None):
+    import numpy as np
+    if th == None:
+        th = 0.1
+    hit = np.array(np.where((estimate < th) & (reference < th)))
+    C = len(hit[0,:])
+    return C
 
 
 #### Idee

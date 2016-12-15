@@ -282,6 +282,8 @@ fig = plt.figure(figsize=(10,10))
 Zrw = wradlib.trafo.idecibel(rwdata)
 Rado = wradlib.zr.z2r(Zrw, a=200., b=1.6)
 
+#Rado[Rado< 5] = np.nan
+
 ax1 = fig.add_subplot(221, aspect='equal')
 plt.pcolormesh(x, y, Rado, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
@@ -299,9 +301,10 @@ plt.grid(color='r')
 plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
 
+gpm_gpm = np.ma.masked_invalid(gprof_pp[latstart:latend])
 
 ax2 = fig.add_subplot(224, aspect='equal')
-pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp[latstart:latend]),
+pm2 = plt.pcolormesh(gpm_x, gpm_y,gpm_gpm,
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 
 cb = plt.colorbar(shrink=0.8)
