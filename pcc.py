@@ -75,7 +75,7 @@ def histo(data1, data2, bino):
 #C Correctnegative :|  No       |    No
 
 
-def contitab(estimate, reference, th=None):
+def skill_score(estimate, reference, th=None):
     #contigency tables Lit: Tang et al. 2015
     import numpy as np
     #reshapen von arrays
@@ -97,16 +97,61 @@ def contitab(estimate, reference, th=None):
     F_pos = np.array(np.flatnonzero((estimate > th) & (reference <= th)))
     #Correctnegative
     C_pos = np.array(np.flatnonzero((estimate <= th) & (reference <= th)))
+    #Samplesize
+    N = len(estimate)
 
     H, M, F, C = len(H_pos), len(M_pos), len(F_pos), len(C_pos)
 
-    result = {'val': [H,M,F,C], 'pos':[H_pos, M_pos, F_pos, C_pos]}
+    H, M, F, C, N = float(H), float(M), float(F), float(C), float(N)
 
-    return  result
+    E = 1/N * (((H + M)*(H + F)) +
+                       ((C + M) * (C + F)))
+
+    POD = H/(H + M)
+    FAR = F/(H + F)
+    BID = (H +F)/(H + M)
+    HSS = (H + C - E) / (N - E)
+
+    result = {'H': H,
+              'M': M,
+              'F': F,
+              'C': C,
+              'H_pos': H_pos,
+              'M_pos': M_pos,
+              'F_pos': F_pos,
+              'C_pos': C_pos,
+              'N': N,
+              'POD': POD,
+              'FAR': FAR,
+              'BID': BID,
+              'HSS': HSS}
+
+    #for key, value in result.items():
+    #    print(key + ':', value)
+
+    return result
 
 
-def scores(H, M, F, C):
-    #contigency tables Lit: Tang et al. 2015
+def scores(H_tab, M_tab, F_tab, C_tab, N_tab):
+    #score Lit: Tan et al 2016
+
+    E_tab = 1/N_tab * (((H_tab + M_tab)(H_tab + F_tab)) +
+                       ((C_tab + M_tab) * (C_tab + F_tab)))
+
+    POD = H_tab/(H_tab + M_tab)
+    FAR = F_tab/(H_tab + F_tab)
+    BID = (H_tab +F_tab)/(H_tab + M_tab)
+    HSS = (H_tab + C_tab - E_tab) / (N_tab - E_tab)
+
+    result = {'POD': POD,
+              'FAR': FAR,
+              'BID': BID,
+              'HSS': HSS}
+
+    return result
+
+
+def plot_score(estimate, reference, scoreval):
     import numpy as np
     #reshapen von arrays
     try:
@@ -116,20 +161,15 @@ def scores(H, M, F, C):
         estimate = estimate
         reference = reference
 
-    if th == None:
-        th = 0.1 # GMI 0.1, ka 0.2 ku 0.5 Hou et al 2014
+    import matplotlib.pyplot as plt
 
-    H_pos = np.array(np.flatnonzero((estimate > th) & (reference > th)))
-    M_pos = np.array(np.flatnonzero((estimate <= th) & (reference > th)))
-    F_pos = np.array(np.flatnonzero((estimate > th) & (reference <= th)))
-    C_pos = np.array(np.flatnonzero((estimate <= th) & (reference <= th)))
-
-    H, M, F, C = len(H_pos), len(M_pos), len(F_pos), len(C_pos)
-
-    result = {'val': [H,M,F,C], 'pos':[H_pos, M_pos, F_pos, C_pos]}
-
-    return  result
-
+    plt.scatter(estimate[scoreval['H_pos']],reference[scoreval['H_pos']], color='black', label='Hit')
+    plt.scatter(estimate[scoreval['M_pos']],reference[scoreval['M_pos']], color='blue', label='Miss')
+    plt.scatter(estimate[scoreval['F_pos']],reference[scoreval['F_pos']], color='red', label='False')
+    plt.scatter(estimate[scoreval['C_pos']],reference[scoreval['C_pos']], color='green', label='Correct Negative')
+    plt.grid()
+    plt.legend(loc='upper right')
+    #plt.show()
 
 
 #### Idee
