@@ -67,7 +67,6 @@ def histo(data1, data2, bino):
 
 #Heidke Skill Score
 # Lit: J. Tan A Novel Approach to Indetify Source of Errors in IMERG for GPM Ground Validation
-
 #                   |  Estimate  |  Reference
 #-----------------------------------------------
 #Hit H :            |  Yes      |    Yes
@@ -75,60 +74,61 @@ def histo(data1, data2, bino):
 #F False:           |  Yes      |    No
 #C Correctnegative :|  No       |    No
 
-#Hit:
-def heidke_hit(estimate, reference, th=None):
-    import numpy as np
-    if th == None:
-        th = 0.1
-    hit = np.array(np.where((estimate > th) & (reference > th)))
-    H = len(hit[0,:])
-    return H
 
-
-#Miss:
-def heidke_miss(estimate, reference, th=None):
-    import numpy as np
-    if th == None:
-        th = 0.1
-    hit = np.array(np.where((estimate < th) & (reference > th)))
-    M = len(hit[0,:])
-    return M
-
-#False:
-def heidke_false(estimate, reference, th=None):
-    import numpy as np
-    if th == None:
-        th = 0.1
-    hit = np.array(np.where((estimate > th) & (reference < th)))
-    F = len(hit[0,:])
-    return F
-
-def heidke_correction(estimate, reference, th=None):
-    import numpy as np
-    if th == None:
-        th = 0.1
-    C = np.array(np.where((estimate < th) & (reference < th)))
-    #C = len(hit[0,:])
-    return C
-
-
-def heidke(estimate, reference, th=None):
+def contitab(estimate, reference, th=None):
+    #contigency tables Lit: Tang et al. 2015
     import numpy as np
     #reshapen von arrays
-
-    estimate = estimate.reshape(estimate.shape[0]*estimate.shape[1])
-
-    reference = reference.reshape(reference.shape[0]*reference.shape[1])
+    try:
+        estimate = estimate.reshape(estimate.shape[0]*estimate.shape[1])
+        reference = reference.reshape(reference.shape[0]*reference.shape[1])
+    except IndexError:
+        estimate = estimate
+        reference = reference
 
     if th == None:
-        th = 0.1
+        th = 0.1 # GMI 0.1, ka 0.2 ku 0.5 Hou et al 2014
 
-    H = np.array(np.flatnonzero((estimate > th) & (reference > th)))
-    M = np.array(np.flatnonzero((estimate <= th) & (reference > th)))
-    F = np.array(np.flatnonzero((estimate > th) & (reference <= th)))
-    C = np.array(np.flatnonzero((estimate <= th) & (reference <= th)))
+    #Hit
+    H_pos = np.array(np.flatnonzero((estimate > th) & (reference > th)))
+    #Miss
+    M_pos = np.array(np.flatnonzero((estimate <= th) & (reference > th)))
+    #FalseAlarm
+    F_pos = np.array(np.flatnonzero((estimate > th) & (reference <= th)))
+    #Correctnegative
+    C_pos = np.array(np.flatnonzero((estimate <= th) & (reference <= th)))
 
-    return H, M, F, C
+    H, M, F, C = len(H_pos), len(M_pos), len(F_pos), len(C_pos)
+
+    result = {'val': [H,M,F,C], 'pos':[H_pos, M_pos, F_pos, C_pos]}
+
+    return  result
+
+
+def scores(H, M, F, C):
+    #contigency tables Lit: Tang et al. 2015
+    import numpy as np
+    #reshapen von arrays
+    try:
+        estimate = estimate.reshape(estimate.shape[0]*estimate.shape[1])
+        reference = reference.reshape(reference.shape[0]*reference.shape[1])
+    except IndexError:
+        estimate = estimate
+        reference = reference
+
+    if th == None:
+        th = 0.1 # GMI 0.1, ka 0.2 ku 0.5 Hou et al 2014
+
+    H_pos = np.array(np.flatnonzero((estimate > th) & (reference > th)))
+    M_pos = np.array(np.flatnonzero((estimate <= th) & (reference > th)))
+    F_pos = np.array(np.flatnonzero((estimate > th) & (reference <= th)))
+    C_pos = np.array(np.flatnonzero((estimate <= th) & (reference <= th)))
+
+    H, M, F, C = len(H_pos), len(M_pos), len(F_pos), len(C_pos)
+
+    result = {'val': [H,M,F,C], 'pos':[H_pos, M_pos, F_pos, C_pos]}
+
+    return  result
 
 
 

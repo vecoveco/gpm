@@ -25,7 +25,7 @@ import pandas as pd
 #Atime = pd.date_range('01/01/2014', periods=2, freq='5min')
 #A = pd.Timestamp('20120501120500')
 
-ZP = '20160917102000'
+ZP = '20150514000000'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -40,7 +40,7 @@ pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
 
 pfad_radolan = pfad[:-3]
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
