@@ -31,7 +31,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20160607155500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20150402222500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -48,11 +48,9 @@ pfad_radolan = pfad[:-3]
 
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
-for key, value in rwattrs.items():
-    print(key + ':', value)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 
@@ -433,7 +431,7 @@ plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True,
                     fontsize='small', title= "Slope: " + str(round(slope,3))
                                             + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
                                             str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
-plt.xlabel("GPROF RR [mm/h]")
+plt.xlabel("CORRA RR [mm/h]")
 plt.ylabel("RADOLAN RR [mm/h]")
 plt.title(" .")
 

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-#execfile("radoöan5.py")
+execfile("radolan5.py")
 
 plt.pcolormesh(x, y, rwdata, color='blue',vmin=0.1,vmax=10, alpha=0.3)
 plt.scatter(x,y, color='blue', lw=1, alpha=0.9, label='RADOLAN Grid')
