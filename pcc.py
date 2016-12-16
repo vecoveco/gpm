@@ -163,12 +163,20 @@ def plot_score(estimate, reference, scoreval):
 
     import matplotlib.pyplot as plt
 
-    plt.scatter(estimate[scoreval['H_pos']],reference[scoreval['H_pos']], color='black', label='Hit')
-    plt.scatter(estimate[scoreval['M_pos']],reference[scoreval['M_pos']], color='blue', label='Miss')
-    plt.scatter(estimate[scoreval['F_pos']],reference[scoreval['F_pos']], color='red', label='False')
-    plt.scatter(estimate[scoreval['C_pos']],reference[scoreval['C_pos']], color='green', label='Correct Negative')
+    plt.scatter(estimate[scoreval['H_pos']],reference[scoreval['H_pos']],
+                color='black', label='Hit')
+    plt.scatter(estimate[scoreval['M_pos']],reference[scoreval['M_pos']],
+                color='blue', label='Miss')
+    plt.scatter(estimate[scoreval['F_pos']],reference[scoreval['F_pos']],
+                color='red', label='False')
+    plt.scatter(estimate[scoreval['C_pos']],reference[scoreval['C_pos']],
+                color='green', label='Correct Negative')
     plt.grid()
     plt.legend(loc='upper right')
+    plt.figtext(0.005,0.005,' POD '+ str(scoreval['POD'])+ ' , ' + ' FAR ' +
+              str(scoreval['FAR']) + ' BID '+ str(scoreval['BID'])+
+              ' , ' + ' HSS ' + str(scoreval['HSS']),fontsize=10)
+
     #plt.show()
 
 
