@@ -176,7 +176,11 @@ def plot_score(estimate, reference, scoreval):
     plt.legend(loc='upper right')
     plt.figtext(0.005,0.005,' POD: '+ str(scoreval['POD'])+ ' , ' + ' FAR: ' +
               str(scoreval['FAR']) + ' BID: '+ str(scoreval['BID'])+
-              ' , ' + ' HSS: ' + str(scoreval['HSS']),fontsize=10)
+              ' , ' + ' HSS: ' + str(scoreval['HSS'])+
+                '-- H: '+ str(scoreval['H'])+ ' , ' + ' M: ' +
+              str(scoreval['M']) + ' F: '+ str(scoreval['F'])+
+              ' , ' + ' C: ' + str(scoreval['C']) +' N: ' + str(scoreval['N'])
+                ,fontsize=10)
 
     #plt.show()
 

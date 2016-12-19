@@ -455,11 +455,9 @@ plt.grid(True)
 
 plt.show()
 ###############################################################################
-print np.max(ref), np.min(ref), 'ref'
-print np.max(est), np.min(est), 'est'
 
 import pcc
-R = pcc.skill_score(est,ref,0)
+R = pcc.skill_score(est,ref,0.5)
 pcc.plot_score(est,ref,R)
 plt.show()
 
