@@ -458,9 +458,6 @@ plt.show()
 print np.max(ref), np.min(ref), 'ref'
 print np.max(est), np.min(est), 'est'
 
-ref, est = np.nan_to_num(ref), np.nan_to_num(est)
-
-
 import pcc
 R = pcc.skill_score(est,ref,0)
 pcc.plot_score(est,ref,R)

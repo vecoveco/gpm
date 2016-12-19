@@ -48,8 +48,8 @@ pfad_gprof_g = pfad_gprof[0]
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
 gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
 gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
-gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
-#gprof_pp=np.array(gpmdprs['NS']['cloudIceWaterCont'])
+#gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
+gprof_pp=np.array(gpmdprs['NS']['cloudIceWaterCont'])
 
 
 
@@ -243,7 +243,7 @@ my_cmap.set_over('darkred')
 ff = 15
 fig = plt.figure(figsize=(10,10))
 ax2 = fig.add_subplot(111, aspect='equal')
-pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
+pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,2]),
                      cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 
 cb = plt.colorbar(shrink=0.8)

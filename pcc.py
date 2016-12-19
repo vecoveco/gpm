@@ -88,6 +88,7 @@ def skill_score(estimate, reference, th=None):
 
     if th == None:
         th = 0.1 # GMI 0.1, ka 0.2 ku 0.5 Hou et al 2014
+    reference, estimate = np.nan_to_num(reference), np.nan_to_num(estimate)
 
     #Hit
     H_pos = np.array(np.flatnonzero((estimate > th) & (reference > th)))
