@@ -104,8 +104,8 @@ gpmdprs = h5py.File(pfad_gprof_g, 'r')
 gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
 gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
 gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
-#gprof_pp=np.array(gpmdprs['NS']['cloudIceWaterCont'])
-
+#gprof_pp=np.array(gpmdprs['NS']['pia'])
+#gprof_pp[gprof_pp==-9999.9]= np.nan
 #gpmgmi = h5py.File(pfad_gprof_g, 'r')
 
 #gpmgmi.keys()
@@ -145,6 +145,7 @@ blon = alon[alonstart:alonend]
 blat = alat[alonstart:alonend]
 gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
+print 'gprof min max:' + str(np.nanmin(gprof_pp_b)), str(np.nanmax(gprof_pp_b))
 ## GPM lon/lat in GK
 ## ------------
 #proj_gk = osr.SpatialReference()
@@ -327,8 +328,14 @@ rrr = result.reshape(gpm_x.shape)
 Z = wradlib.trafo.idecibel(rwdata)
 rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
+
 Zr = wradlib.trafo.idecibel(rrr)
 rrr = wradlib.zr.z2r(Zr, a=200., b=1.6)
+
+
+print 'rwdata min max:' + str(np.nanmin(rwdata)), str(np.nanmax(rwdata))
+
+print 'rrr min max:' + str(np.nanmin(rrr)), str(np.nanmax(rrr))
 
 ## PLOT
 ## ----
@@ -414,8 +421,8 @@ ax2 = fig.add_subplot(222, aspect='equal')
 
 A = rrr
 B = np.ma.masked_invalid(gprof_pp_b)
-A[A<TH_rain] = np.nan
-B[B<TH_rain] = np.nan
+#A[A<TH_rain] = np.nan
+#B[B<TH_rain] = np.nan
 
 ref = rrr
 est = np.ma.masked_invalid(gprof_pp_b)
@@ -457,8 +464,11 @@ plt.show()
 ###############################################################################
 
 import pcc
-R = pcc.skill_score(est,ref,0.5)
+R = pcc.skill_score(est,ref,0.1)
 pcc.plot_score(est,ref,R)
+plt.xlabel("CORRA RR [mm/h]")
+plt.ylabel("RADOLAN RR [mm/h]")
+plt.title(" .")
 plt.show()
 
 
