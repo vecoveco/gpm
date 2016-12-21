@@ -31,16 +31,19 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20160904135000'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20160917102000'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
 # '20160904135000'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
 
-
+#ToDo: Veralgemeinern bzgl aller Parameter:
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
+#pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
+
+pfad2 = ('/home/velibor/shkgpm/data/example/dpr/*.HDF5')
+
 pfad_gprof = glob.glob(pfad2)
 pfad_gprof_g = pfad_gprof[0]
 
@@ -51,12 +54,12 @@ gprof_lon=np.array(gpmdprs['MS']['Longitude'])			#(7934, 24)
 #gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
 #gprof_pp=np.array(gpmdprs['MS']['tenMeterWindSpeed'])
 
-gprof_pp=np.array(gpmdprs['MS']['correctedReflectFactor'])
+gprof_pp=np.array(gpmdprs['MS']['DSD']['binNode'])
 #gprof_pp=np.array(gpmdprs['MS']['pia'])
 
-gprof_pp = gprof_pp[:,:,:,0]
+#gprof_pp = gprof_pp[:,:,:,0]
 
-gprof_pp[gprof_pp==-9999.9] = np.nan
+#gprof_pp[gprof_pp==-9999.9] = np.nan
 
 print gprof_pp.shape, gprof_lat.shape
 
@@ -66,6 +69,12 @@ bonn_lat1 = 47.9400
 bonn_lat2 = 55.3500
 bonn_lon1 = 6.40000
 bonn_lon2 = 14.10000
+
+#Europa
+#bonn_lat1 = 30.9400
+#bonn_lat2 = 70.3500
+#bonn_lon1 = 0.40000
+#bonn_lon2 = 50.10000
 
 
 ilat= np.where((gprof_lat>bonn_lat1) & (gprof_lat<bonn_lat2))
@@ -92,7 +101,9 @@ blat = alat[alonstart:alonend]
 gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
 
-
+## Nur wenn genzer Swath genutzt wird
+#gprof_pp_b = gprof_pp
+#blat, blon = gprof_lat, gprof_lon
 
 ###########PROJECTION
 
@@ -248,15 +259,16 @@ my_cmap = cm.get_cmap('jet',40)
 my_cmap.set_under('lightgrey')
 my_cmap.set_over('darkred')
 
+cut = 13
 
+print np.nanmax(gprof_pp_b[:,cut,:])
 print gprof_pp_b.shape, gpm_x.shape
 ## PLOT
 ## ----
 ff = 15
 fig = plt.figure(figsize=(10,10))
-ax2 = fig.add_subplot(121, aspect='equal')
-cut = 10
-pm1 = plt.imshow(np.transpose(gprof_pp_b[:,cut,:]),vmin=15, vmax=30)
+ax2 = fig.add_subplot(121, aspect='auto')
+pm1 = plt.imshow(np.transpose(gprof_pp_b[:,cut,:]),vmin=0, vmax=176, aspect='auto')
 
 cb = plt.colorbar(shrink=0.4)
 cb.set_label("Ref (dBZ)",fontsize=ff)
@@ -266,8 +278,8 @@ plt.ylabel("z [km]  ",fontsize=ff)
 plt.grid()
 
 ax2 = fig.add_subplot(122, aspect='equal')
-pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,70]),
-                     cmap=my_cmap,vmin=12,vmax=40, zorder=2)
+pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,0]),
+                     cmap=my_cmap,vmin=0,vmax=176, zorder=2)
 
 cb = plt.colorbar(shrink=0.4)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
