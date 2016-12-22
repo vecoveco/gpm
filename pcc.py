@@ -185,6 +185,31 @@ def plot_score(estimate, reference, scoreval):
     #plt.show()
 
 
+
+
+#Todo: Zeitschleife so bauen das ein Zeitvector ztime raus kommt!
+def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS):
+    import datetime as dt
+    import numpy as np
+    ztime = []
+    def datespan(startDate, endDate, delta=dt.timedelta(days=1)):
+        currentDate = startDate
+        while currentDate < endDate:
+            yield currentDate
+            currentDate += delta
+
+    start = dt.datetime(sY, sm, sd, sH, sM,sS)
+    ende = dt.datetime(eY, em, ed, eH, eM,eS)
+    ztime=[]
+
+    for timestamp in datespan(start,ende,delta=dt.timedelta(minutes=5)):
+        ztime.append(timestamp.strftime('%Y%m%d%H%M%S'))
+
+
+        #print timestamp.strftime('%Y%m%d%H%M%S')
+        #return timestamp.strftime('%Y%m%d%H%M%S')
+    return ztime
+
 #### Idee
 #Todo: Korrelation von Radar und Satellit Daten in bestimmten Bereichen
 # Z.B. Nur bestimmte Niederschlagsintensiteten!

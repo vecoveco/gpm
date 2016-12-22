@@ -17,13 +17,18 @@ import matplotlib.pyplot as plt
 import wradlib
 import wradlib as wrl
 import pandas as pd
-
+import datetime as dt
 
 
 
 ############################################### Zeitstempel nach YYYYMMDDhhmmss
 #Atime = pd.date_range('01/01/2014', periods=2, freq='5min')
 #A = pd.Timestamp('20120501120500')
+
+
+from pcc import zeitschleife as zt
+
+ZP = zt(2016,5,13,23,30,0,2016,5,13,23,50,0)
 
 ZP = '20160513233000'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -45,7 +50,7 @@ rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 
-radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d %H:%M:%S")
+radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
 
 
 radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
@@ -144,7 +149,6 @@ plt.ylabel("y [km]  ",fontsize=ff)
 plt.grid(color='r')
 plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
-
-
+plt.tight_layout()
 plt.show()
 
