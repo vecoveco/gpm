@@ -341,6 +341,7 @@ ax12 = fig.add_subplot(122, aspect='equal')
 pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,170]),
                      cmap=my_cmap,vmin=5,vmax=40, zorder=2)
 plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='black',lw=1)
+#plt.scatter(216,-4236, lw=3, color='magenta', marker='o')# BONN markieren
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Ref (DBZ)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
