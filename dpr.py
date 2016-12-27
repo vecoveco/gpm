@@ -32,7 +32,7 @@ TH = 0.1 #Threshold um Nullen fuer Niederschlag raus zu filtern
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 offset = 2
 #LISTE der Ueberfluege des GPM mit Niederschlagevents
-LISTE = ("20140921070500","20140921071058","20140629145000","20140629145925","20141007023744")#,"20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
+LISTE = ("20140921070500")#,"20140921071058","20140629145000","20140629145925","20141007023744")#,"20141007023000")#bei 3 ohne "20150128171500", bei 2 ohne ,"20141016001500" ,schlecht:"20140826150322","20141016001500","20140826145000","20141016002458"
 LISTE=sorted(LISTE)
 
 for i in range(0,len(LISTE)):

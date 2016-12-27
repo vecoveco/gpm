@@ -327,3 +327,9 @@ def plot_borders(ax):
 
             wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
     ax.autoscale()
+
+
+def boxpol_pos():
+    pos_boxpol = {'lat_ppi' : 50.730519999999999, 'lon_ppi' : 7.071663
+    ,'gky_ppi' : -4235.233235191105, 'gkx_ppi' : -216.64772430049572}
+    return pos_boxpol
