@@ -31,7 +31,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20141007023500'#'20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -48,7 +48,7 @@ pfad_radolan = pfad[:-3]
 
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 
@@ -68,7 +68,7 @@ y = radolan_grid_xy[:,:,1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
@@ -79,8 +79,14 @@ gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
 gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
 #gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
 
-gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRate'])
-
+#gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRate'])
+#gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'],dtype=float)
+gprof_pp=np.array(gpmdprs['NS']['correctedReflectFactor'])
+print gprof_pp.shape
+print type(gprof_pp[1,2,0])
+#gprof_pp = np.float(gprof_pp)
+gprof_pp[gprof_pp==-9999.9]= np.NaN
+#gprof_pp= gprof_pp[:,:,:,0]
 #gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'])
 
 
@@ -126,7 +132,8 @@ blat = alat[alonstart:alonend]
 gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
 dpr3 = gprof_pp_b
-gprof_pp_b = gprof_pp_b[:,:,170]
+gprof_pp_b = gprof_pp_b[:,:,80]
+
 gprof_pp_b[gprof_pp_b==-9999.9]=np.nan
 
 print 'gprof min max:' + str(np.nanmin(gprof_pp_b)), str(np.nanmax(gprof_pp_b)), gprof_pp_b.shape
@@ -156,7 +163,7 @@ grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 from pcc import boxpol_pos
 bonn_pos = boxpol_pos()
 bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
-
+blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 from pcc import plot_borders, plot_ocean
 
 dataset1, inLayer1 = wradlib.io.open_shape('/automount/db01/python/data/ADM/germany/vg250_0101.gk3.shape.ebenen/vg250_ebenen/vg250_l.shp')
@@ -197,6 +204,52 @@ print 'rwdata min max:' + str(np.nanmin(rwdata)), str(np.nanmax(rwdata))
 
 print 'rrr min max:' + str(np.nanmin(rrr)), str(np.nanmax(rrr))
 
+
+
+
+def plot_radar(bx,by, ax, reproject=False):
+
+    x_loc, y_loc = (bx, by)
+
+    r = np.arange(1, 101) * 1000
+    # azimuth array 1 degree spacing
+    az = np.linspace(0, 360, 361)[0:-1]
+
+    # build polygons for maxrange rangering
+    polygons = wrl.georef.polar2polyvert(r, az,
+                                         (x_loc, y_loc))
+    polygons.shape = (len(az), len(r), 5, 2)
+    polygons = polygons[:, -1, :, :]
+
+
+
+    if reproject:
+        # reproject to radolan polar stereographic projection
+        polygons = wrl.georef.reproject(polygons,
+                                        projection_source=proj_wgs,
+                                        projection_target=proj_stereo)
+
+        # reproject lonlat radar location coordinates to
+        # polar stereographic projection
+        x_loc, y_loc = wrl.georef.reproject(x_loc, y_loc,
+                                            projection_source=proj_wgs,
+                                            projection_target=proj_stereo)
+
+
+    # create PolyCollections and add to respective axes
+    polycoll = mpl.collections.PolyCollection(polygons, closed=True,
+                                              edgecolors='r',
+                                              facecolors='r',
+                                              zorder=2)
+    ax.add_collection(polycoll, autolim=True)
+
+    # plot radar location and information text
+    ax.plot(x_loc, y_loc, 'r+')
+    ax.text(x_loc, y_loc, 'Bonn', color='r')
+
+
+
+
 ########################################################################## PLOT
 ###########################################################################----
 
@@ -210,6 +263,9 @@ cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
+
+plot_radar(blon, blat, ax1, reproject=True)
+
 plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 plt.xlabel("x [km] ",fontsize=ff)
@@ -234,6 +290,8 @@ plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("y [km]  ",fontsize=ff)
 plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023500 UTC',fontsize=ff)
 plot_borders(ax2)
+plot_radar(blon, blat, ax2, reproject=True)
+
 #plt.xticks(fontsize=ff)
 #plt.yticks(fontsize=ff)
 #plt.xlim((bonn_lon1-1,bonn_lon2+1))
@@ -263,6 +321,8 @@ plt.ylabel("y [km]  ",fontsize=ff)
 plt.title('RADOLAN Rainrate Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 plot_borders(ax2)
+plot_radar(blon, blat, ax2, reproject=True)
+
 plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
 plt.grid(color='r')
@@ -275,7 +335,7 @@ ax2 = fig.add_subplot(224, aspect='equal')
 A = rrr
 B = np.ma.masked_invalid(gprof_pp_b)
 A[A<TH_rain] = np.nan
-B[B<TH_rain] = np.nan
+#B[B<TH_rain] = np.nan
 
 ref = rrr
 est = np.ma.masked_invalid(gprof_pp_b)
@@ -313,15 +373,15 @@ plt.show()
 ###############################################################################
 
 
-cut = 45
-dpr3[dpr3 < 0]=np.nan
+cut = 25
+#dpr3[dpr3 < 0]=np.nan
 print ('----------dpr3-------')
 print np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:])
 
-levels = np.arange((np.nanmin(dpr3[:,cut,:])),(np.nanmax(dpr3[:,cut,:])),0.01)
+levels = np.arange((np.nanmin(dpr3[:,cut,:])),(np.nanmax(dpr3[:,cut,:])),0.1)
 #levels = np.arange(0,10,0.01)
 
-levels2 = np.arange((np.nanmin(dpr3[:,cut,:])),(np.nanmax(dpr3[:,cut,:])),1)
+levels2 = np.arange((np.nanmin(dpr3[:,cut,:])),(np.nanmax(dpr3[:,cut,:])),0.1)
 
 print np.nanmax(dpr3[:,cut,:])
 print gprof_pp_b.shape, gpm_x.shape
@@ -331,11 +391,12 @@ print gprof_pp_b.shape, gpm_x.shape
 ## ----
 ff = 15
 fig = plt.figure(figsize=(10,10))
-ax11 = fig.add_subplot(121, aspect='auto')
-h = np.arange(176,0,-1)*0.25
+ax11 = fig.add_subplot(212, aspect='auto')
+h = np.arange(83,-5,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
 
 #plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=0.1,vmax=10, levels=levels2, colors='black')
-plt.contourf(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=0.1,vmax=10, levels=levels,cmap=my_cmap)
+plt.contourf(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), levels=levels,cmap=my_cmap)
+#plt.pcolormesh(dpr3[:,cut,:].transpose())#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), levels=levels,cmap=my_cmap)
 
 cb = plt.colorbar(shrink=0.4)
 cb.set_label("Ref (dBZ)",fontsize=ff)
@@ -344,16 +405,94 @@ plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
 plt.grid()
 #plt.xlim((-400,0))
+#plt.ylim(0,12)
 
-ax12 = fig.add_subplot(122, aspect='equal')
+ax12 = fig.add_subplot(211, aspect='equal')
 
-pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,170]),
-                     cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,80]),
+                     cmap=my_cmap,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), zorder=2)
 cb = plt.colorbar(shrink=0.8)
 
 plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='black',lw=1)
-plt.scatter(bx,by, color='red', marker='v', s=200, zorder=2)
+#plt.scatter(bx,by, color='red', marker='v', s=200, zorder=2)
 
+plot_radar(blon, blat, ax12, reproject=True)
+
+#plt.scatter(216,-4236, lw=3, color='magenta', marker='o')# BONN markieren
+cb.set_label("Ref (DBZ)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("y [km]  ",fontsize=ff)
+plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023500 UTC',fontsize=ff)
+plot_borders(ax12)
+
+#plt.xlim((-400,0))
+plt.grid()
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cut = 35
+#dpr3[dpr3 < 0]=np.nan
+print ('----------dpr3-------')
+print np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:])
+
+levels = np.arange((np.nanmin(dpr3[cut,:,:])),(np.nanmax(dpr3[cut,:,:])),0.1)
+#levels = np.arange(0,10,0.01)
+
+levels2 = np.arange((np.nanmin(dpr3[cut,:,:])),(np.nanmax(dpr3[cut,:,:])),0.1)
+
+print np.nanmax(dpr3[cut,:,:])
+print gprof_pp_b.shape, gpm_x.shape
+
+
+## PLOT
+## ----
+ff = 15
+fig = plt.figure(figsize=(10,10))
+ax11 = fig.add_subplot(212, aspect='auto')
+#h = np.arange(88,0,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
+
+#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=0.1,vmax=10, levels=levels2, colors='black')
+plt.contourf(gpm_x[cut,:],h,dpr3[cut,:,:].transpose(),vmin=(np.nanmin(dpr3[cut,:,:])),vmax=(np.nanmax(dpr3[cut,:,:])), levels=levels,cmap=my_cmap)
+#plt.pcolormesh(dpr3[:,cut,:].transpose())#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), levels=levels,cmap=my_cmap)
+
+cb = plt.colorbar(shrink=0.4)
+cb.set_label("Ref (dBZ)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("z [km]  ",fontsize=ff)
+plt.grid()
+#plt.xlim((-400,0))
+#plt.ylim(0,12)
+
+ax12 = fig.add_subplot(211, aspect='equal')
+
+pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,80]),
+                     cmap=my_cmap,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), zorder=2)
+cb = plt.colorbar(shrink=0.8)
+
+plt.plot(gpm_x[cut,:],gpm_y[cut,:], color='black',lw=1)
+#plt.scatter(bx,by, color='red', marker='v', s=200, zorder=2)
+
+plot_radar(blon, blat, ax12, reproject=True)
 
 #plt.scatter(216,-4236, lw=3, color='magenta', marker='o')# BONN markieren
 cb.set_label("Ref (DBZ)",fontsize=ff)
