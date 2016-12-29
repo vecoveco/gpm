@@ -1,8 +1,7 @@
 """
 
-Einlesen und darstellen von GPM und Radolan Dateien
+Einlesen und darstellen von GPM Dateien
 
-Radolanpfad:
 
 """
 
@@ -10,38 +9,20 @@ Radolanpfad:
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as col
-import pandas as pd
 import wradlib
 import glob
-import math
-import pandas as pd
-from scipy import stats
-import matplotlib as mpl
 import wradlib as wrl
 from osgeo import osr
 import os
-import matplotlib.ticker as ticker
-from matplotlib.colors import LogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-#import mpl_toolkits.basemap.pyproj as pyproj
 
 
-ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
-TH_rain= 0.2
 
-# Zeitstempel nach YYYYMMDDhhmmss
 ZP = '20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
-# '20160904135000'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
 
-#ToDo: Veralgemeinern bzgl aller Parameter:
 ## Read GPROF
-## ------------
-#pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
-
 pfad2 = ('/home/velibor/shkgpm/data/example/dpr/*.HDF5')
 
 pfad_gprof = glob.glob(pfad2)
@@ -49,19 +30,29 @@ pfad_gprof_g = pfad_gprof[0]
 
 
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
-gprof_lat=np.array(gpmdprs['MS']['Latitude'])			#(7934, 24)
-gprof_lon=np.array(gpmdprs['MS']['Longitude'])			#(7934, 24)
+
+gprof_lat=np.array(gpmdprs['HS']['Latitude'])			#(7934, 24)
+gprof_lon=np.array(gpmdprs['HS']['Longitude'])			#(7934, 24)
 #gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
 #gprof_pp=np.array(gpmdprs['MS']['tenMeterWindSpeed'])
 
-gprof_pp=np.array(gpmdprs['MS']['DSD']['binNode'])
+parameter = gpmdprs['HS']['DSD']['phase']
+
+
+#para_unit, para_miss = parameter.attrs['Units'], float(parameter.attrs['CodeMissingValue'])
+
+gprof_pp=np.array(parameter, dtype=float)
 #gprof_pp=np.array(gpmdprs['MS']['pia'])
 
+print ('Parameter: ', parameter.attrs.keys())
+gprof_pp[gprof_pp==255]=np.nan
+
+gprof_pp=gprof_pp/100
 #gprof_pp = gprof_pp[:,:,:,0]
+#if np.nanmin(gprof_pp)==-9999.9:
+#    gprof_pp[gprof_pp==-9999.9] = np.nan
 
-#gprof_pp[gprof_pp==-9999.9] = np.nan
-
-print gprof_pp.shape, gprof_lat.shape
+print 'Array GPM : ', gprof_pp.shape
 
 
 
@@ -69,13 +60,6 @@ bonn_lat1 = 47.9400
 bonn_lat2 = 55.3500
 bonn_lon1 = 6.40000
 bonn_lon2 = 14.10000
-
-#Europa
-#bonn_lat1 = 30.9400
-#bonn_lat2 = 70.3500
-#bonn_lon1 = 0.40000
-#bonn_lon2 = 50.10000
-
 
 ilat= np.where((gprof_lat>bonn_lat1) & (gprof_lat<bonn_lat2))
 ilon= np.where((gprof_lon>bonn_lon1) & (gprof_lon<bonn_lon2))
@@ -100,11 +84,6 @@ blon = alon[alonstart:alonend]
 blat = alat[alonstart:alonend]
 gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
-
-## Nur wenn genzer Swath genutzt wird
-#gprof_pp_b = gprof_pp
-#blat, blon = gprof_lat, gprof_lon
-
 ###########PROJECTION
 
 proj_stereo = wrl.georef.create_osr("dwd-radolan")
@@ -115,9 +94,22 @@ gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stere
 grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
 
-print np.nanmin(gprof_pp_b)
-print np.nanmax(gprof_pp_b)
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+maxi = np.nanmax(gprof_pp_b)
 
+mini = np.nanmin(gprof_pp_b)
+
+cut = 13
+
+hh = 80
+
+############################################################################
+############################################################################
+############################################################################
+############################################################################
 
 
 ## Landgrenzenfunktion
@@ -259,46 +251,43 @@ my_cmap = cm.get_cmap('jet',40)
 my_cmap.set_under('lightgrey')
 my_cmap.set_over('darkred')
 
-cut = 13
+print 'starte PlOt'
 
-print np.nanmax(gprof_pp_b[:,cut,:])
-print gprof_pp_b.shape, gpm_x.shape
+
 ## PLOT
 ## ----
 ff = 15
 fig = plt.figure(figsize=(10,10))
 ax2 = fig.add_subplot(121, aspect='auto')
-pm1 = plt.imshow(np.transpose(gprof_pp_b[:,cut,:]),vmin=0, vmax=176, aspect='auto')
+h = np.arange(88,0,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
+#h = np.arange(gprof_pp_b.shape[2],0,-1)*0.25
+levels = np.arange((np.nanmin(gprof_pp_b[:,cut,:])),(np.nanmax(gprof_pp_b[:,cut,:])),0.1)
+#levels = np.arange(0,2,0.1)
+
+plt.contourf(gpm_x[:,cut],h,gprof_pp_b[:,cut,:].transpose(),vmin=0,vmax=2, levels=levels,cmap=my_cmap)
 
 cb = plt.colorbar(shrink=0.4)
-cb.set_label("Ref (dBZ)",fontsize=ff)
+#cb.set_label("Ref (dBZ)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
 plt.grid()
 
 ax2 = fig.add_subplot(122, aspect='equal')
-pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,0]),
-                     cmap=my_cmap,vmin=0,vmax=176, zorder=2)
+pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,hh]),
+                     cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
 
 cb = plt.colorbar(shrink=0.4)
-cb.set_label("Rainrate (mm/h)",fontsize=ff)
+#cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("y [km]  ",fontsize=ff)
 plot_borders(ax2)
 plt.xticks(fontsize=ff)
 plt.yticks(fontsize=ff)
-plt
 
 plt.tight_layout()
 
 plt.show()
 
-
-
-
-#plt.pcolormesh(l,h ,np.transpose(np.ma.masked_invalid(gprof_pp_b[:,cut,:])),
- #                    cmap=my_cmap,vmin=0,vmax=1, zorder=2)
-#plt.show()
 

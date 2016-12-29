@@ -31,20 +31,22 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20141007023500'#'20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'#'20141007023500'
+ZP = '20161024232500'#'20141007023500'#'20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
 
-pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
+pfad = ('/automount/radar/dwd/ex/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-ex_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
 
 pfad_radolan = pfad[:-3]
 
+print pfad
+print pfad_radolan
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
@@ -52,7 +54,7 @@ rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 #sec = rwattrs['secondary']
 #rwdata.flat[sec] = -9999
 #rwdata = np.ma.masked_equal(rwdata, -9999)
-radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
+radolan_grid_xy = wradlib.georef.get_radolan_grid(1500,1400)
 x = radolan_grid_xy[:,:,0]
 y = radolan_grid_xy[:,:,1]
 #Z = wradlib.trafo.idecibel(rwdata)
@@ -96,11 +98,16 @@ gprof_pp[gprof_pp==-9999.9]= np.NaN
 #gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
 #gprof_pp[gprof_pp<=0] = np.nan
 
+#Eu Radolan
+bonn_lat1 = 43.9400
+bonn_lat2 = 59.3500
+bonn_lon1 = 0.40000
+bonn_lon2 = 22.10000
 
-bonn_lat1 = 47.9400
-bonn_lat2 = 55.3500
-bonn_lon1 = 6.40000
-bonn_lon2 = 14.10000
+#bonn_lat1 = 47.9400
+#bonn_lat2 = 55.3500
+#bonn_lon1 = 6.40000
+#bonn_lon2 = 14.10000
 
 ilat= np.where((gprof_lat>bonn_lat1) & (gprof_lat<bonn_lat2))
 ilon= np.where((gprof_lon>bonn_lon1) & (gprof_lon<bonn_lon2))
@@ -178,7 +185,7 @@ xy = np.vstack((x.ravel(), y.ravel())).transpose()
 
 mask = ~np.isnan(rwdata)
 
-result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)  #Idw
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(1500*1400,1), wrl.ipol.Idw, nnearest=4)  #Idw
 
 result = np.ma.masked_invalid(result)
 
@@ -268,8 +275,8 @@ plt.ylabel("y [km]  ",fontsize=ff)
 #plt.xticks(fontsize=0)
 #plt.yticks(fontsize=0)
 plt.grid(color='r')
-plt.xlim(-420,390)
-plt.ylim(-4700, -3700)
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
 
 
 ax2 = fig.add_subplot(222, aspect='equal')
@@ -296,8 +303,8 @@ plt.tight_layout()
 #Limits Setzen
 #ax2.set_xlim(ax1.get_xlim())
 #ax2.set_ylim(ax1.get_ylim())
-plt.xlim(-420,390)
-plt.ylim(-4700, -3700)
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
 #plt.xticks(fontsize=0)
 #plt.yticks(fontsize=0)
 
@@ -318,8 +325,8 @@ plt.title('RADOLAN Rainrate Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+
 plot_borders(ax2)
 plot_radar(blon, blat, ax2, reproject=True)
 
-plt.xlim(-420,390)
-plt.ylim(-4700, -3700)
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
 plt.grid(color='r')
 plt.tight_layout()
 
@@ -364,140 +371,4 @@ plt.title(" .")
 
 plt.grid(True)
 plt.tight_layout()
-plt.show()
-###############################################################################
-
-
-cut = 25
-#dpr3[dpr3 < 0]=np.nan
-print ('----------dpr3-------')
-print np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:])
-
-levels = np.arange((np.nanmin(dpr3[:,cut,:])),(np.nanmax(dpr3[:,cut,:])),0.1)
-#levels = np.arange(0,10,0.01)
-
-levels2 = np.arange((np.nanmin(dpr3[:,cut,:])),(np.nanmax(dpr3[:,cut,:])),0.1)
-
-print np.nanmax(dpr3[:,cut,:])
-print gprof_pp_b.shape, gpm_x.shape
-
-
-## PLOT
-## ----
-ff = 15
-fig = plt.figure(figsize=(10,10))
-ax11 = fig.add_subplot(212, aspect='auto')
-h = np.arange(83,-5,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
-
-#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=0.1,vmax=10, levels=levels2, colors='black')
-plt.contourf(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), levels=levels,cmap=my_cmap)
-#plt.pcolormesh(dpr3[:,cut,:].transpose())#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), levels=levels,cmap=my_cmap)
-
-cb = plt.colorbar(shrink=0.4)
-cb.set_label("Ref (dBZ)",fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("z [km]  ",fontsize=ff)
-plt.grid()
-#plt.xlim((-400,0))
-#plt.ylim(0,12)
-
-ax12 = fig.add_subplot(211, aspect='equal')
-
-pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,80]),
-                     cmap=my_cmap,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), zorder=2)
-cb = plt.colorbar(shrink=0.8)
-
-plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='black',lw=1)
-#plt.scatter(bx,by, color='red', marker='v', s=200, zorder=2)
-
-plot_radar(blon, blat, ax12, reproject=True)
-
-#plt.scatter(216,-4236, lw=3, color='magenta', marker='o')# BONN markieren
-cb.set_label("Ref (DBZ)",fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("y [km]  ",fontsize=ff)
-plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023500 UTC',fontsize=ff)
-plot_borders(ax12)
-
-#plt.xlim((-400,0))
-plt.grid()
-
-plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-cut = 35
-#dpr3[dpr3 < 0]=np.nan
-print ('----------dpr3-------')
-print np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:])
-
-levels = np.arange((np.nanmin(dpr3[cut,:,:])),(np.nanmax(dpr3[cut,:,:])),0.1)
-#levels = np.arange(0,10,0.01)
-
-levels2 = np.arange((np.nanmin(dpr3[cut,:,:])),(np.nanmax(dpr3[cut,:,:])),0.1)
-
-print np.nanmax(dpr3[cut,:,:])
-print gprof_pp_b.shape, gpm_x.shape
-
-
-## PLOT
-## ----
-ff = 15
-fig = plt.figure(figsize=(10,10))
-ax11 = fig.add_subplot(212, aspect='auto')
-#h = np.arange(88,0,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
-
-#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=0.1,vmax=10, levels=levels2, colors='black')
-plt.contourf(gpm_x[cut,:],h,dpr3[cut,:,:].transpose(),vmin=(np.nanmin(dpr3[cut,:,:])),vmax=(np.nanmax(dpr3[cut,:,:])), levels=levels,cmap=my_cmap)
-#plt.pcolormesh(dpr3[:,cut,:].transpose())#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), levels=levels,cmap=my_cmap)
-
-cb = plt.colorbar(shrink=0.4)
-cb.set_label("Ref (dBZ)",fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("z [km]  ",fontsize=ff)
-plt.grid()
-#plt.xlim((-400,0))
-#plt.ylim(0,12)
-
-ax12 = fig.add_subplot(211, aspect='equal')
-
-pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,80]),
-                     cmap=my_cmap,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), zorder=2)
-cb = plt.colorbar(shrink=0.8)
-
-plt.plot(gpm_x[cut,:],gpm_y[cut,:], color='black',lw=1)
-#plt.scatter(bx,by, color='red', marker='v', s=200, zorder=2)
-
-plot_radar(blon, blat, ax12, reproject=True)
-
-#plt.scatter(216,-4236, lw=3, color='magenta', marker='o')# BONN markieren
-cb.set_label("Ref (DBZ)",fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("y [km]  ",fontsize=ff)
-plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023500 UTC',fontsize=ff)
-plot_borders(ax12)
-
-#plt.xlim((-400,0))
-plt.grid()
-
 plt.show()

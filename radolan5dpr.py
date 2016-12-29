@@ -448,6 +448,8 @@ plt.scatter(xx, yy, c=c, label='RR [mm/h]')
 plt.colorbar()
 plt.plot(B,line,'r-')
 maxAB = np.nanmax([np.nanmax(xx),np.nanmax(yy)])
+plt.yscale('log')
+plt.xscale('log')
 plt.xlim(0,maxAB + 1)
 plt.ylim(0,maxAB + 1)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
