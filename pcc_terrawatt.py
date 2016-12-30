@@ -107,38 +107,9 @@ gprof_pp[gprof_pp>=200]=gprof_pp[gprof_pp>=200]-200
 #gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
 #gprof_pp[gprof_pp<=0] = np.nan
 
-'''
-bonn_lat1 = 47.9400
-bonn_lat2 = 55.3500
-bonn_lon1 = 6.40000
-bonn_lon2 = 14.10000
-
-ilat= np.where((gprof_lat>bonn_lat1) & (gprof_lat<bonn_lat2))
-ilon= np.where((gprof_lon>bonn_lon1) & (gprof_lon<bonn_lon2))
-#lonstart = ilon[0][0]
-#lonend = ilon[0][-1]
-latstart = ilat[0][0]
-latend = ilat[0][-1]
-
-
-alon = gprof_lon[latstart:latend]
-alat = gprof_lat[latstart:latend]
-gprof_pp_a = gprof_pp[latstart:latend]
-
-
-ailat= np.where((alat>bonn_lat1) & (alat<bonn_lat2))
-ailon= np.where((alon>bonn_lon1) & (alon<bonn_lon2))
-alonstart = ailon[0][0]
-alonend = ailon[0][-1]
-#alatstart = ailat[0][0]
-#alatend = ailat[0][-1]
-
-blon = alon[alonstart:alonend]
-blat = alat[alonstart:alonend]
-gprof_pp_b = gprof_pp_a[alonstart:alonend]
-'''
+# Swath ueber Deutschland
 from pcc import cut_the_swath
-blon, blat, gprof_pp_b = cut_the_swath(gprof_pp, gprof_lat, gprof_lon)
+blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 
 dpr3 = gprof_pp_b
 gprof_pp_b = gprof_pp_b[:,:,80]

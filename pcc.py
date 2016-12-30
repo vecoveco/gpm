@@ -394,7 +394,7 @@ def plot_radar(bx,by, ax, reproject=False):
     ax.text(x_loc, y_loc, 'Bonn', color='r')
 
 
-def cut_the_swath(gprof_pp, gprof_lat, gprof_lon):
+def cut_the_swath(gprof_lon, gprof_lat, gprof_pp):
     # Zurechtschneiden des Scanpfades ueber Deutschland
 
     import numpy as np
