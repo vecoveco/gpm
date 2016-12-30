@@ -84,6 +84,8 @@ blon = alon[alonstart:alonend]
 blat = alat[alonstart:alonend]
 gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
+
+
 ###########PROJECTION
 
 proj_stereo = wrl.georef.create_osr("dwd-radolan")
@@ -102,7 +104,7 @@ maxi = np.nanmax(gprof_pp_b)
 
 mini = np.nanmin(gprof_pp_b)
 
-cut = 13
+cut = 3
 
 hh = 80
 
@@ -244,6 +246,10 @@ def get_miub_cmap ():
     return col.LinearSegmentedColormap.from_list('miub1' ,colors)
 '''
 
+from pcc import plot_ocean
+from pcc import plot_borders
+
+
 dataset1, inLayer1 = wradlib.io.open_shape('/automount/db01/python/data/ADM/germany/vg250_0101.gk3.shape.ebenen/vg250_ebenen/vg250_l.shp')
 
 import matplotlib.cm as cm
@@ -252,6 +258,9 @@ my_cmap.set_under('lightgrey')
 my_cmap.set_over('darkred')
 
 print 'starte PlOt'
+
+
+
 
 
 ## PLOT
@@ -272,12 +281,16 @@ cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
 plt.grid()
+plt.xlim(-300,0)
+
 
 ax2 = fig.add_subplot(122, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,hh]),
                      cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
 
 cb = plt.colorbar(shrink=0.4)
+plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='black',lw=1)
+
 #cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)

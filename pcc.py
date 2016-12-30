@@ -1,4 +1,5 @@
 def dscat(xdat, ydat):
+    # Todo: erstellen ScatterHistogramplot
     import matplotlib.pyplot as plt, numpy as np, numpy.random, scipy
     #data definition
     N = 1000
@@ -50,7 +51,8 @@ def dscat(xdat, ydat):
 
 
 def rmse(predictions, targets):
-
+    # Berechnung von RMSE
+    # Todo: Weitere berechnung mit RMS etc einfugen
     import numpy as np
     # RMS sqrt(1/n SUM/d_i - pi)^2
     return np.sqrt(((predictions - targets) ** 2).mean())
@@ -76,6 +78,7 @@ def histo(data1, data2, bino):
 
 
 def skill_score(estimate, reference, th=None):
+    # SkillScore berechnung
     #contigency tables Lit: Tang et al. 2015
     import numpy as np
     #reshapen von arrays
@@ -153,6 +156,8 @@ def scores(H_tab, M_tab, F_tab, C_tab, N_tab):
 
 
 def plot_score(estimate, reference, scoreval):
+    # ein Skill Score Plot
+    # Todo: gestaltung verbessern
     import numpy as np
     #reshapen von arrays
     try:
@@ -187,8 +192,8 @@ def plot_score(estimate, reference, scoreval):
 
 
 
-#Todo: Zeitschleife so bauen das ein Zeitvector ztime raus kommt!
 def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS):
+    # Bestimmung eines Vektor mit aufeinande folgenden Zeitstempeln
     import datetime as dt
     import numpy as np
     ztime = []
@@ -209,6 +214,7 @@ def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS):
         #print timestamp.strftime('%Y%m%d%H%M%S')
         #return timestamp.strftime('%Y%m%d%H%M%S')
     return ztime
+
 
 #### Idee
 #Todo: Korrelation von Radar und Satellit Daten in bestimmten Bereichen
@@ -231,7 +237,9 @@ def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS):
 
 #ag = gpm_gpm.reshape(gpm_gpm.shape[0]*gpm_gpm.shape[1])
 #ar = rrr.reshape(rrr.shape[0]*rrr.shape[1])
+
 def plot_ocean(ax):
+    # Grenzen der Kuesten
     import wradlib
     from osgeo import osr
     import os
@@ -273,7 +281,7 @@ def plot_ocean(ax):
     ax.autoscale()
 
 def plot_borders(ax):
-
+    # Landesgrenzen Deutschlands
     from osgeo import osr
     import wradlib as wrl
     import wradlib
@@ -330,6 +338,49 @@ def plot_borders(ax):
 
 
 def boxpol_pos():
+    # Koordinaten des Bonner Radar
     pos_boxpol = {'lat_ppi' : 50.730519999999999, 'lon_ppi' : 7.071663
     ,'gky_ppi' : -4235.233235191105, 'gkx_ppi' : -216.64772430049572}
     return pos_boxpol
+
+
+
+def plot_radar(bx,by, ax, reproject=False):
+    # Plot der Radar Range von Bonn
+    x_loc, y_loc = (bx, by)
+
+    r = np.arange(1, 101) * 1000
+    # azimuth array 1 degree spacing
+    az = np.linspace(0, 360, 361)[0:-1]
+
+    # build polygons for maxrange rangering
+    polygons = wrl.georef.polar2polyvert(r, az,
+                                         (x_loc, y_loc))
+    polygons.shape = (len(az), len(r), 5, 2)
+    polygons = polygons[:, -1, :, :]
+
+
+
+    if reproject:
+        # reproject to radolan polar stereographic projection
+        polygons = wrl.georef.reproject(polygons,
+                                        projection_source=proj_wgs,
+                                        projection_target=proj_stereo)
+
+        # reproject lonlat radar location coordinates to
+        # polar stereographic projection
+        x_loc, y_loc = wrl.georef.reproject(x_loc, y_loc,
+                                            projection_source=proj_wgs,
+                                            projection_target=proj_stereo)
+
+
+    # create PolyCollections and add to respective axes
+    polycoll = mpl.collections.PolyCollection(polygons, closed=True,
+                                              edgecolors='r',
+                                              facecolors='r',
+                                              zorder=2)
+    ax.add_collection(polycoll, autolim=True)
+
+    # plot radar location and information text
+    ax.plot(x_loc, y_loc, 'r+')
+    ax.text(x_loc, y_loc, 'Bonn', color='r')
