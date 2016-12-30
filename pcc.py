@@ -347,6 +347,14 @@ def boxpol_pos():
 
 def plot_radar(bx,by, ax, reproject=False):
     # Plot der Radar Range von Bonn
+    import wradlib as wrl
+    import numpy as np
+    from osgeo import osr
+    import matplotlib as mpl
+
+    proj_stereo = wrl.georef.create_osr("dwd-radolan")
+    proj_wgs = osr.SpatialReference()
+    proj_wgs.ImportFromEPSG(4326)
     x_loc, y_loc = (bx, by)
 
     r = np.arange(1, 101) * 1000
