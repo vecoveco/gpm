@@ -47,7 +47,8 @@ gprof_pp=np.array(parameter, dtype=float)
 print ('Parameter: ', parameter.attrs.keys())
 gprof_pp[gprof_pp==255]=np.nan
 
-gprof_pp=gprof_pp/100
+#gprof_pp=gprof_pp/100
+
 #gprof_pp = gprof_pp[:,:,:,0]
 #if np.nanmin(gprof_pp)==-9999.9:
 #    gprof_pp[gprof_pp==-9999.9] = np.nan
@@ -96,18 +97,26 @@ gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stere
 grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
 
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-maxi = np.nanmax(gprof_pp_b)
+#########################################PHASE
+#phase = gprof_pp_b
+gprof_pp_b[gprof_pp_b<100]=gprof_pp_b[gprof_pp_b<100]-100
 
-mini = np.nanmin(gprof_pp_b)
+gprof_pp_b[gprof_pp_b>=200]=gprof_pp_b[gprof_pp_b>=200]-200
 
-cut = 3
 
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+
+
+cut = 13
+maxi = np.nanmax(gprof_pp_b[:,cut,:])
+
+mini = np.nanmin(gprof_pp_b[:,cut,:])
 hh = 80
 
+print mini, maxi
 ############################################################################
 ############################################################################
 ############################################################################
@@ -270,10 +279,66 @@ fig = plt.figure(figsize=(10,10))
 ax2 = fig.add_subplot(121, aspect='auto')
 h = np.arange(88,0,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
 #h = np.arange(gprof_pp_b.shape[2],0,-1)*0.25
-levels = np.arange((np.nanmin(gprof_pp_b[:,cut,:])),(np.nanmax(gprof_pp_b[:,cut,:])),0.1)
+#levels = np.arange((np.nanmin(gprof_pp_b[:,cut,:])),(np.nanmax(gprof_pp_b[:,cut,:])),0.1)
+levels = np.arange(-51,21,0.01)
+levelf = [0]
+
+plt.contour(gpm_x[:,cut],h,gprof_pp_b[:,cut,:].transpose(),levels=levelf, linewidths=[3], colors=('black')) #vmin=0,vmax=2,
+
+plt.contourf(gpm_x[:,cut],h,gprof_pp_b[:,cut,:].transpose(),levels=levels,cmap='seismic',vmin=-20, vmax=20) #vmin=0,vmax=2,
+
+cb = plt.colorbar(ticks=[-20,-10,0,10,20],shrink=0.4)
+#cb.set_label("Ref (dBZ)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("z [km]  ",fontsize=ff)
+plt.grid()
+plt.xlim(-300,0)
+plt.ylim(0,12)
+
+
+
+
+ax2 = fig.add_subplot(122, aspect='auto')
+#pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,hh]),
+#                     cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
+plt.contourf(gpm_x[:,cut],h,gprof_pp_b[:,cut,:].transpose()) #vmin=0,vmax=2,
+cb = plt.colorbar(shrink=0.4)
+#cb.set_label("Ref (dBZ)",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.xlabel("x [km] ",fontsize=ff)
+plt.ylabel("z [km]  ",fontsize=ff)
+plt.grid()
+plt.xlim(-300,0)
+plt.ylim(0,12)
+#cb = plt.colorbar(shrink=0.4)
+#plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='black',lw=1)
+
+#cb.set_label("Rainrate (mm/h)",fontsize=ff)
+#cb.ax.tick_params(labelsize=ff)
+#plt.xlabel("x [km] ",fontsize=ff)
+#plt.ylabel("y [km]  ",fontsize=ff)
+#plot_borders(ax2)
+#plt.xticks(fontsize=ff)
+#plt.yticks(fontsize=ff)
+
+plt.tight_layout()
+
+plt.show()
+
+
+'''
+## PLOT
+## ----
+ff = 15
+fig = plt.figure(figsize=(10,10))
+ax2 = fig.add_subplot(121, aspect='auto')
+h = np.arange(88,0,-1)*0.25 # Bei 88 250m und bei 176 ist es 125m
+#h = np.arange(gprof_pp_b.shape[2],0,-1)*0.25
+levels = np.arange((np.nanmin(phase[:,cut,:])),(np.nanmax(phase[:,cut,:])),0.1)
 #levels = np.arange(0,2,0.1)
 
-plt.contourf(gpm_x[:,cut],h,gprof_pp_b[:,cut,:].transpose(),vmin=0,vmax=2, levels=levels,cmap=my_cmap)
+plt.contourf(gpm_x[:,cut],h,phase[:,cut,:].transpose(), levels=levels,cmap=my_cmap) #vmin=0,vmax=2,
 
 cb = plt.colorbar(shrink=0.4)
 #cb.set_label("Ref (dBZ)",fontsize=ff)
@@ -285,8 +350,8 @@ plt.xlim(-300,0)
 
 
 ax2 = fig.add_subplot(122, aspect='equal')
-pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b[:,:,hh]),
-                     cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
+pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(phase[:,:,hh]),
+                     cmap=my_cmap, zorder=2)
 
 cb = plt.colorbar(shrink=0.4)
 plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='black',lw=1)
@@ -303,4 +368,5 @@ plt.tight_layout()
 
 plt.show()
 
+'''
 

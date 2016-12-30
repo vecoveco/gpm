@@ -63,27 +63,38 @@ y = radolan_grid_xy[:,:,1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
 
 
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
-gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
-gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
+gprof_lat=np.array(gpmdprs['HS']['Latitude'])			#(7934, 24)
+gprof_lon=np.array(gpmdprs['HS']['Longitude'])			#(7934, 24)
 #gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
 
 #gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRate'])
 #gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'],dtype=float)
-gprof_pp=np.array(gpmdprs['NS']['correctedReflectFactor'])
-print gprof_pp.shape
-print type(gprof_pp[1,2,0])
+#print type(gprof_pp[1,2,0])
 #gprof_pp = np.float(gprof_pp)
-gprof_pp[gprof_pp==-9999.9]= np.NaN
 #gprof_pp= gprof_pp[:,:,:,0]
 #gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'])
+##############################################Bei Regen
+gprof_pp=np.array(gpmdprs['HS']['SLV']['precipRate'])
+print gprof_pp.shape
 
+gprof_pp[gprof_pp==-9999.9]= np.NaN
+
+
+##############################Bei Phase
+parameter = gpmdprs['HS']['DSD']['phase']
+gprof_pp=np.array(parameter, dtype=float)
+gprof_pp[gprof_pp==255]=np.nan
+
+gprof_pp[gprof_pp<100]=gprof_pp[gprof_pp<100]-100
+
+gprof_pp[gprof_pp>=200]=gprof_pp[gprof_pp>=200]-200
 
 #gprof_pp=np.array(gpmdprs['NS']['pia'])
 #gprof_pp[gprof_pp==-9999.9]= np.nan
@@ -201,46 +212,7 @@ print 'rrr min max:' + str(np.nanmin(rrr)), str(np.nanmax(rrr))
 
 
 
-
-def plot_radar(bx,by, ax, reproject=False):
-
-    x_loc, y_loc = (bx, by)
-
-    r = np.arange(1, 101) * 1000
-    # azimuth array 1 degree spacing
-    az = np.linspace(0, 360, 361)[0:-1]
-
-    # build polygons for maxrange rangering
-    polygons = wrl.georef.polar2polyvert(r, az,
-                                         (x_loc, y_loc))
-    polygons.shape = (len(az), len(r), 5, 2)
-    polygons = polygons[:, -1, :, :]
-
-
-
-    if reproject:
-        # reproject to radolan polar stereographic projection
-        polygons = wrl.georef.reproject(polygons,
-                                        projection_source=proj_wgs,
-                                        projection_target=proj_stereo)
-
-        # reproject lonlat radar location coordinates to
-        # polar stereographic projection
-        x_loc, y_loc = wrl.georef.reproject(x_loc, y_loc,
-                                            projection_source=proj_wgs,
-                                            projection_target=proj_stereo)
-
-
-    # create PolyCollections and add to respective axes
-    polycoll = mpl.collections.PolyCollection(polygons, closed=True,
-                                              edgecolors='r',
-                                              facecolors='r',
-                                              zorder=2)
-    ax.add_collection(polycoll, autolim=True)
-
-    # plot radar location and information text
-    ax.plot(x_loc, y_loc, 'r+')
-    ax.text(x_loc, y_loc, 'Bonn', color='r')
+from pcc import plot_radar
 
 
 
@@ -368,7 +340,7 @@ plt.show()
 ###############################################################################
 
 
-cut = 25
+cut = 15
 #dpr3[dpr3 < 0]=np.nan
 print ('----------dpr3-------')
 print np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:])
@@ -447,7 +419,7 @@ plt.show()
 cut = 35
 #dpr3[dpr3 < 0]=np.nan
 print ('----------dpr3-------')
-print np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:])
+print np.nanmin(dpr3[cut,:,:]),np.nanmax(dpr3[cut,:,:])
 
 levels = np.arange((np.nanmin(dpr3[cut,:,:])),(np.nanmax(dpr3[cut,:,:])),0.1)
 #levels = np.arange(0,10,0.01)
@@ -481,7 +453,7 @@ plt.grid()
 ax12 = fig.add_subplot(211, aspect='equal')
 
 pm12 = plt.pcolormesh(gpm_x[:,:], gpm_y[:,:],np.ma.masked_invalid(dpr3[:,:,80]),
-                     cmap=my_cmap,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])), zorder=2)
+                     cmap=my_cmap,vmin=(np.nanmin(dpr3[cut,:,:])),vmax=(np.nanmax(dpr3[cut,:,:])), zorder=2)
 cb = plt.colorbar(shrink=0.8)
 
 plt.plot(gpm_x[cut,:],gpm_y[cut,:], color='black',lw=1)
