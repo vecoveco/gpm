@@ -178,7 +178,7 @@ def plot_score(estimate, reference, scoreval):
     plt.scatter(estimate[scoreval['C_pos']],reference[scoreval['C_pos']],
                 color='green', label='Correct Negative')
     plt.grid()
-    plt.legend(loc='upper right')
+    plt.legend(loc='upper left')
     plt.figtext(0.005,0.005,' POD: '+ str(scoreval['POD'])+ ' , ' + ' FAR: ' +
               str(scoreval['FAR']) + ' BID: '+ str(scoreval['BID'])+
               ' , ' + ' HSS: ' + str(scoreval['HSS'])+

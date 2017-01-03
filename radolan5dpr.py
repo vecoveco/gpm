@@ -94,26 +94,30 @@ lat1 = radolan_grid_ll[:, :, 1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/gprof/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
 
 
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
-gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
-gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
-gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
-#gprof_pp=np.array(gpmdprs['NS']['pia'])
-#gprof_pp[gprof_pp==-9999.9]= np.nan
-#gpmgmi = h5py.File(pfad_gprof_g, 'r')
+########################################### bei corra
+#gprof_lat=np.array(gpmdprs['NS']['Latitude'])
+#gprof_lon=np.array(gpmdprs['NS']['Longitude'])
+#gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
 
-#gpmgmi.keys()
-#gpmgmi_S1=gpmgmi['S1']
-#gprof_lat=np.array(gpmgmi_S1['Latitude'])
-#gprof_lon=np.array(gpmgmi_S1['Longitude'])
-#gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
-#gprof_pp[gprof_pp<=0] = np.nan
+########################################### bei dpr
+#gprof_lat=np.array(gpmdprs['NS']['Latitude'])
+#gprof_lon=np.array(gpmdprs['NS']['Longitude'])
+#gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
+
+
+########################################### bei gprof
+gpmgmi_S1=gpmdprs['S1']
+gprof_lat=np.array(gpmgmi_S1['Latitude'])
+gprof_lon=np.array(gpmgmi_S1['Longitude'])
+gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
+gprof_pp[gprof_pp<=0] = np.nan
 
 
 bonn_lat1 = 47.9400
@@ -333,6 +337,7 @@ Zr = wradlib.trafo.idecibel(rrr)
 rrr = wradlib.zr.z2r(Zr, a=200., b=1.6)
 
 
+
 print 'rwdata min max:' + str(np.nanmin(rwdata)), str(np.nanmax(rwdata))
 
 print 'rrr min max:' + str(np.nanmin(rrr)), str(np.nanmax(rrr))
@@ -340,9 +345,10 @@ print 'rrr min max:' + str(np.nanmin(rrr)), str(np.nanmax(rrr))
 ## PLOT
 ## ----
 ff = 15
+mini, maxi = 0.1, 10
 fig = plt.figure(figsize=(10,10))
 ax1 = fig.add_subplot(221, aspect='equal')
-plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
 #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
@@ -363,7 +369,7 @@ plt.ylim(-4700, -3700)
 
 ax2 = fig.add_subplot(224, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
-                     cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+                     cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
 
 #pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
                      #cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
@@ -393,7 +399,7 @@ ax2.set_ylim(ax1.get_ylim())
 
 ax2 = fig.add_subplot(223, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,rrr,
-                     cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+                     cmap=my_cmap,vmin=mini,vmax=maxi, zorder=2)
 
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
@@ -421,8 +427,8 @@ ax2 = fig.add_subplot(222, aspect='equal')
 
 A = rrr
 B = np.ma.masked_invalid(gprof_pp_b)
-#A[A<TH_rain] = np.nan
-#B[B<TH_rain] = np.nan
+A[A<TH_rain] = np.nan
+B[B<TH_rain] = np.nan
 
 ref = rrr
 est = np.ma.masked_invalid(gprof_pp_b)
@@ -448,8 +454,9 @@ plt.scatter(xx, yy, c=c, label='RR [mm/h]')
 plt.colorbar()
 plt.plot(B,line,'r-')
 maxAB = np.nanmax([np.nanmax(xx),np.nanmax(yy)])
-plt.yscale('log')
-plt.xscale('log')
+#log or linear
+plt.yscale('linear')
+plt.xscale('linear')
 plt.xlim(0,maxAB + 1)
 plt.ylim(0,maxAB + 1)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True, shadow=True,
@@ -470,6 +477,8 @@ R = pcc.skill_score(est,ref,0.1)
 pcc.plot_score(est,ref,R)
 plt.xlabel("CORRA RR [mm/h]")
 plt.ylabel("RADOLAN RR [mm/h]")
+plt.yscale('log')
+plt.xscale('log')
 plt.title(" .")
 plt.show()
 
