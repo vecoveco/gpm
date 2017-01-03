@@ -91,33 +91,42 @@ lon1 = radolan_grid_ll[:, :, 0]
 lat1 = radolan_grid_ll[:, :, 1]
 '''
 
+#chose dpr corra gprof
+ip = 0
+
+GPMI = ['corra', 'dpr', 'gprof']
+GPMI = GPMI[ip]
+GPMI_name = ['CORRA RR (mm/h)', 'DPR RR (mm/h)','GPROF RR (mm/h)']
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/gprof/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/'+str(GPMI)+'/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
 
 
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
-########################################### bei corra
-#gprof_lat=np.array(gpmdprs['NS']['Latitude'])
-#gprof_lon=np.array(gpmdprs['NS']['Longitude'])
-#gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
 
-########################################### bei dpr
-#gprof_lat=np.array(gpmdprs['NS']['Latitude'])
-#gprof_lon=np.array(gpmdprs['NS']['Longitude'])
-#gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
+if ip==0:
+    gprof_lat = np.array(gpmdprs['NS']['Latitude'])
+    gprof_lon = np.array(gpmdprs['NS']['Longitude'])
+    gprof_pp = np.array(gpmdprs['NS']['surfPrecipTotRate'])
 
+elif ip == 1:
+    gprof_lat = np.array(gpmdprs['NS']['Latitude'])
+    gprof_lon = np.array(gpmdprs['NS']['Longitude'])
+    gprof_pp = np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
 
-########################################### bei gprof
-gpmgmi_S1=gpmdprs['S1']
-gprof_lat=np.array(gpmgmi_S1['Latitude'])
-gprof_lon=np.array(gpmgmi_S1['Longitude'])
-gprof_pp=np.array(gpmgmi_S1['surfacePrecipitation'])
-gprof_pp[gprof_pp<=0] = np.nan
+elif ip == 2:
+    gpmgmi_S1 = gpmdprs['S1']
+    gprof_lat = np.array(gpmgmi_S1['Latitude'])
+    gprof_lon = np.array(gpmgmi_S1['Longitude'])
+    gprof_pp = np.array(gpmgmi_S1['surfacePrecipitation'])
+    gprof_pp[gprof_pp<=0] = np.nan
+else:
+    'ip Falsch!'
+
 
 
 bonn_lat1 = 47.9400
@@ -378,7 +387,7 @@ cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("y [km]  ",fontsize=ff)
-plt.title('GPM GPROF Rainrate: \n' + str(pfad_gprof_g[66:70]) + '-' +str(pfad_gprof_g[70:72])+ '-' +
+plt.title(GPMI_name[ip] + ': \n' + str(pfad_gprof_g[66:70]) + '-' +str(pfad_gprof_g[70:72])+ '-' +
           str(pfad_gprof_g[72:74]) + ' T: ' +str(pfad_gprof_g[76:82]) + '-' + str(pfad_gprof_g[84:90]) + ' UTC',fontsize=ff)
 #plot_ocean(ax2)
 plot_borders(ax2)
@@ -427,11 +436,14 @@ ax2 = fig.add_subplot(222, aspect='equal')
 
 A = rrr
 B = np.ma.masked_invalid(gprof_pp_b)
+
+ref = np.copy(rrr)
+est = np.copy(np.ma.masked_invalid(gprof_pp_b))
+
 A[A<TH_rain] = np.nan
 B[B<TH_rain] = np.nan
 
-ref = rrr
-est = np.ma.masked_invalid(gprof_pp_b)
+
 
 mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
@@ -463,23 +475,24 @@ plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=2, fancybox=True,
                     fontsize='small', title= "Slope: " + str(round(slope,3))
                                             + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
                                             str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
-plt.xlabel("CORRA RR [mm/h]")
+plt.xlabel(GPMI_name[ip])
 plt.ylabel("RADOLAN RR [mm/h]")
 plt.title(" .")
 
 plt.grid(True)
-
+plt.tight_layout()
 plt.show()
 ###############################################################################
 
 import pcc
 R = pcc.skill_score(est,ref,0.1)
 pcc.plot_score(est,ref,R)
-plt.xlabel("CORRA RR [mm/h]")
+plt.xlabel(GPMI_name[ip])
 plt.ylabel("RADOLAN RR [mm/h]")
-plt.yscale('log')
-plt.xscale('log')
+#plt.yscale('log')
+#plt.xscale('log')
 plt.title(" .")
+plt.tight_layout()
 plt.show()
 
 

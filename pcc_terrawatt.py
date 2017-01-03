@@ -85,21 +85,31 @@ gprof_lon=np.array(gpmdprs['NS']['Longitude'])
 ##############################################Bei Regen
 RR, ZZ = 'precipRate', 'zFactorCorrected' #precipRateNearSurface
 gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
+
 print gprof_pp.shape
 
 gprof_pp[gprof_pp==-9999.9]= np.NaN
 
 
 ##############################Bei Phase
-#'''
 parameter2 = gpmdprs['NS']['DSD']['phase']
 dpr = np.array(parameter2, dtype=float)
 dpr[dpr==255]=np.nan
-
 #dpr[dpr<100]=dpr[dpr<100]-100
-
 #dpr[dpr>=200]=dpr[dpr>=200]-200
-#'''
+#dpr[dpr==125]=0
+#dpr[dpr==175]=0
+#dpr[dpr==100]=0
+#dpr[dpr==150]=0
+
+######################################## Bei Dropsize
+#parameter2 = gpmdprs['NS']['SLV']['paramDSD']
+#dpr = np.array(parameter2, dtype=float)
+#dpr = dpr[:,:,:,1]
+#dpr[dpr<-9998]=np.nan
+
+
+
 
 #####################################Parameter bestimmen
 ip = 0
@@ -113,6 +123,13 @@ from pcc import cut_the_swath
 blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr)
 
+dpr4 = np.copy(dpr3)
+dpr4[dpr4<100]=dpr4[dpr4<100]-100
+dpr4[dpr4>=200]=dpr4[dpr4>=200]-200
+dpr4[dpr4==125]=0
+dpr4[dpr4==175]=0
+dpr4[dpr4==100]=0
+dpr4[dpr4==150]=0
 
 print('Shape: ', dpr3.shape)
 #dpr3 = gprof_pp_b
@@ -172,7 +189,7 @@ rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
 Zr = wradlib.trafo.idecibel(rrr)
 rrr = wradlib.zr.z2r(Zr, a=200., b=1.6)
-rrr[rrr<=TH_ka]=np.NaN
+#rrr[rrr<=TH_ka]=np.NaN
 #rrr[rrr==-9999.0]=np.nan
 
 
@@ -425,7 +442,7 @@ plt.show()
 
 
 ff = 20
-cut = 16
+cut = 15
 
 fig = plt.figure(figsize=(10,10))
 
@@ -506,11 +523,19 @@ plt.tight_layout()
 
 ax2 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
-levels = (np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:]),0.1)
-print levels
-plt.contourf(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(),vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
+level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),1)
+levels= [100,150,200]
+
+print level1
+
+
+#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), level = levels2)#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
+plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
+plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(), levels = level1, vmax=np.nanmax(dpr4[:,cut,:]))
+
+
 cb = plt.colorbar(shrink=0.4)
-cb.set_label('phase',fontsize=ff)
+cb.set_label('Temp [C]',fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
