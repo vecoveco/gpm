@@ -19,6 +19,12 @@ import wradlib as wrl
 import pandas as pd
 import datetime as dt
 
+from pcc import boxpol_pos
+from pcc import plot_radar
+
+bonn_pos = boxpol_pos()
+bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
+blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 
 ############################################### Zeitstempel nach YYYYMMDDhhmmss
@@ -28,7 +34,8 @@ import datetime as dt
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,6,10,4,50,0,2014,6,11,0,0,0)
+zeit = zt(2016,12,29,11,45,0,
+          2016,12,29,11,50,0)
 
 print zeit
 
@@ -163,6 +170,9 @@ for ij in range(len(zeit)):
     plt.ylim(-4700, -3700)
     plt.tight_layout()
 
+    plot_radar(blon, blat, ax1, reproject=True)
+
     plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
+    plt.show()
     plt.close()
     #plt.show()

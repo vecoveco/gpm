@@ -1,3 +1,4 @@
+
 """
 
 Einlesen und darstellen von GPM und Radolan Dateien
@@ -34,7 +35,7 @@ TH_ka, TH_ku = 0.2, 0.5
 
 # Zeitstempel nach YYYYMMDDhhmmss
 
-ZP = '20141007023500'#'20160805054500'#'20141007023500''20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#
+ZP = '20161024232500'#'20160805054500'#'20141007023500''20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -47,7 +48,7 @@ pfad_radolan = pfad[:-3]
 
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
@@ -63,7 +64,7 @@ y = radolan_grid_xy[:,:,1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
@@ -84,7 +85,7 @@ gprof_lon=np.array(gpmdprs['NS']['Longitude'])
 #gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'])
 ##############################################Bei Regen
 RR, ZZ = 'precipRate', 'zFactorCorrected' #precipRateNearSurface
-gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
+gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
 
 print gprof_pp.shape
 
@@ -92,15 +93,21 @@ gprof_pp[gprof_pp==-9999.9]= np.NaN
 
 
 ##############################Bei Phase
-parameter2 = gpmdprs['NS']['DSD']['phase']
+#parameter2 = gpmdprs['NS']['cloudLiqWaterCont']
+#parameter2 = gpmdprs['NS']['cloudIceWaterCont']
+
+#parameter2 = gpmdprs['NS']['precipTotPSDparamHigh']
+parameter2 = gpmdprs['NS']['precipTotWaterCont']
 dpr = np.array(parameter2, dtype=float)
-dpr[dpr==255]=np.nan
+dpr[dpr<-9998]=np.nan
 #dpr[dpr<100]=dpr[dpr<100]-100
 #dpr[dpr>=200]=dpr[dpr>=200]-200
 #dpr[dpr==125]=0
 #dpr[dpr==175]=0
 #dpr[dpr==100]=0
 #dpr[dpr==150]=0
+
+print 'CloudIcemaxmin:', np.nanmin(dpr), np.nanmax(dpr)
 
 ######################################## Bei Dropsize
 #parameter2 = gpmdprs['NS']['SLV']['paramDSD']
@@ -124,12 +131,7 @@ blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr)
 
 dpr4 = np.copy(dpr3)
-dpr4[dpr4<100]=dpr4[dpr4<100]-100
-dpr4[dpr4>=200]=dpr4[dpr4>=200]-200
-dpr4[dpr4==125]=0
-dpr4[dpr4==175]=0
-dpr4[dpr4==100]=0
-dpr4[dpr4==150]=0
+
 
 print('Shape: ', dpr3.shape)
 #dpr3 = gprof_pp_b
@@ -441,7 +443,7 @@ plt.show()
 '''
 
 
-cut = 15
+cut = 40
 
 fig = plt.figure(figsize=(12,12))
 ff = 13.1
@@ -524,7 +526,7 @@ plt.yticks(fontsize=fft)
 
 
 ax2 = fig.add_subplot(224, aspect='auto')
-h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
+h = np.arange(88,0,-1)*0.25 # Bei 88 500m und bei 176 ist es 250m
 level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),1)
 levels= [100,150,200]
 #levels = np.arange(np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:]),1)
@@ -532,21 +534,21 @@ levels= [100,150,200]
 
 
 dpr4[dpr3<=np.nanmin(dpr3)]=np.nan #Cloud Top High bestimmen
-
+print 'Angabe: ',np.nanmin(dpr3), np.nanmax(dpr3), dpr.shape
 #Todo: Cloud Top High !
 #plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), level = levels2)#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
-plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
-plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(), levels = level1, vmin=-20,vmax=20, cmap='seismic')#, vmax=np.nanmax(dpr4[:,cut,:]), cmap='seismic')
+plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose())#, levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
+plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose())#, levels = level1, vmin=-20,vmax=20, cmap='seismic')#, vmax=np.nanmax(dpr4[:,cut,:]), cmap='seismic')
 
 
 cb = plt.colorbar(shrink=0.4)
-cb.set_label(r'T$_{particle}$ [$^\circ $C]',fontsize=ff)
+cb.set_label(r'Liquid Water [g/m^3]',fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
 plt.xticks(fontsize=fft)
 plt.yticks(fontsize=fft)
-plt.title('GPM DPR Vertical Phase Distribution')
+plt.title('GPM DPR Liquid Water Distribution')
 
 plt.grid(True)
 plt.tight_layout()
