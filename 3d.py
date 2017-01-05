@@ -35,7 +35,7 @@ TH_ka, TH_ku = 0.2, 0.5
 
 # Zeitstempel nach YYYYMMDDhhmmss
 
-ZP = '20161024232500'#'20160805054500'#'20141007023500''20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#
+ZP = '20141007023500'#'20160805054500'#'20141007023500''20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -48,7 +48,7 @@ pfad_radolan = pfad[:-3]
 
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
@@ -97,7 +97,10 @@ gprof_pp[gprof_pp==-9999.9]= np.NaN
 #parameter2 = gpmdprs['NS']['cloudIceWaterCont']
 
 #parameter2 = gpmdprs['NS']['precipTotPSDparamHigh']
-parameter2 = gpmdprs['NS']['precipTotWaterCont']
+#parameter2 = gpmdprs['NS']['precipTotWaterCont']
+#parameter2 = gpmdprs['NS']['correctedReflectFactor']
+parameter2 = gpmdprs['NS']['precipTotRate']
+
 dpr = np.array(parameter2, dtype=float)
 dpr[dpr<-9998]=np.nan
 #dpr[dpr<100]=dpr[dpr<100]-100
@@ -443,7 +446,7 @@ plt.show()
 '''
 
 
-cut = 40
+cut = 20
 
 fig = plt.figure(figsize=(12,12))
 ff = 13.1
@@ -528,6 +531,8 @@ plt.yticks(fontsize=fft)
 ax2 = fig.add_subplot(224, aspect='auto')
 h = np.arange(88,0,-1)*0.25 # Bei 88 500m und bei 176 ist es 250m
 level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),1)
+#level1 = np.arange(0,np.nanmax(dpr4[:,cut,:]),1)
+
 levels= [100,150,200]
 #levels = np.arange(np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:]),1)
 
@@ -537,7 +542,7 @@ dpr4[dpr3<=np.nanmin(dpr3)]=np.nan #Cloud Top High bestimmen
 print 'Angabe: ',np.nanmin(dpr3), np.nanmax(dpr3), dpr.shape
 #Todo: Cloud Top High !
 #plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), level = levels2)#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
-plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose())#, levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
+#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose())#, levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
 plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose())#, levels = level1, vmin=-20,vmax=20, cmap='seismic')#, vmax=np.nanmax(dpr4[:,cut,:]), cmap='seismic')
 
 

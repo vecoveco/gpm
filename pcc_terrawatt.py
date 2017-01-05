@@ -441,7 +441,7 @@ plt.show()
 '''
 
 
-cut = 15
+cut = 20
 
 fig = plt.figure(figsize=(12,12))
 ff = 13.1
