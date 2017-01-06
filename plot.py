@@ -141,7 +141,7 @@ blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr)
 
 nblon, nblat, node = cut_the_swath(gprof_lon,gprof_lat, Node)
-node = node[:,:,:]
+node = node[:,:,1:4]
 
 dpr4 = np.copy(dpr3)
 
@@ -224,7 +224,7 @@ fig = plt.figure(figsize=(12,12))
 ff = 13.1
 fft = 10.0
 ax1 = fig.add_subplot(223, aspect='equal')
-plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=PV_vmin[ip],vmax=PV_vmax[ip], zorder=2)
 #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
@@ -294,32 +294,29 @@ plt.yticks(fontsize=fft)
 
 ax4 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
-level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),1)
-#level1 = np.arange(0,np.nanmax(dpr4[:,cut,:]),1)
+#level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
 
-levels= [100,150,200]
-#levels = np.arange(np.nanmin(dpr3[:,cut,:]),np.nanmax(dpr3[:,cut,:]),1)
+level1 = np.arange(0.1,10.,0.1)
+t_level = np.arange(1,10,1)
 
+ax5 = plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(),
+             vmin=0.101,
+             vmax=10,
+             cmap=my_cmap,
+             levels=level1)
+plt.plot(gpm_x[:,cut], nn, '-k')
 
-dpr4[dpr3<=np.nanmin(dpr3)]=np.nan #Cloud Top High bestimmen
-print 'Angabe: ',np.nanmin(dpr3), np.nanmax(dpr3), dpr.shape
-#Todo: Cloud Top High !
-#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), level = levels2)#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
-#plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose())#, levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
-plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose())#, levels = level1, vmin=-20,vmax=20, cmap='seismic')#, vmax=np.nanmax(dpr4[:,cut,:]), cmap='seismic')
-print gpm_x[:,cut].shape, h.shape, dpr4[:,cut,:].shape
-plt.plot(gpm_x[:,cut], nn, '.-k')
-
-
-cb = plt.colorbar(shrink=0.4)
-cb.set_label(para_name,fontsize=ff)
+cb = plt.colorbar(shrink=0.8, ticks=t_level)
+cb.set_label('Rainrate (mm/h)',fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
 plt.xticks(fontsize=fft)
 plt.yticks(fontsize=fft)
-plt.title('GPM DPR '+ para_name)
+plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023600 UTC',fontsize=ff)
+plt.xlim(-420,390)
 
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
