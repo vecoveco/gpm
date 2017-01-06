@@ -64,7 +64,7 @@ y = radolan_grid_xy[:,:,1]
 
 ## Read GPROF
 ## ------------
-pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/corra/*.HDF5')
+pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
 print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
@@ -85,14 +85,14 @@ gprof_lon=np.array(gpmdprs['NS']['Longitude'])
 #gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'])
 ##############################################Bei Regen
 RR, ZZ = 'precipRate', 'zFactorCorrected' #precipRateNearSurface
-gprof_pp=np.array(gpmdprs['NS']['surfPrecipTotRate'])
+gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
 
 print gprof_pp.shape
 
 gprof_pp[gprof_pp==-9999.9]= np.NaN
 
 
-parameter3 = gpmdprs['NS']['phaseBinNodes']
+parameter3 = gpmdprs['NS']['DSD']['binNode']
 Node = np.array(parameter3, dtype=float)
 Node[Node<-1]= np.nan
 
@@ -105,8 +105,8 @@ Node[Node<-1]= np.nan
 #parameter2 = gpmdprs['NS']['precipTotPSDparamHigh']
 #parameter2 = gpmdprs['NS']['precipTotWaterCont']
 #parameter2 = gpmdprs['NS']['correctedReflectFactor']
-para_name = 'precipTotRate'
-parameter2 = gpmdprs['NS'][para_name]
+para_name = 'precipRate'
+parameter2 = gpmdprs['NS']['SLV'][para_name]
 
 dpr = np.array(parameter2, dtype=float)
 dpr[dpr<-9998]=np.nan
@@ -141,7 +141,7 @@ blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr)
 
 nblon, nblat, node = cut_the_swath(gprof_lon,gprof_lat, Node)
-node = node[:,:,3]
+node = node[:,:,:]
 
 dpr4 = np.copy(dpr3)
 
@@ -293,7 +293,7 @@ plt.yticks(fontsize=fft)
 
 
 ax4 = fig.add_subplot(224, aspect='auto')
-h = np.arange(88,0,-1)*0.25 # Bei 88 500m und bei 176 ist es 250m
+h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),1)
 #level1 = np.arange(0,np.nanmax(dpr4[:,cut,:]),1)
 
@@ -307,7 +307,8 @@ print 'Angabe: ',np.nanmin(dpr3), np.nanmax(dpr3), dpr.shape
 #plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose(), level = levels2)#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
 #plt.contour(gpm_x[:,cut],h,dpr3[:,cut,:].transpose())#, levels = levels, colors='black')#,vmin=(np.nanmin(dpr3[:,cut,:])),vmax=(np.nanmax(dpr3[:,cut,:])),cmap=my_cmap)#, levels=levels
 plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose())#, levels = level1, vmin=-20,vmax=20, cmap='seismic')#, vmax=np.nanmax(dpr4[:,cut,:]), cmap='seismic')
-plt.plot(gpm_x[:,cut], nn)
+print gpm_x[:,cut].shape, h.shape, dpr4[:,cut,:].shape
+plt.plot(gpm_x[:,cut], nn, '.-k')
 
 
 cb = plt.colorbar(shrink=0.4)
