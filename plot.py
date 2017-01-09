@@ -296,7 +296,7 @@ ax4 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 #level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
 
-level1 = np.arange(0.1,11.,0.1)
+level1 = np.arange(0.1,10.1,0.1)
 t_level = np.arange(1,11,1)
 
 ax5 = plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(),
