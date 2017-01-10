@@ -35,7 +35,14 @@ TH_ka, TH_ku = 0.2, 0.5
 
 # Zeitstempel nach YYYYMMDDhhmmss
 
-ZP = '20141007023500'#'20160805054500'#'20141007023500''20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#
+#ZP = '20160805055000'; gpm_time = '2016-08-05 T: 054700 UTC'
+#ZP = '20160607155500'; gpm_time = '2016-06-07 T: 155500 UTC'
+#ZP = '20160405174500'; gpm_time = '2016-04-05 T: 174500 UTC'
+ZP = '20141007023500'; gpm_time = '2016-10-07 T: 023600 UTC'
+
+#'20160904134500'#'20161001060000'#'20161024232500'
+# #'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
+# #'20161024232500'#'20150427223500' #'20141007023500'#
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -71,6 +78,7 @@ pfad_gprof_g = pfad_gprof[0]
 
 
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
+print gpmdprs
 gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
 gprof_lon=np.array(gpmdprs['NS']['Longitude'])
 
@@ -105,7 +113,7 @@ Node[Node<-1]= np.nan
 #parameter2 = gpmdprs['NS']['precipTotPSDparamHigh']
 #parameter2 = gpmdprs['NS']['precipTotWaterCont']
 #parameter2 = gpmdprs['NS']['correctedReflectFactor']
-para_name = 'precipRate'
+para_name = 'zFactorCorrected'#'precipRate'
 parameter2 = gpmdprs['NS']['SLV'][para_name]
 
 dpr = np.array(parameter2, dtype=float)
@@ -125,6 +133,12 @@ print 'CloudIcemaxmin:', np.nanmin(dpr), np.nanmax(dpr)
 #dpr = dpr[:,:,:,1]
 #dpr[dpr<-9998]=np.nan
 
+
+#gpm_time = '2016-08-05 T: 054600 UTC'
+#gpm_time = '2016-10-24 T: 232200 UTC'
+#gpm_time = '2015-04-27 T: 223800 UTC'
+#gpm_time = '2016-09-17 T: 101900 UTC'
+#gpm_time = '2016-09-04 T: 134600 UTC'
 
 
 
@@ -215,7 +229,7 @@ from pcc import plot_radar
 ###########################################################################----
 
 
-cut = 20
+cut = 23 #20 bei bon201410
 node[:,cut]
 nn = (176-node[:,cut]) * 0.125
 
@@ -224,9 +238,13 @@ fig = plt.figure(figsize=(12,12))
 ff = 13.1
 fft = 10.0
 ax1 = fig.add_subplot(223, aspect='equal')
-plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=PV_vmin[ip],vmax=PV_vmax[ip], zorder=2)
+plt.pcolormesh(x, y, rwdata,
+               cmap=my_cmap,
+               vmin=PV_vmin[ip],
+               vmax=PV_vmax[ip],
+               zorder=2)
 #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-cb = plt.colorbar(shrink=0.8)
+cb = plt.colorbar(shrink=0.8,extend='max')
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 
@@ -247,17 +265,18 @@ plt.yticks(fontsize=fft)
 
 ax2 = fig.add_subplot(222, aspect='equal')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
-                     cmap=my_cmap,vmin=PV_vmin[ip],vmax=PV_vmax[ip], zorder=2)
+                     cmap=my_cmap,
+                     vmin=PV_vmin[ip],
+                     vmax=PV_vmax[ip],
+                     zorder=2)
 
-#pm2 = plt.pcolormesh(gprof_lon[latstart:latend], gprof_lat[latstart:latend],np.ma.masked_invalid(gprof_pp[latstart:latend]),
-                     #cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='red',lw=1)
-cb = plt.colorbar(shrink=0.8)
+cb = plt.colorbar(shrink=0.8,extend='max')
 cb.set_label(PV_name[ip],fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("y [km]  ",fontsize=ff)
-plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023600 UTC',fontsize=ff)
+plt.title('GPM DPR Rainrate: \n'+ gpm_time ,fontsize=ff)
 plot_borders(ax2)
 plot_radar(boxlon, boxlat, ax2, reproject=True)
 plt.grid(color='r')
@@ -272,9 +291,12 @@ plt.yticks(fontsize=fft)
 
 ax3 = fig.add_subplot(221, aspect='equal')
 pm3 = plt.pcolormesh(gpm_x, gpm_y,rrr,
-                     cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+                     cmap=my_cmap,
+                     vmin=0.1,
+                     vmax=10,
+                     zorder=2)
 
-cb = plt.colorbar(shrink=0.8)
+cb = plt.colorbar(pm3, shrink=0.8,extend='max')
 cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
@@ -296,26 +318,28 @@ ax4 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 #level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
 
-level1 = np.arange(0.1,10.1,0.1)
-t_level = np.arange(1,11,1)
+level1 = np.arange(np.round(np.nanmin(dpr4[:,cut,:]),0),np.round(np.nanmax(dpr4[:,cut,:]),0),1)
+#t_level = np.arange(1,11,1)
 
 ax5 = plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(),
-             vmin=0.101,
-             vmax=10,
+             #vmin=0.101,
+             #vmax=10,
              cmap=my_cmap,
-             levels=level1)
+             levels=level1,
+             extend='max')
 plt.plot(gpm_x[:,cut], nn, '-k')
 
-cb = plt.colorbar(shrink=0.8, ticks=t_level)
-cb.set_label('Rainrate (mm/h)',fontsize=ff)
+cb = plt.colorbar(shrink=0.8)#,ticks=t_level)
+cb.set_label('Z (dBZ)',fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("z [km]  ",fontsize=ff)
 plt.xticks(fontsize=fft)
 plt.yticks(fontsize=fft)
-plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023600 UTC',fontsize=ff)
-plt.xlim(-420,390)
-
+plt.title('GPM DPR Z: \n'+ gpm_time,fontsize=ff)
+#plt.xlim(-420,390)
+plt.ylim(0,7)
+plt.xlim(-300,-80)
 plt.grid(True)
 plt.tight_layout()
 plt.show()
