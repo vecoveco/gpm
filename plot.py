@@ -11,21 +11,11 @@ Radolanpfad:
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as col
-import pandas as pd
 import wradlib
 import glob
-import math
-import pandas as pd
-from scipy import stats
-import matplotlib as mpl
 import wradlib as wrl
 from osgeo import osr
-import os
-import matplotlib.ticker as ticker
-from matplotlib.colors import LogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-#import mpl_toolkits.basemap.pyproj as pyproj
+
 
 
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
@@ -38,7 +28,7 @@ TH_ka, TH_ku = 0.2, 0.5
 #ZP = '20160805055000'; gpm_time = '2016-08-05 T: 054700 UTC'
 #ZP = '20160607155500'; gpm_time = '2016-06-07 T: 155500 UTC'
 #ZP = '20160405174500'; gpm_time = '2016-04-05 T: 174500 UTC'
-ZP = '20141007023500'; gpm_time = '2016-10-07 T: 023600 UTC'
+ZP = '20141007023500'; gpm_time = '2016-10-07, 02:36 UTC'
 
 #'20160904134500'#'20161001060000'#'20161024232500'
 # #'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
@@ -49,7 +39,9 @@ ye = ZP[2:4]
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
 
-pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
+pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+
+        '/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+
+        str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
 
 pfad_radolan = pfad[:-3]
 
@@ -139,10 +131,21 @@ print 'CloudIcemaxmin:', np.nanmin(dpr), np.nanmax(dpr)
 #gpm_time = '2015-04-27 T: 223800 UTC'
 #gpm_time = '2016-09-17 T: 101900 UTC'
 #gpm_time = '2016-09-04 T: 134600 UTC'
+############################################################### read Boxpol RHI
+from mpl_toolkits.axisartist.grid_finder import FixedLocator, DictFormatter
+# reading in GAMIC hdf5 file
+filename = wrl.util.get_wradlib_data_file('/automount/radar-archiv/scans/2014'
+                                          '/2014-10/2014-10-07/n_rhi_lacros'
+                                          '/2014-10-07--02:37:44,00.mvol')
+data, metadata = wrl.io.read_GAMIC_hdf5(filename)
+data = data['SCAN0']['ZH']['data']
+r = metadata['SCAN0']['r']
+th = metadata['SCAN0']['el']
+mask_ind = np.where(data <= np.nanmin(data))
+data[mask_ind] = np.nan
+ma = np.ma.array(data, mask=np.isnan(data))
 
-
-
-#####################################Parameter bestimmen
+############################################################Parameter bestimmen
 ip = 0
 PV_vmin = [0.1,-15]
 PV_vmax = [10,40]
@@ -155,7 +158,7 @@ blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr)
 
 nblon, nblat, node = cut_the_swath(gprof_lon,gprof_lat, Node)
-node = node[:,:,1:4]
+node = node[:,:,1:4:2]
 
 dpr4 = np.copy(dpr3)
 
@@ -225,42 +228,28 @@ rrr = wradlib.zr.z2r(Zr, a=200., b=1.6)
 
 from pcc import plot_radar
 
+from pcc import get_miub_cmap
+my_cmap2 = get_miub_cmap()
+
 ######################################################################### PLOT
 ###########################################################################----
 
 
-cut = 23 #20 bei bon201410
+cut = 22 #20 bei bon201410
 node[:,cut]
 nn = (176-node[:,cut]) * 0.125
 
 
 fig = plt.figure(figsize=(12,12))
-ff = 13.1
-fft = 10.0
-ax1 = fig.add_subplot(223, aspect='equal')
-plt.pcolormesh(x, y, rwdata,
-               cmap=my_cmap,
-               vmin=PV_vmin[ip],
-               vmax=PV_vmax[ip],
-               zorder=2)
-#plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-cb = plt.colorbar(shrink=0.8,extend='max')
-cb.set_label("Rainrate (mm/h)",fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
 
-plot_borders(ax1)
-plot_radar(boxlon, boxlat, ax1, reproject=True)
-
-plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
-       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("y [km]  ",fontsize=ff)
-plt.grid(color='r')
-plt.xlim(-420,390)
-plt.ylim(-4700, -3700)
-plt.xticks(fontsize=fft)
-plt.yticks(fontsize=fft)
-
+fft = 15.0
+#figtextpositionen
+xl = 0.06
+xr = 0.56
+yo = 0.955
+yu = 0.47
+#plt.ylim(0,100)
+#'''
 
 
 ax2 = fig.add_subplot(222, aspect='equal')
@@ -272,20 +261,28 @@ pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
 
 plt.plot(gpm_x[:,cut],gpm_y[:,cut], color='red',lw=1)
 cb = plt.colorbar(shrink=0.8,extend='max')
-cb.set_label(PV_name[ip],fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("y [km]  ",fontsize=ff)
-plt.title('GPM DPR Rainrate: \n'+ gpm_time ,fontsize=ff)
+cb.set_label(PV_name[ip],fontsize=fft)
+cb.ax.tick_params(labelsize=fft)
+#plt.xlabel("x [km] ",fontsize=0)
+#plt.ylabel("y [km]  ",fontsize=0)
+plt.figtext(xr,yo,'b) GPM DPR: '+ gpm_time ,fontsize=fft)
 plot_borders(ax2)
 plot_radar(boxlon, boxlat, ax2, reproject=True)
 plt.grid(color='r')
 plt.tight_layout()
 plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
-plt.xticks(fontsize=fft)
-plt.yticks(fontsize=fft)
-
+#plt.xticks(fontsize=0)
+#plt.yticks(fontsize=0)
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
 
 
 
@@ -297,12 +294,12 @@ pm3 = plt.pcolormesh(gpm_x, gpm_y,rrr,
                      zorder=2)
 
 cb = plt.colorbar(pm3, shrink=0.8,extend='max')
-cb.set_label("Rainrate (mm/h)",fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("y [km]  ",fontsize=ff)
-plt.title('RADOLAN Rainrate Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
-       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+cb.set_label("Rainrate (mm/h)",fontsize=fft)
+cb.ax.tick_params(labelsize=fft)
+#plt.xlabel("x [km] ",fontsize=ff)
+#plt.ylabel("y [km]  ",fontsize=ff)
+plt.figtext(xl,yo,'a) RADOLAN: '+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ', '+str(pfad_radolan[-14:-12])+':'+str(pfad_radolan[-12:-10]) + ' UTC',fontsize=fft) #RW Product Polar Stereo
 plot_borders(ax3)
 plot_radar(boxlon, boxlat, ax3, reproject=True)
 
@@ -310,18 +307,34 @@ plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
 plt.grid(color='r')
 plt.tight_layout()
-plt.xticks(fontsize=fft)
-plt.yticks(fontsize=fft)
-
+#plt.xticks(fontsize=fft)
+#plt.yticks(fontsize=0)
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
 
 ax4 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 #level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
-from pcc import get_miub_cmap
-my_cmap2 = get_miub_cmap()
+
 #level1 = np.arange(np.round(np.nanmin(dpr4[:,cut,:]),0),np.round(np.nanmax(dpr4[:,cut,:]),0),1)
+level1 = np.arange(np.round(np.nanmin(ma),0),np.round(np.nanmax(ma),0),1)
+
+
+print '-----------------'
+print 'Boxpol:  ',np.round(np.nanmin(ma),0), np.round(np.nanmax(ma))
+print 'DPR:  ',np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:])
+print '-----------------'
+
+
 # Level fur Boxpol
-level1 = np.arange(-35,70,5)
+#level1 = np.arange(-35,70,5)
 
 #t_level = np.arange(1,11,1)
 
@@ -334,19 +347,48 @@ ax5 = plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(),
 plt.plot(gpm_x[:,cut], nn, '-k')
 
 cb = plt.colorbar(shrink=0.8)#,ticks=t_level)
-cb.set_label('Z (dBZ)',fontsize=ff)
-cb.ax.tick_params(labelsize=ff)
-plt.xlabel("x [km] ",fontsize=ff)
-plt.ylabel("z [km]  ",fontsize=ff)
+cb.set_label('Z (dBZ)',fontsize=fft)
+cb.ax.tick_params(labelsize=fft)
+#plt.gca().invert_xaxis()
+
+plt.xlabel("x [km] ",fontsize=fft)
+plt.ylabel("z [km]  ",fontsize=fft)
 plt.xticks(fontsize=fft)
 plt.yticks(fontsize=fft)
-plt.title('GPM DPR Z: \n'+ gpm_time,fontsize=ff)
+plt.figtext(xr,yu,'d) GPM DPR : \n'+ gpm_time,fontsize=fft)
 #plt.xlim(-420,390)
 plt.ylim(0,7)
 #plt.xlim(-300,-80)
-plt.xlim(-322,-111)
+plt.xlim(bx-50,bx)
+plt.xticks(ax4.get_xticks().tolist(),['60','50','40','30','20','10','0'])
+print ax4.get_xticks().tolist()
 
 plt.grid(True)
+
+ax4a = ax4.get_xticks().tolist()
+print ax4a
+#ax1 = fig.add_subplot(223, aspect='equal')
+
+#'''
+cgax, caax, paax, pm = wrl.vis.plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2, subplot=223,autoext=True)
+cgax.set_ylim(0,7)
+cbar = plt.gcf().colorbar(pm,shrink=0.8)#, pad=0.05)
+plt.gca().invert_xaxis()
+cbar.set_label('Z [dBZ]',fontsize=fft)
+caax.set_xlabel('x [km]',fontsize=fft)
+caax.set_ylabel('z [km]',fontsize=fft)
+
+
+plt.figtext(xl,yu,'c) BoXPol RHI \n 2016-10-07, 02:37 UTC',fontsize=fft)
+
+
+gh = cgax.get_grid_helper()
+locs = [0.]
+gh.grid_finder.grid_locator1 = FixedLocator(locs)
+gh.grid_finder.tick_formatter1 = DictFormatter(dict([(i, r"${0:.0f}^\circ$".format(i)) for i in locs]))
+plt.yticks(fontsize=fft)
+plt.xticks(fontsize=fft)
+
 plt.tight_layout()
 plt.show()
 
