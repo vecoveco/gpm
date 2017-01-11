@@ -18,6 +18,7 @@ import wradlib
 import wradlib as wrl
 import pandas as pd
 import datetime as dt
+import pcc as pcc
 
 from pcc import boxpol_pos
 from pcc import plot_radar
@@ -147,6 +148,8 @@ for ij in range(len(zeit)):
     my_cmap.set_over('darkred')
 
 
+
+    cmap2 = pcc.get_miub_cmap() #' bei Reflektivitat'
     ########################################################################## PLOT
 
     ff = 15

@@ -429,3 +429,19 @@ def cut_the_swath(gprof_lon, gprof_lat, gprof_pp):
     gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
     return blon, blat, gprof_pp_b
+
+
+def get_miub_cmap():
+    import matplotlib.colors as col
+    startcolor = 'white'  # a dark olive
+    color1 = '#8ec7ff'#'cyan'    # a bright yellow
+    color2 = 'dodgerblue'
+    color3 = 'lime'
+    color4 = 'yellow'
+    color5 = 'darkorange'
+    color6 = 'red'
+    color7 = 'purple'
+    #color6 = 'grey'
+    endcolor = 'darkmagenta'    # medium dark red
+    colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
+    return col.LinearSegmentedColormap.from_list('miub1',colors)

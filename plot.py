@@ -317,16 +317,20 @@ plt.yticks(fontsize=fft)
 ax4 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 #level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
+from pcc import get_miub_cmap
+my_cmap2 = get_miub_cmap()
+#level1 = np.arange(np.round(np.nanmin(dpr4[:,cut,:]),0),np.round(np.nanmax(dpr4[:,cut,:]),0),1)
+# Level fur Boxpol
+level1 = np.arange(-35,70,5)
 
-level1 = np.arange(np.round(np.nanmin(dpr4[:,cut,:]),0),np.round(np.nanmax(dpr4[:,cut,:]),0),1)
 #t_level = np.arange(1,11,1)
 
 ax5 = plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(),
              #vmin=0.101,
              #vmax=10,
-             cmap=my_cmap,
+             cmap=my_cmap2,
              levels=level1,
-             extend='max')
+             extend='both')#max
 plt.plot(gpm_x[:,cut], nn, '-k')
 
 cb = plt.colorbar(shrink=0.8)#,ticks=t_level)
@@ -339,7 +343,9 @@ plt.yticks(fontsize=fft)
 plt.title('GPM DPR Z: \n'+ gpm_time,fontsize=ff)
 #plt.xlim(-420,390)
 plt.ylim(0,7)
-plt.xlim(-300,-80)
+#plt.xlim(-300,-80)
+plt.xlim(-322,-111)
+
 plt.grid(True)
 plt.tight_layout()
 plt.show()
