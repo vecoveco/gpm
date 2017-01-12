@@ -246,13 +246,13 @@ fft = 15.0
 #figtextpositionen
 xl = 0.06
 xr = 0.56
-yo = 0.955
+yo = 0.965
 yu = 0.47
 #plt.ylim(0,100)
 #'''
 
-
-ax2 = fig.add_subplot(222, aspect='equal')
+#####____________________AX1____________________#####
+ax2 = fig.add_subplot(222, aspect='auto')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
                      cmap=my_cmap,
                      vmin=PV_vmin[ip],
@@ -285,8 +285,8 @@ plt.tick_params(
     labelleft='off')
 
 
-
-ax3 = fig.add_subplot(221, aspect='equal')
+#### ____________________AX3____________________ #####
+ax3 = fig.add_subplot(221, aspect='auto')
 pm3 = plt.pcolormesh(gpm_x, gpm_y,rrr,
                      cmap=my_cmap,
                      vmin=0.1,
@@ -319,6 +319,10 @@ plt.tick_params(
     left='off',
     labelleft='off')
 
+
+
+##### ____________________AX3____________________ ####
+
 ax4 = fig.add_subplot(224, aspect='auto')
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 #level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
@@ -333,10 +337,6 @@ print 'DPR:  ',np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:])
 print '-----------------'
 
 
-# Level fur Boxpol
-#level1 = np.arange(-35,70,5)
-
-#t_level = np.arange(1,11,1)
 
 ax5 = plt.contourf(gpm_x[:,cut],h,dpr4[:,cut,:].transpose(),
              #vmin=0.101,
@@ -365,14 +365,14 @@ print ax4.get_xticks().tolist()
 
 plt.grid(True)
 
-ax4a = ax4.get_xticks().tolist()
-print ax4a
-#ax1 = fig.add_subplot(223, aspect='equal')
+#ax4a = ax4.get_xticks().tolist()
 
-#'''
+
+##### ____________________AX4____________________ ####
+
 cgax, caax, paax, pm = wrl.vis.plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2, subplot=223,autoext=True)
 cgax.set_ylim(0,7)
-cbar = plt.gcf().colorbar(pm,shrink=0.8)#, pad=0.05)
+cbar = plt.gcf().colorbar(pm,shrink=0.8,extend='both')#, pad=0.05)
 plt.gca().invert_xaxis()
 cbar.set_label('Z (dBZ)',fontsize=fft)
 caax.set_xlabel('x (km)',fontsize=fft)
