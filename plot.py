@@ -28,7 +28,7 @@ TH_ka, TH_ku = 0.2, 0.5
 #ZP = '20160805055000'; gpm_time = '2016-08-05 T: 054700 UTC'
 #ZP = '20160607155500'; gpm_time = '2016-06-07 T: 155500 UTC'
 #ZP = '20160405174500'; gpm_time = '2016-04-05 T: 174500 UTC'
-ZP = '20141007023500'; gpm_time = '2016-10-07, 02:36 UTC'
+ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
 
 #'20160904134500'#'20161001060000'#'20161024232500'
 # #'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
@@ -351,8 +351,8 @@ cb.set_label('Z (dBZ)',fontsize=fft)
 cb.ax.tick_params(labelsize=fft)
 #plt.gca().invert_xaxis()
 
-plt.xlabel("x [km] ",fontsize=fft)
-plt.ylabel("z [km]  ",fontsize=fft)
+plt.xlabel("x (km) ",fontsize=fft)
+plt.ylabel("z (km)  ",fontsize=fft)
 plt.xticks(fontsize=fft)
 plt.yticks(fontsize=fft)
 plt.figtext(xr,yu,'d) GPM DPR : \n'+ gpm_time,fontsize=fft)
@@ -374,12 +374,15 @@ cgax, caax, paax, pm = wrl.vis.plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2
 cgax.set_ylim(0,7)
 cbar = plt.gcf().colorbar(pm,shrink=0.8)#, pad=0.05)
 plt.gca().invert_xaxis()
-cbar.set_label('Z [dBZ]',fontsize=fft)
-caax.set_xlabel('x [km]',fontsize=fft)
-caax.set_ylabel('z [km]',fontsize=fft)
+cbar.set_label('Z (dBZ)',fontsize=fft)
+caax.set_xlabel('x (km)',fontsize=fft)
+caax.set_ylabel('z (km)',fontsize=fft)
 
+cbar.ax.tick_params(labelsize=fft)
 
-plt.figtext(xl,yu,'c) BoXPol RHI \n 2016-10-07, 02:37 UTC',fontsize=fft)
+caax.tick_params(labelsize=fft)
+
+plt.figtext(xl,yu,'c) BoXPol RHI \n 2014-10-07, 02:37 UTC',fontsize=fft)
 
 
 gh = cgax.get_grid_helper()
