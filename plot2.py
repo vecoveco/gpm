@@ -243,7 +243,7 @@ my_cmap2 = get_miub_cmap()
 
 
 cut = 22 #20 bei bon201410
-node[:,cut]
+#node[:,cut]
 nn = (176-node[:,cut]) * 0.125
 
 
@@ -330,7 +330,7 @@ plt.tick_params(
 
 ##### ____________________AX3____________________ ####
 
-ax4 = fig.add_subplot(235, aspect='auto')
+ax4 = fig.add_subplot(236, aspect='auto')
 
 h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 
@@ -383,8 +383,7 @@ plt.grid(True)
 
 
 ##### ____________________AX4____________________ ####
-
-cgax, caax, paax, pm = wrl.vis.plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2, subplot=234,autoext=True)
+cgax, caax, paax, pm = wrl.vis.plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2, subplot=235,autoext=True)
 cgax.set_ylim(0,7)
 cbar = plt.gcf().colorbar(pm,shrink=0.8,extend='both')#, pad=0.05)
 plt.gca().invert_xaxis()
@@ -451,7 +450,28 @@ plt.title(" .")
 plt.grid(True)
 
 
-plt.tight_layout()
+
+
+ax44 = fig.add_subplot(234, aspect='equal')
+plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=PV_vmin[0],vmax=PV_vmax[1], zorder=2)
+#plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+cb = plt.colorbar(shrink=0.8)
+cb.set_label("Rainrate (mm/h)",fontsize=fft)
+cb.ax.tick_params(labelsize=fft)
+plot_borders(ax44)
+
+plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=fft) #RW Product Polar Stereo
+plt.xlabel("x [km] ",fontsize=fft)
+plt.ylabel("y [km]  ",fontsize=fft)
+#plt.xticks(fontsize=0)
+#plt.yticks(fontsize=0)
+plt.grid(color='r')
+plt.xlim(-420,390)
+plt.ylim(-4700, -3700)
+
+
+#plt.tight_layout()
 plt.show()
 
 

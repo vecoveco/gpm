@@ -445,3 +445,12 @@ def get_miub_cmap():
     endcolor = 'darkmagenta'    # medium dark red
     colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
     return col.LinearSegmentedColormap.from_list('miub1',colors)
+
+
+
+def get_my_cmap():
+    import matplotlib.cm as cm
+    my_cmap = cm.get_cmap('jet',40)
+    my_cmap.set_under('lightgrey')
+    my_cmap.set_over('darkred')
+    return my_cmap

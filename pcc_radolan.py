@@ -1,17 +1,13 @@
 """
 
 Das Program dient der Veranschaulichung der 5 Minutigen RX Radolan Daten!
+Es werden durch den Zeitstempel Deutschlandweite Niederschlags und
+Reflektivitaeten dargestellt!
 
 """
 
 
-"""
 
-Einlesen und darstellen von GPM und Radolan Dateien
-
-Radolanpfad:
-
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 import wradlib  
@@ -29,22 +25,21 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 
 ############################################### Zeitstempel nach YYYYMMDDhhmmss
-#Atime = pd.date_range('01/01/2014', periods=2, freq='5min')
-#A = pd.Timestamp('20120501120500')
-
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,10,7,2,25,0,
-          2014,10,7,2,35,0)
+zeit = zt(2017,01,12,22,20,0,
+          2017,01,13,12,00,0)
 
 print zeit
 
 for ij in range(len(zeit)):
-    print ij
+
+    print 'Zeitstempel ',ij,' von  ', len(zeit)
+
     ZP = zeit[ij]
-    print ZP
-#ZP = '20150513180500'
+    print 'Zeitpunkt: ',ZP
+
     year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
     ye = ZP[2:4]
 
@@ -77,6 +72,7 @@ for ij in range(len(zeit)):
     x = radolan_grid_xy[:,:,0]
     y = radolan_grid_xy[:,:,1]
 
+    ZZ = rwdata
     Z = wradlib.trafo.idecibel(rwdata)
 
     # Marshall and Palmer 1948
@@ -142,19 +138,14 @@ for ij in range(len(zeit)):
                                                'germany/vg250_0101.gk3.shape.ebenen'
                                                '/vg250_ebenen/vg250_l.shp')
 
-    import matplotlib.cm as cm
-    my_cmap = cm.get_cmap('jet',40)
-    my_cmap.set_under('lightgrey')
-    my_cmap.set_over('darkred')
-
-
-
+    my_cmap = pcc.get_my_cmap()
     cmap2 = pcc.get_miub_cmap() #' bei Reflektivitat'
     ########################################################################## PLOT
 
     ff = 15
-    fig = plt.figure(figsize=(10,10))
-    ax1 = fig.add_subplot(111, aspect='equal')
+    fig = plt.figure(figsize=(14,10))
+
+    ax1 = fig.add_subplot(121, aspect='equal')
     plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     cb = plt.colorbar(shrink=0.8)
@@ -175,7 +166,29 @@ for ij in range(len(zeit)):
 
     plot_radar(blon, blat, ax1, reproject=True)
 
+    ax2 = fig.add_subplot(122, aspect='equal')
+    plt.pcolormesh(x, y, ZZ,vmin=-30,vmax=50, cmap=cmap2, zorder=2)
+    #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+    cb = plt.colorbar(shrink=0.8, extend='both')
+    cb.set_label("Reflectivity (dBZ)",fontsize=ff)
+    cb.ax.tick_params(labelsize=ff)
+    plot_borders(ax2)
+    plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + 'UTC',fontsize=ff)
+
+    #plot_ocean(ax1)
+    plt.xlabel("x [km] ",fontsize=ff)
+    plt.ylabel("y [km]  ",fontsize=ff)
+    #plt.xticks(fontsize=0)
+    #plt.yticks(fontsize=0)
+    plt.grid(color='r')
+    plt.xlim(-420,390)
+    plt.ylim(-4700, -3700)
+    plt.tight_layout()
+
+    plot_radar(blon, blat, ax2, reproject=True)
+
+
     plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
     plt.show()
     plt.close()
-    #plt.show()
+
