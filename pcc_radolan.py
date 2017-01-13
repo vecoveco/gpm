@@ -28,10 +28,9 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2017,01,12,22,20,0,
-          2017,01,13,12,00,0)
+zeit = zt(2014,06,9,0,0,0,
+          2014,06,9,06,0,0,)
 
-print zeit
 
 for ij in range(len(zeit)):
 
@@ -148,7 +147,7 @@ for ij in range(len(zeit)):
     ax1 = fig.add_subplot(121, aspect='equal')
     plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-    cb = plt.colorbar(shrink=0.8)
+    cb = plt.colorbar(shrink=0.5)
     cb.set_label("Rainrate (mm/h)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
     plot_borders(ax1)
@@ -169,7 +168,7 @@ for ij in range(len(zeit)):
     ax2 = fig.add_subplot(122, aspect='equal')
     plt.pcolormesh(x, y, ZZ,vmin=-30,vmax=50, cmap=cmap2, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-    cb = plt.colorbar(shrink=0.8, extend='both')
+    cb = plt.colorbar(shrink=0.5, extend='both')
     cb.set_label("Reflectivity (dBZ)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
     plot_borders(ax2)
@@ -189,6 +188,6 @@ for ij in range(len(zeit)):
 
 
     plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
-    plt.show()
+    #plt.show()
     plt.close()
 
