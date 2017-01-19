@@ -28,8 +28,8 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2017,01,17,5,15,0,
-          2017,01,17,5,20,0)
+zeit = zt(2017,01,17,6,15,0,
+          2017,01,17,6,20,0)
 
 
 for ij in range(len(zeit)):
