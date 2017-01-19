@@ -28,7 +28,8 @@ TH_ka, TH_ku = 0.2, 0.5
 #ZP = '20160805055000'; gpm_time = '2016-08-05 T: 054700 UTC'
 #ZP = '20160607155500'; gpm_time = '2016-06-07 T: 155500 UTC'
 #ZP = '20160405174500'; gpm_time = '2016-04-05 T: 174500 UTC'
-ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
+#ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
+ZP = '20170113001000'; gpm_time = '2017-01-13, 00:12 UTC'
 
 #'20160904134500'#'20161001060000'#'20161024232500'
 # #'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
@@ -47,7 +48,7 @@ pfad_radolan = pfad[:-3]
 
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+rw_filename = wradlib.util.get_wradlib_data_file(pfad)
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
 rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
@@ -61,7 +62,7 @@ y = radolan_grid_xy[:,:,1]
 
 
 
-## Read GPROF
+## Read GPM
 ## ------------
 pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
@@ -134,9 +135,9 @@ print 'CloudIcemaxmin:', np.nanmin(dpr), np.nanmax(dpr)
 ############################################################### read Boxpol RHI
 from mpl_toolkits.axisartist.grid_finder import FixedLocator, DictFormatter
 # reading in GAMIC hdf5 file
-filename = wrl.util.get_wradlib_data_file('/automount/radar-archiv/scans/2014'
-                                          '/2014-10/2014-10-07/n_rhi_lacros'
-                                          '/2014-10-07--02:37:44,00.mvol')
+filename = wrl.util.get_wradlib_data_file('/automount/radar/scans/2017'
+                                          '/2017-01/2017-01-13/n_rhi_lacros'
+                                          '/2017-01-13--00:10:00,00.mvol')
 data, metadata = wrl.io.read_GAMIC_hdf5(filename)
 data = data['SCAN0']['ZH']['data']
 r = metadata['SCAN0']['r']
@@ -235,7 +236,7 @@ my_cmap2 = get_miub_cmap()
 ###########################################################################----
 
 
-cut = 22 #20 bei bon201410
+cut = 30 #20 bei bon201410
 node[:,cut]
 nn = (176-node[:,cut]) * 0.125
 

@@ -390,7 +390,7 @@ def plot_radar(bx,by, ax, reproject=False):
     ax.add_collection(polycoll, autolim=True)
 
     # plot radar location and information text
-    #ax.plot(x_loc, y_loc, 'r+')
+    ax.plot(x_loc, y_loc, 'r+')
     #ax.text(x_loc, y_loc, 'Bonn', color='r')
 
 

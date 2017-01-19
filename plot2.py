@@ -214,7 +214,7 @@ xy = np.vstack((x.ravel(), y.ravel())).transpose()
 
 mask = ~np.isnan(rwdata)
 
-result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)  #Idw
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=40)  #Idw
 
 result = np.ma.masked_invalid(result)
 
@@ -261,7 +261,7 @@ yu = 0.47
 #####____________________AX1____________________#####
 ax2 = fig.add_subplot(232, aspect='auto')
 pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
-                     cmap=my_cmap,
+                     cmap=my_cmap2,
                      vmin=PV_vmin[ip],
                      vmax=PV_vmax[ip],
                      zorder=2)
@@ -295,7 +295,7 @@ plt.tick_params(
 #### ____________________AX3____________________ #####
 ax3 = fig.add_subplot(231, aspect='auto')
 pm3 = plt.pcolormesh(gpm_x, gpm_y,rrr,
-                     cmap=my_cmap,
+                     cmap=my_cmap2,
                      vmin=PV_vmin[ip],
                      vmax=PV_vmax[ip],
                      zorder=2)
@@ -442,7 +442,17 @@ plt.ylim(0,maxAB + 1)
 plt.legend(loc='upper left', ncol=2, scatterpoints = 1, fancybox=True, shadow=True,
                     fontsize='small', title= "Slope: " + str(round(slope,3))
                                             + ', Intercept: '+  str(round(intercept,3)) + "\n Correlation: " +
-                                            str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3)))
+                                            str(round(r_value,3)) + ', Std_err: '+  str(round(std_err,3))+
+                                             "\n Variance A: "+ str(np.var(A[mask]))+
+                                             "\n Variance B: "+ str(np.var(B[mask]))+
+                                             "\n Std A: "+ str(np.std(A[mask]))+
+                                             "\n Std B: "+ str(np.std(B[mask]))+
+                                             "\n Mean B: "+ str(np.mean(B[mask]))+
+                                             "\n Mean A: "+ str(np.mean(A[mask]))+
+                                             "\n Median B: "+ str(np.median(B[mask]))+
+                                             "\n Median A: "+ str(np.median(A[mask]))+
+                                             "\n COR  AB: "+ str(np.corrcoef(A[mask],B[mask]))+
+                                             "\n COV  AB: "+ str(np.cov(A[mask],B[mask])))
 plt.xlabel("DPR "+str(PV_name[ip]))
 plt.ylabel("RADOLAN RR [mm/h]")
 plt.title(" .")
@@ -453,7 +463,7 @@ plt.grid(True)
 
 
 ax44 = fig.add_subplot(234, aspect='equal')
-plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=PV_vmin[0],vmax=PV_vmax[1], zorder=2)
+plt.pcolormesh(x, y, rwdata, cmap=my_cmap2,vmin=PV_vmin[0],vmax=PV_vmax[1], zorder=2)
 #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
 cb = plt.colorbar(shrink=0.8)
 cb.set_label("Rainrate (mm/h)",fontsize=fft)
