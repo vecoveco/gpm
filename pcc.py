@@ -57,6 +57,11 @@ def rmse(predictions, targets):
     # RMS sqrt(1/n SUM/d_i - pi)^2
     return np.sqrt(((predictions - targets) ** 2).mean())
 
+def bias(est,ref):
+    # Todo: zum laufen bringen
+    import numpy as np
+    bias = np.sum(ref-est)/(ref.shape[0]*ref.shape[1])
+    return bias
 
 def histo(data1, data2, bino):
 
@@ -192,7 +197,7 @@ def plot_score(estimate, reference, scoreval):
 
 
 
-def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS):
+def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS,steps):
     # Bestimmung eines Vektor mit aufeinande folgenden Zeitstempeln
     import datetime as dt
     import numpy as np
@@ -206,8 +211,10 @@ def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS):
     start = dt.datetime(sY, sm, sd, sH, sM,sS)
     ende = dt.datetime(eY, em, ed, eH, eM,eS)
     ztime=[]
+    if steps == None:
+        stteps = 5
 
-    for timestamp in datespan(start,ende,delta=dt.timedelta(minutes=5)):
+    for timestamp in datespan(start,ende,delta=dt.timedelta(minutes=steps)):
         ztime.append(timestamp.strftime('%Y%m%d%H%M%S'))
 
 

@@ -28,7 +28,8 @@ TH_ka, TH_ku = 0.2, 0.5
 #ZP = '20160805055000'; gpm_time = '2016-08-05 T: 054700 UTC'
 #ZP = '20160607155500'; gpm_time = '2016-06-07 T: 155500 UTC'
 #ZP = '20160405174500'; gpm_time = '2016-04-05 T: 174500 UTC'
-ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
+#ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
+ZP = '2014060913200'; gpm_time = '2014-06-09, 13:23 UTC'
 
 #'20160904134500'#'20161001060000'#'20161024232500'
 # #'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
@@ -141,8 +142,8 @@ print 'CloudIcemaxmin:', np.nanmin(dpr), np.nanmax(dpr)
 from mpl_toolkits.axisartist.grid_finder import FixedLocator, DictFormatter
 # reading in GAMIC hdf5 file
 filename = wrl.util.get_wradlib_data_file('/automount/radar-archiv/scans/2014'
-                                          '/2014-10/2014-10-07/n_rhi_lacros'
-                                          '/2014-10-07--02:37:44,00.mvol')
+                                          '/2014-06/2014-06-09/n_rhi_lacros'
+                                          '/2014-06-09--13:20:00,00.mvol')
 
 data, metadata = wrl.io.read_GAMIC_hdf5(filename)
 data = data['SCAN0']['ZH']['data']
@@ -242,7 +243,7 @@ my_cmap2 = get_miub_cmap()
 ###########################################################################----
 
 
-cut = 22 #20 bei bon201410
+cut = 4 #20 bei bon201410
 #node[:,cut]
 nn = (176-node[:,cut]) * 0.125
 
@@ -370,12 +371,10 @@ plt.ylabel("z (km)  ",fontsize=fft)
 plt.xticks(fontsize=fft)
 plt.yticks(fontsize=fft)
 plt.title('GPM DPR : \n'+ gpm_time,fontsize=fft)
-#plt.xlim(-420,390)
-plt.ylim(0,7)
-#plt.xlim(-300,-80)
-plt.xlim(bx-50,bx)
-plt.xticks(ax4.get_xticks().tolist(),['60','50','40','30','20','10','0'])
-print ax4.get_xticks().tolist()
+#plt.ylim(0,7)
+#plt.xlim(bx-50,bx)
+#plt.xticks(ax4.get_xticks().tolist(),['60','50','40','30','20','10','0'])
+#print ax4.get_xticks().tolist()
 
 plt.grid(True)
 
@@ -414,8 +413,8 @@ ax6 = fig.add_subplot(233, aspect='equal')
 
 A = rrr
 B = np.ma.masked_invalid(gprof_pp_b)
-A[A<0.1] = np.nan
-#B[B<TH_rain] = np.nan
+A[A<0.01] = np.nan
+B[B<0.01] = np.nan
 
 ref = rrr
 est = np.ma.masked_invalid(gprof_pp_b)
