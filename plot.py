@@ -234,11 +234,14 @@ my_cmap2 = get_miub_cmap()
 
 ######################################################################### PLOT
 ###########################################################################----
+m = 176#176
+mm = 0.125#0.125
+h = np.arange(m,0,-1)*mm # Bei 88 500m und bei 176 ist es 250m
 
 
-cut = 22 #20 bei bon201410
+cut = 22 #22 bei bon201410 NS
 node[:,cut]
-nn = (176-node[:,cut]) * 0.125
+nn = (m -node[:,cut]) * mm
 
 
 fig = plt.figure(figsize=(12,12))
@@ -325,7 +328,6 @@ plt.tick_params(
 ##### ____________________AX3____________________ ####
 
 ax4 = fig.add_subplot(224, aspect='auto')
-h = np.arange(176,0,-1)*0.125 # Bei 88 500m und bei 176 ist es 250m
 #level1 = np.arange(np.nanmin(dpr4[:,cut,:]),np.nanmax(dpr4[:,cut,:]),0.1)
 
 #level1 = np.arange(np.round(np.nanmin(dpr4[:,cut,:]),0),np.round(np.nanmax(dpr4[:,cut,:]),0),1)
@@ -370,8 +372,8 @@ plt.grid(True)
 
 
 ##### ____________________AX4____________________ ####
-
-cgax, caax, paax, pm = wrl.vis.plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2, subplot=223,autoext=True)
+import pcc as pcc
+cgax, caax, paax, pm, xxx, yyy = pcc.pcc_plot_cg_rhi(ma, r=r, th=th, rf=1e3, cmap=my_cmap2, subplot=223,autoext=True)
 cgax.set_ylim(0,7)
 cbar = plt.gcf().colorbar(pm,shrink=0.8,extend='both')#, pad=0.05)
 plt.gca().invert_xaxis()
@@ -396,3 +398,16 @@ plt.xticks(fontsize=fft)
 plt.tight_layout()
 plt.show()
 
+
+
+grid_gpm_xy2 = np.vstack((gpm_x[:,cut].ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
+
+xxxyyy = np.vstack((xxx[0:-1,0:-1].ravel(), yyy[0:-1,0:-1].ravel())).transpose()
+
+mask1 = ~np.isnan(ma)
+
+result2 = wrl.ipol.interpolate(xxxyyy, grid_gpm_xy2, ma[mask1].reshape(ma.shape[0]*ma.shape[1],1), wrl.ipol.Idw, nnearest=4)  #Idw
+
+result2 = np.ma.masked_invalid(result2)
+
+rrr2 = result2.reshape(gpm_x.shape)

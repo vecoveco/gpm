@@ -1,3 +1,5 @@
+
+
 def dscat(xdat, ydat):
     # Todo: erstellen ScatterHistogramplot
     import matplotlib.pyplot as plt, numpy as np, numpy.random, scipy
@@ -461,3 +463,110 @@ def get_my_cmap():
     my_cmap.set_under('lightgrey')
     my_cmap.set_over('darkred')
     return my_cmap
+
+
+
+def pcc_plot_cg_rhi(data, r=None, th=None, th_res=None, autoext=True, refrac=True,
+                rf=1., fig=None, subplot=111, **kwargs):
+
+    import numpy as np
+    from wradlib import georef as georef
+    import wradlib as wrl
+
+    # autogenerate axis dimensions
+    if r is None:
+        d1 = np.arange(data.shape[1], dtype=np.float)
+    else:
+        d1 = np.asanyarray(r)
+
+    if th is None:
+        # assume, data is evenly spaced between 0 and 90 degree
+        d2 = np.linspace(0., 90., num=data.shape[0], endpoint=True)
+        # d2 = np.arange(data.shape[0], dtype=np.float)
+    else:
+        d2 = np.asanyarray(th)
+
+    if autoext:
+        # extend the range by the delta of the two last bins
+        x = np.append(d1, d1[-1] + d1[-1] - d1[-2])
+        # RHIs usually aren't cyclic, so we best guess a regular extension
+        # here as well
+        y = np.append(d2, d2[-1] + d2[-1] - d2[-2])
+    else:
+        # hopefully, the user supplied everything correctly...
+        x = d1
+        y = d2
+
+    if th_res is not None:
+        # we are given a beam resolution and thus may not just glue each
+        # beam to its neighbor
+        # solving this still with the efficient pcolormesh but interlacing
+        # the data with masked values, simulating the gap between beams
+        # make a temporary data array with one dimension twice the size of
+        # the original
+        img = np.ma.empty((data.shape[0], data.shape[1] * 2))
+        # mask everything
+        img.mask = np.ma.masked
+        # set the data in the first half of the temporary array
+        # this automatically unsets the mask
+        img[:, :data.shape[1]] = data
+        # reshape so that data and masked lines interlace each other
+        img = img.reshape((-1, data.shape[1]))
+        # produce lower and upper y coordinates for the actual data
+        yl = d2 - th_res * 0.5
+        yu = d2 + th_res * 0.5
+        # glue them together to achieve the proper dimensions for the
+        # interlaced array
+        y = np.concatenate([yl[None, :], yu[None, :]], axis=0).T.ravel()
+    else:
+        img = data
+
+    # create curvelinear axes
+    cgax, caax, paax = wrl.vis.create_cg('RHI', fig, subplot)
+
+    # this is in fact the outermost thick "ring" aka max_range
+    cgax.axis["lon"] = cgax.new_floating_axis(1, np.max(x) / rf)
+    cgax.axis["lon"].major_ticklabels.set_visible(False)
+    # and also set tickmarklength to zero for better presentation
+    cgax.axis["lon"].major_ticks.set_ticksize(0)
+
+    if refrac:
+        # observing air refractivity, so ground distances and beam height
+        # must be calculated specially
+        # create coordinates for all vertices
+        xx, yy = np.meshgrid(x, y)
+        xxx = georef.arc_distance_n(xx, yy) / rf
+        yyy = georef.beam_height_n(xx, yy) / rf
+        # assign twin-axis/cartesian-axis as plotting axis
+        plax = caax
+    else:
+        # otherwise plotting to parasite axis will do
+        # create meshgrid for polar data
+        # please note that the data is plottet within a polar grid
+        # with 0 degree at 3 o'clock, hence the slightly other data handling
+        xxx, yyy = np.meshgrid(y, x)
+        yyy /= rf
+        img = img.transpose()
+        # assign parasite axis as plotting axis
+        plax = paax
+
+    # plot the stuff
+    pm = plax.pcolormesh(xxx, yyy, img, **kwargs)
+
+    # set bounds to maximum
+    cgax.set_ylim(0, np.max(x) / rf)
+    cgax.set_xlim(0, np.max(x) / rf)
+
+    # show curvelinear and cartesian grids
+    # makes no sense not to plot, if we made such a fuss to get that handled
+    cgax.grid(True)
+    caax.grid(True)
+
+    # return references to important and eventually new objects
+    return cgax, caax, paax, pm, xxx, yyy
+
+
+def search_nearest(arry,value):
+    import numpy as np
+    near = np.argmin(np.abs(np.subtract(arry,value)))
+    return near
