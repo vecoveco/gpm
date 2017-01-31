@@ -19,13 +19,13 @@ from osgeo import osr
 #ZP = '20160805055000'; gpm_time = '2016-08-05 T: 054700 UTC'
 #ZP = '20160607155500'; gpm_time = '2016-06-07 T: 155500 UTC'
 #ZP = '20160405174500'; gpm_time = '2016-04-05 T: 174500 UTC'
-ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
+#ZP = '20141007023500'; gpm_time = '2014-10-07, 02:36 UTC'
 #ZP = '20170113001000'; gpm_time = '2017-01-13, 00:12 UTC'
 #ZP = '20140609'; gpm_time = '2014-06-09'
 #ZP = '20140629'; gpm_time = '2014-06-29'
 #ZP = '20140826'; gpm_time = '2014-08-26'
 #ZP = '20160904'; gpm_time = '2016-09-04'
-#ZP = '20140921'; gpm_time = '2014-09-21'
+ZP = '20140921'; gpm_time = '2014-09-21'
 #ZP = '20141016'; gpm_time = '2014-10-16'
 #ZP = '20150128'; gpm_time = '2015-01-28'
 #ZP = '20150427'; gpm_time = '2015-04-27'
@@ -123,7 +123,8 @@ cb.ax.tick_params(labelsize=fft)
 plt.title('GPM DPR Ku: \n'+ gpm_time ,fontsize=fft)
 plot_borders(ax1)
 plot_radar(boxlon, boxlat, ax1, reproject=True)
-plt.scatter(w_x,w_y)
+plt.scatter(w_x,w_y, color='red')
+plt.scatter(gprof_x,gprof_y, color='black')
 plt.grid(color='r')
 plt.tight_layout()
 plt.xlim(-420,390)
@@ -148,8 +149,8 @@ cb.set_label(cbname,fontsize=fft)
 cb.ax.tick_params(labelsize=fft)
 plt.scatter(wippe_lon,wippe_lat, color='red')
 plt.scatter(gprof_lon,gprof_lat, color='black')
-plt.xlim(7.0,7.3)
-plt.ylim(50.5,50.9)
+#plt.xlim(7.0,7.3)
+#plt.ylim(50.5,50.9)
 plt.title('GPM DPR Ku: \n'+ gpm_time ,fontsize=fft)
 #plot_borders(ax1)
 #plot_radar(boxlon, boxlat, ax1, reproject=True)

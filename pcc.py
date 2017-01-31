@@ -594,7 +594,7 @@ def cut_the_swath2(gprof_lon, gprof_lat, gprof_pp,eu=False):
 
     # Rand bestimmt nach Radolan Eckpunkten
 
-    bonn_lat1 = 47
+    bonn_lat1 =47
     bonn_lat2 = 54.0
     bonn_lon1 = 4.5
     bonn_lon2 = 14.6
@@ -606,8 +606,8 @@ def cut_the_swath2(gprof_lon, gprof_lat, gprof_pp,eu=False):
         bonn_lon1 = 1
         bonn_lon2 = 19
 
-    ilat = np.where(((gprof_lat[:,0] > bonn_lat1) & (gprof_lat[:,-1] > bonn_lat1))
-                   & ((gprof_lat[:,0] < bonn_lat2) & (gprof_lat[:,-1] < bonn_lat2)))
+    ilat = np.where(((gprof_lat[:,[0,-1]] > bonn_lat1) )
+                   & ((gprof_lat[:,[0,-1]] < bonn_lat2) ))
 
     latstart = ilat[0][0]
     latend = ilat[0][-1]

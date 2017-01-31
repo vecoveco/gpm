@@ -312,7 +312,7 @@ slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
 line = slope*B+intercept
 
 from pcc import skill_score
-RR = skill_score(est,ref,18.)
+RR = skill_score(est,ref,0.)
 from pcc import plot_score
 plot_score(est,ref,RR)
 
