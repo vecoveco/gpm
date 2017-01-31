@@ -177,22 +177,26 @@ def plot_score(estimate, reference, scoreval):
     import matplotlib.pyplot as plt
 
     plt.scatter(estimate[scoreval['H_pos']],reference[scoreval['H_pos']],
-                color='black', label='Hit')
+                color='blue', label='Hit')
     plt.scatter(estimate[scoreval['M_pos']],reference[scoreval['M_pos']],
-                color='blue', label='Miss')
+                color='orange', label='Miss')
     plt.scatter(estimate[scoreval['F_pos']],reference[scoreval['F_pos']],
                 color='red', label='False')
     plt.scatter(estimate[scoreval['C_pos']],reference[scoreval['C_pos']],
                 color='green', label='Correct Negative')
     plt.grid()
     plt.legend(loc='upper left')
-    plt.figtext(0.005,0.005,' POD: '+ str(scoreval['POD'])+ ' , ' + ' FAR: ' +
-              str(scoreval['FAR']) + ' BID: '+ str(scoreval['BID'])+
-              ' , ' + ' HSS: ' + str(scoreval['HSS'])+
-                '-- H: '+ str(scoreval['H'])+ ' , ' + ' M: ' +
-              str(scoreval['M']) + ' F: '+ str(scoreval['F'])+
-              ' , ' + ' C: ' + str(scoreval['C']) +' N: ' + str(scoreval['N'])
+    plt.figtext(0.005,0.005,' POD: '+ str(np.round(scoreval['POD'],3))+
+                ' , ' + ' FAR: ' + str(np.round(scoreval['FAR'],3)) +
+                ', '+ 'BID: ' + str(np.round(scoreval['BID'],3)) +
+              ', ' + ' HSS: ' + str(np.round(scoreval['HSS'],3)) +
+                '-- H: '+ str(scoreval['H']) + ', ' +
+                ' M: ' + str(scoreval['M']) + ', ' +
+                ' F: '+ str(scoreval['F']) + ', ' +
+                ' C: ' + str(scoreval['C']) + ', '
+                ' N: ' + str(scoreval['N'])
                 ,fontsize=10)
+    #plt.pie([RR['H'],RR['M'],RR['F'],RR['C']], labels=['H','M','F','C'],colors=['b','orange','r','g'],autopct='%1.1f%%', explode=[0.1,0.1,0.1,0.1],shadow=True, startangle=90)
 
     #plt.show()
 
@@ -403,15 +407,24 @@ def plot_radar(bx,by, ax, reproject=False):
     #ax.text(x_loc, y_loc, 'Bonn', color='r')
 
 
-def cut_the_swath(gprof_lon, gprof_lat, gprof_pp):
+def cut_the_swath(gprof_lon, gprof_lat, gprof_pp,eu=False):
     # Zurechtschneiden des Scanpfades ueber Deutschland
 
     import numpy as np
 
-    bonn_lat1 = 47.9400
-    bonn_lat2 = 55.3500
-    bonn_lon1 = 6.40000
-    bonn_lon2 = 14.10000
+    # Rand bestimmt nach Radolan Eckpunkten
+
+    bonn_lat1 = 46.952580411190304
+    bonn_lat2 = 54.896591448461479
+    bonn_lon1 = 2.0735617005681379
+    bonn_lon2 = 15.704155593113517
+
+
+    if eu==True:
+        bonn_lat1 = 43.874791353919626
+        bonn_lat2 = 57.100558552767012
+        bonn_lon1 = -0.86239071542899981
+        bonn_lon2 = 21.680045338521435
 
     ilat= np.where((gprof_lat>bonn_lat1) & (gprof_lat<bonn_lat2))
     ilon= np.where((gprof_lon>bonn_lon1) & (gprof_lon<bonn_lon2))
@@ -568,5 +581,54 @@ def pcc_plot_cg_rhi(data, r=None, th=None, th_res=None, autoext=True, refrac=Tru
 
 def search_nearest(arry,value):
     import numpy as np
-    near = np.argmin(np.abs(np.subtract(arry,value)))
+    arry_res = arry.reshape(arry.shape[0]* arry.shape[1])
+    next = np.argmin(np.abs(np.subtract(arry_res,value)))
+    near = np.where(arry == arry_res[next])
     return near
+
+
+def cut_the_swath2(gprof_lon, gprof_lat, gprof_pp,eu=False):
+    # Zurechtschneiden des Scanpfades ueber Deutschland
+
+    import numpy as np
+
+    # Rand bestimmt nach Radolan Eckpunkten
+
+    bonn_lat1 = 47
+    bonn_lat2 = 54.0
+    bonn_lon1 = 4.5
+    bonn_lon2 = 14.6
+
+
+    if eu==True:
+        bonn_lat1 = 44
+        bonn_lat2 = 55
+        bonn_lon1 = 1
+        bonn_lon2 = 19
+
+    ilat = np.where(((gprof_lat[:,0] > bonn_lat1) & (gprof_lat[:,-1] > bonn_lat1))
+                   & ((gprof_lat[:,0] < bonn_lat2) & (gprof_lat[:,-1] < bonn_lat2)))
+
+    latstart = ilat[0][0]
+    latend = ilat[0][-1]
+
+    print latstart,' : ',latend
+
+    alon = gprof_lon[latstart:latend]
+    alat = gprof_lat[latstart:latend]
+    gprof_pp_a = gprof_pp[latstart:latend]
+
+
+    ailon= np.where(((alon[:,0] > bonn_lon1) & (alon[:,-1] > bonn_lon1))
+                    & ((alon[:,0] < bonn_lon2) & (alon[:,-1] < bonn_lon2)))
+
+    alonstart = ailon[0][0]
+    alonend = ailon[0][-1]
+
+    print alonstart,' : ',alonend
+
+    blon = alon[alonstart:alonend]
+    blat = alat[alonstart:alonend]
+    gprof_pp_b = gprof_pp_a[alonstart:alonend]
+
+    return blon, blat, gprof_pp_b

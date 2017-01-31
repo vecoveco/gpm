@@ -399,7 +399,7 @@ plt.tight_layout()
 plt.show()
 
 
-
+'''
 grid_gpm_xy2 = np.vstack((gpm_x[:,cut].ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
 
 xxxyyy = np.vstack((xxx[0:-1,0:-1].ravel(), yyy[0:-1,0:-1].ravel())).transpose()
@@ -410,4 +410,4 @@ result2 = wrl.ipol.interpolate(xxxyyy, grid_gpm_xy2, ma[mask1].reshape(ma.shape[
 
 result2 = np.ma.masked_invalid(result2)
 
-rrr2 = result2.reshape(gpm_x.shape)
+rrr2 = result2.reshape(gpm_x.shape)'''

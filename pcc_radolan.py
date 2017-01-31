@@ -28,8 +28,8 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2015,11,20,8,5,0,
-          2015,11,21,8,20,0,
+zeit = zt(2017,1,31,18,40,0,
+          2017,1,31,18,45,0,
           steps=30)
 
 
@@ -189,6 +189,6 @@ for ij in range(len(zeit)):
 
 
     plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
-    #plt.show()
+    plt.show()
     plt.close()
 

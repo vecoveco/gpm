@@ -77,7 +77,7 @@ pfad_gprof_g = pfad_gprof[0]
 
 
 #ppi_datapath = "/automount/radar/scans/2014/2014-06/2014-06-29/ppi_1p5deg/2014-06-29--14:59:25,00.mvol"##
-ppi_datapath=('/automount/radar/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",00.mvol")
+ppi_datapath=('/automount/radar-archiv/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",00.mvol")
 
 #--------------------------------------------------------------------------------------------------------
 ### Rhi BoxPol Daten einlesen ##
@@ -243,8 +243,9 @@ plt.ylim((lat.min(),lat.max()))
 plt.colorbar(pm, shrink=0.75)
 plt.xlabel("Easting (m)")
 plt.ylabel("Northing (m)")
-plt.savefig('interpoliert2.png')
-plt.close()
+#plt.savefig('interpoliert2.png')
+#plt.close()
+plt.show()
 #--------------------------------------------------------------------------------------------------------
 ''' --------------------------------- PLOTS ------------------------------------- ''' 
 #--------------------------------------------------------------------------------------------------------
@@ -321,9 +322,9 @@ cbar.set_label("Boxpol_ppi_interpolation RR [mm/h]")
 plt.xlabel("Easting (m)")
 plt.ylabel("Northing (m)")
 
-plt.savefig(ppi_datapath[-28:-8] + '_Vergleich.png')
-plt.close()
-
+#plt.savefig(ppi_datapath[-28:-8] + '_Vergleich.png')
+#plt.close()
+plt.show()
 
 
 
