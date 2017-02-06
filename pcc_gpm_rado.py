@@ -31,7 +31,9 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 TH_rain= 0.2
 
 # Zeitstempel nach YYYYMMDDhhmmss
-ZP = '20141007023500'#'20141007023500'#'20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
+#ZP = '20141007023500'#'20141007023500'#'20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
+#ZP = '20170203005500'
+ZP = '20141007023500'
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -157,48 +159,7 @@ rrr[rrr<=0]=0
 
 
 
-def plot_radar(bx,by, ax, reproject=False):
-
-    x_loc, y_loc = (bx, by)
-
-    r = np.arange(1, 101) * 1000
-    # azimuth array 1 degree spacing
-    az = np.linspace(0, 360, 361)[0:-1]
-
-    # build polygons for maxrange rangering
-    polygons = wrl.georef.polar2polyvert(r, az,
-                                         (x_loc, y_loc))
-    polygons.shape = (len(az), len(r), 5, 2)
-    polygons = polygons[:, -1, :, :]
-
-
-
-    if reproject:
-        # reproject to radolan polar stereographic projection
-        polygons = wrl.georef.reproject(polygons,
-                                        projection_source=proj_wgs,
-                                        projection_target=proj_stereo)
-
-        # reproject lonlat radar location coordinates to
-        # polar stereographic projection
-        x_loc, y_loc = wrl.georef.reproject(x_loc, y_loc,
-                                            projection_source=proj_wgs,
-                                            projection_target=proj_stereo)
-
-
-    # create PolyCollections and add to respective axes
-    polycoll = mpl.collections.PolyCollection(polygons, closed=True,
-                                              edgecolors='r',
-                                              facecolors='r',
-                                              zorder=2)
-    ax.add_collection(polycoll, autolim=True)
-
-    # plot radar location and information text
-    ax.plot(x_loc, y_loc, 'r+')
-    ax.text(x_loc, y_loc, 'Bonn', color='r')
-
-
-
+from pcc import plot_radar
 
 ########################################################################## PLOT
 ###########################################################################----
