@@ -632,3 +632,319 @@ def cut_the_swath2(gprof_lon, gprof_lat, gprof_pp,eu=False):
     gprof_pp_b = gprof_pp_a[alonstart:alonend]
 
     return blon, blat, gprof_pp_b
+
+
+def cut_the_swath3(gprof_lon, gprof_lat, gprof_pp):
+    # Zurechtschneiden des Scanpfades ueber Deutschland
+
+    import numpy as np
+    import wradlib as wrl
+    from osgeo import osr
+
+    proj_stereo = wrl.georef.create_osr("dwd-radolan")
+    proj_wgs = osr.SpatialReference()
+    proj_wgs.ImportFromEPSG(4326)
+
+
+    gpm_x, gpm_y = wrl.georef.reproject(gprof_lon, gprof_lat, projection_target=proj_stereo , projection_source=proj_wgs)
+
+    # Rand bestimmt nach Radolan Eckpunkten
+
+    bonn_x1 = -523.4621669218559
+    bonn_x2 = 375.5378330781441
+    bonn_y1 = -4658.6447242655722
+    bonn_y2 = -3759.6447242655722
+
+
+    iy = np.where(((gpm_y[:,[0,-1]] > bonn_y1) )
+                   & ((gpm_y[:,[0,-1]] < bonn_y2) ))
+
+    ystart = iy[0][0]
+    yend = iy[0][-1]
+    print ystart, '-', yend
+
+    aax = gpm_x[ystart:yend]
+    aay = gpm_y[ystart:yend]
+    gprof_pp_a = gprof_pp[ystart:yend]
+
+
+    aiy= np.where(((aax[:,0] > bonn_x1) & (aax[:,-1] > bonn_x1))
+                    & ((aax[:,0] < bonn_x2) & (aax[:,-1] < bonn_x2)))
+
+    aystart = aiy[0][0]
+    ayend = aiy[0][-1]
+
+
+    bx = aax[aystart:ayend]
+    by = aay[aystart:ayend]
+    gprof_pp_b = gprof_pp_a[aystart:ayend]
+
+    #bx,by = wrl.georef.reproject(bx, by, projection_target=proj_stereo , projection_source=proj_wgs)
+
+    return bx, by, gprof_pp_b
+
+
+
+
+
+def alpha_shape(points, alpha):
+    from shapely.ops import cascaded_union, polygonize
+    from scipy.spatial import Delaunay
+    import numpy as np
+    import math
+    import shapely.geometry as geometry
+    """
+    Compute the alpha shape (concave hull) of a set
+    of points.
+    @param points: Iterable container of points.
+    @param alpha: alpha value to influence the
+        gooeyness of the border. Smaller numbers
+        don't fall inward as much as larger numbers.
+        Too large, and you lose everything!
+    """
+    if len(points) < 4:
+        # When you have a triangle, there is no sense
+        # in computing an alpha shape.
+        return geometry.MultiPoint(list(points)).convex_hull
+
+    def add_edge(edges, edge_points, coords, i, j):
+        """
+        Add a line between the i-th and j-th points,
+        if not in the list already
+        """
+        if (i, j) in edges or (j, i) in edges:
+                # already added
+            return
+        edges.add( (i, j) )
+        edge_points.append(coords[ [i, j] ])
+    coords = np.array([point.coords[0]
+                       for point in points])
+    tri = Delaunay(coords)
+    edges = set()
+    edge_points = []
+    # loop over triangles:
+    # ia, ib, ic = indices of corner points of the
+    # triangle
+    for ia, ib, ic in tri.vertices:
+        pa = coords[ia]
+        pb = coords[ib]
+        pc = coords[ic]
+        # Lengths of sides of triangle
+        a = math.sqrt((pa[0]-pb[0])**2 + (pa[1]-pb[1])**2)
+        b = math.sqrt((pb[0]-pc[0])**2 + (pb[1]-pc[1])**2)
+        c = math.sqrt((pc[0]-pa[0])**2 + (pc[1]-pa[1])**2)
+        # Semiperimeter of triangle
+        s = (a + b + c)/2.0
+        # Area of triangle by Heron's formula
+        area = math.sqrt(s*(s-a)*(s-b)*(s-c))
+        circum_r = a*b*c/(4.0*area)
+        # Here's the radius filter.
+        #print circum_r
+        if circum_r < 1.0/alpha:
+            add_edge(edges, edge_points, coords, ia, ib)
+            add_edge(edges, edge_points, coords, ib, ic)
+            add_edge(edges, edge_points, coords, ic, ia)
+    m = geometry.MultiLineString(edge_points)
+    triangles = list(polygonize(m))
+    return cascaded_union(triangles), edge_points
+
+#Interpolations Problem
+from functools import reduce
+import re
+import scipy
+from scipy.spatial import cKDTree
+from scipy.interpolate import LinearNDInterpolator
+from scipy.ndimage.interpolation import map_coordinates
+from scipy.interpolate import griddata
+import numpy as np
+import wradlib.util as util
+
+class IpolBase():
+    """
+    IpolBase(src, trg)
+
+    The base class for interpolation in N dimensions.
+    Provides the basic interface for all other classes.
+
+    Parameters
+    ----------
+    src : ndarray of floats, shape (npoints, ndims)
+        Data point coordinates of the source points.
+    trg : ndarray of floats, shape (npoints, ndims)
+        Data point coordinates of the target points.
+
+    """
+
+    def __init__(self, src, trg):
+        src = self._make_coord_arrays(src)
+        trg = self._make_coord_arrays(trg)
+
+    def __call__(self, vals):
+        """
+        Evaluate interpolator for values given at the source points.
+
+        Parameters
+        ----------
+        vals : ndarray of float, shape (numsources, ...)
+            Values at the source points which to interpolate
+
+        Returns
+        -------
+        output : None
+
+        """
+        self._check_shape(vals)
+        return None
+
+    def _check_shape(self, vals):
+        """
+        Checks whether the values correspond to the source points
+
+        Parameters
+        ----------
+        vals : ndarray of float
+
+        """
+        assert len(vals) == self.numsources, \
+            ('Length of value array %d does not correspond to number '
+             'of source points %d' % (len(vals), self.numsources))
+
+    def _make_coord_arrays(self, x):
+        """
+        Make sure that the coordinates are provided as ndarray
+        of shape (numpoints, ndim)
+
+        Parameters
+        ----------
+        x : ndarray of float with shape (numpoints, ndim)
+            OR a sequence of ndarrays of float with len(sequence)==ndim and
+            the length of the ndarray corresponding to the number of points
+
+        """
+        if type(x) in [list, tuple]:
+            x = [item.ravel() for item in x]
+            x = np.array(x).transpose()
+        elif type(x) == np.ndarray:
+            if x.ndim == 1:
+                x = x.reshape(-1, 1)
+            elif x.ndim == 2:
+                pass
+            else:
+                raise Exception('Cannot deal wih 3-d arrays, yet.')
+        return x
+
+    def _make_2d(self, vals):
+        """Reshape increase number of dimensions of vals if smaller than 2,
+        appending additional dimensions (as opposed to the atleast_nd methods
+        of numpy).
+
+        Parameters
+        ----------
+        vals : ndarray
+               values who are to be reshaped to the right shape
+
+        Returns
+        -------
+        output : ndarray
+                 if vals.shape==() [a scalar] output.shape will be (1,1)
+                 if vals.shape==(npt,) output.shape will be (npt,1)
+                 if vals.ndim > 1 vals will be returned as is
+        """
+        if vals.ndim < 2:
+            # ndmin might be 0 so we get it to 1-d first
+            # then we add an axis as we assume that
+            return np.atleast_1d(vals)[:, np.newaxis]
+        else:
+            return vals
+
+
+class Idw(IpolBase):
+    """
+    Idw(src, trg, nnearest=4, p=2.)
+
+    Inverse distance weighting interpolation in N dimensions.
+
+    Parameters
+    ----------
+    src : ndarray of floats, shape (npoints, ndims)
+        Data point coordinates of the source points.
+    trg : ndarray of floats, shape (npoints, ndims)
+        Data point coordinates of the target points.
+    nnearest : integer - max. number of neighbours to be considered
+    p : float -
+     inverse distance power used in 1/dist**p
+
+    Note
+    ----
+    Uses :func:`scipy.spatial.cKDTree`
+
+    """
+
+    def __init__(self, src, trg, nnearest=4, p=2.):
+        src = self._make_coord_arrays(src)
+        trg = self._make_coord_arrays(trg)
+        # remember some things
+        self.numtargets = len(trg)
+        self.numsources = len(src)
+        self.nnearest = nnearest
+        self.p = p
+        # plant a tree
+        self.tree = cKDTree(src)
+        self.dists, self.ix = self.tree.query(trg, k=nnearest)
+        # avoid bug, if there is only one neighbor at all
+        if self.dists.ndim == 1:
+            self.dists = self.dists[:, np.newaxis]
+            self.ix = self.ix[:, np.newaxis]
+
+    def __call__(self, vals):
+        """
+        Evaluate interpolator for values given at the source points.
+
+        Parameters
+        ----------
+        vals : ndarray of float, shape (numsourcepoints, ...)
+            Values at the source points which to interpolate
+        maxdist : the maximum distance up to which an interpolated values is
+            assigned - if maxdist is exceeded, np.nan will be assigned
+            If maxdist==None, values will be assigned everywhere
+
+        Returns
+        -------
+        output : ndarray of float with shape (numtargetpoints,...)
+
+        """
+
+        # self distances: a list of arrays of distances of the nearest points
+        # which are indicated by self.ix
+        outshape = list(vals.shape)
+        outshape[0] = len(self.dists)
+        interpol = (np.repeat(np.nan, util._shape2size(outshape)).
+                    reshape(tuple(outshape)).astype('f4'))
+        # weights is the container for the weights (a list)
+        weights = list(range(len(self.dists)))
+        # sources is the container for the source point indices
+        src_ix = list(range(len(self.dists)))
+        # jinterpol is the jth element of interpol
+        jinterpol = 0
+        for dist, ix in zip(self.dists, self.ix):
+            valid_dists = np.where(np.isfinite(dist))[0]
+            dist = dist[valid_dists]
+            ix = ix[valid_dists]
+            if self.nnearest == 1:
+                # defaults to nearest neighbour
+                wz = vals[ix]
+                w = 1.
+            elif dist[0] < 1e-10:
+                # if a target point coincides with a source point
+                wz = vals[ix[0]]
+                w = 1.
+            else:
+                # weight z values by (1/dist)**p --
+                w = 1. / dist ** self.p
+                w /= np.sum(w)
+                wz = np.dot(w, vals[ix])
+            interpol[jinterpol] = wz.ravel()
+            weights[jinterpol] = w
+            src_ix[jinterpol] = ix
+            jinterpol += 1
+        return interpol  # if self.qdim > 1  else interpol[0]

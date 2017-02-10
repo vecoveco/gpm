@@ -92,7 +92,7 @@ for ii in range(0,len(ppi_datapath),1):
         #ax1.axis('off')
         plt.hold(True)
     #plt.tight_layout()
-    plt.savefig('/home/velibor/GPMPLOT/Radar' + str(pfad_ppi[65:85])  +'.png')
+    #plt.savefig('/home/velibor/GPMPLOT/Radar' + str(pfad_ppi[65:85])  +'.png')
     plt.close()
     print (pfad_ppi[65:85])
 

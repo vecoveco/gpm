@@ -17,6 +17,8 @@ import pandas as pd
 import datetime as dt
 import pcc as pcc
 
+cmap2 = pcc.get_miub_cmap()
+
 from pcc import boxpol_pos
 from pcc import plot_radar
 
@@ -29,8 +31,8 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,10,7,2,45,0,
-          2014,10,7,2,50,0,
+zeit = zt(2014,6,9,18,55,0,
+          2014,6,9,19,00,0,
           steps=30)
 
 
@@ -92,9 +94,10 @@ for ij in range(len(zeit)):
 
     #### PLOT
     fig = plt.figure(figsize=(16,12))
-
+    fft = 15
+    fig.suptitle('Date: '+ ZP)
     fig.add_subplot(231, aspect='equal')
-    ax1, pm1 = wradlib.vis.plot_ppi(zh,r,az)
+    ax1, pm1 = wradlib.vis.plot_ppi(zh,r,az, vmin=0, vmax=50, cmap=cmap2)
     cbar = plt.colorbar(pm1, shrink=0.75)
     cbar.set_label("zh (dBz)")
     plt.tick_params(
@@ -106,11 +109,12 @@ for ij in range(len(zeit)):
     right='off',
     left='off',
     labelleft='off')
+    plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
 
     fig.add_subplot(232, aspect='equal')
-    ax2, pm2 = wradlib.vis.plot_ppi(zv,r,az)
+    ax2, pm2 = wradlib.vis.plot_ppi(zv,r,az, vmin=0, vmax=50, cmap=cmap2)
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("zv (dBz)")
     plt.tick_params(
@@ -122,11 +126,12 @@ for ij in range(len(zeit)):
     right='off',
     left='off',
     labelleft='off')
+    plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
 
     fig.add_subplot(233, aspect='equal')
-    ax3, pm3 = wradlib.vis.plot_ppi(zdr,r,az)
+    ax3, pm3 = wradlib.vis.plot_ppi(zdr,r,az, vmin=-1, vmax=3, cmap=cmap2)
     cbar = plt.colorbar(pm3, shrink=0.75)
     cbar.set_label("zdr (dB)")
     plt.tick_params(
@@ -138,11 +143,12 @@ for ij in range(len(zeit)):
     right='off',
     left='off',
     labelleft='off')
+    plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
 
     fig.add_subplot(234, aspect='equal')
-    ax4, pm4 = wradlib.vis.plot_ppi(phidp,r,az)
+    ax4, pm4 = wradlib.vis.plot_ppi(phidp,r,az, cmap=cmap2, vmin=-100, vmax=0)
     cbar = plt.colorbar(pm4, shrink=0.75)
     cbar.set_label("phidp")
     plt.tick_params(
@@ -154,11 +160,12 @@ for ij in range(len(zeit)):
     right='off',
     left='off',
     labelleft='off')
+    plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
 
     fig.add_subplot(235, aspect='equal')
-    ax5, pm5 = wradlib.vis.plot_ppi(rhohv,r,az)
+    ax5, pm5 = wradlib.vis.plot_ppi(rhohv,r,az, vmin=.7, vmax=.99, cmap=cmap2)
     cbar = plt.colorbar(pm5, shrink=0.75)
     cbar.set_label("rhohv ()")
     plt.tick_params(
@@ -170,12 +177,13 @@ for ij in range(len(zeit)):
     right='off',
     left='off',
     labelleft='off')
+    plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
 
 
     fig.add_subplot(236, aspect='equal')
-    ax6, pm6 = wradlib.vis.plot_ppi(kdp,r,az)
+    ax6, pm6 = wradlib.vis.plot_ppi(kdp,r,az, vmin=-0.75, vmax=2, cmap=cmap2)
     cbar = plt.colorbar(pm6, shrink=0.75)
     cbar.set_label(r"kdp $^\circ$ $km^{-1}$")
     plt.tick_params(
@@ -187,77 +195,10 @@ for ij in range(len(zeit)):
     right='off',
     left='off',
     labelleft='off')
+    plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
 
     plt.tight_layout()
     plt.show()
-'''
-    radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
-    radolan_zeit_sav = rwattrs['datetime'].strftime("%Y%m%d-%H%M%S")
 
-    radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
-    x = radolan_grid_xy[:,:,0]
-    y = radolan_grid_xy[:,:,1]
-
-    ZZ = rwdata
-    Z = wradlib.trafo.idecibel(rwdata)
-
-    # Marshall and Palmer 1948
-    rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
-
-
-    my_cmap = pcc.get_my_cmap()
-    cmap2 = pcc.get_miub_cmap() #' bei Reflektivitat'
-    ########################################################################## PLOT
-
-    ff = 15
-    fig = plt.figure(figsize=(14,10))
-
-    ax1 = fig.add_subplot(121, aspect='equal')
-    plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-    #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-    cb = plt.colorbar(shrink=0.5)
-    cb.set_label("Rainrate (mm/h)",fontsize=ff)
-    cb.ax.tick_params(labelsize=ff)
-    plot_borders(ax1)
-    plt.title('RADOLAN Rainrate: \n'+ radolan_zeit + 'UTC',fontsize=ff)
-
-    #plot_ocean(ax1)
-    plt.xlabel("x [km] ",fontsize=ff)
-    plt.ylabel("y [km]  ",fontsize=ff)
-    #plt.xticks(fontsize=0)
-    #plt.yticks(fontsize=0)
-    plt.grid(color='r')
-    plt.xlim(-420,390)
-    plt.ylim(-4700, -3700)
-    plt.tight_layout()
-
-    plot_radar(blon, blat, ax1, reproject=True)
-
-    ax2 = fig.add_subplot(122, aspect='equal')
-    plt.pcolormesh(x, y, ZZ,vmin=-30,vmax=50, cmap=cmap2, zorder=2)
-    #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-    cb = plt.colorbar(shrink=0.5, extend='both')
-    cb.set_label("Reflectivity (dBZ)",fontsize=ff)
-    cb.ax.tick_params(labelsize=ff)
-    plot_borders(ax2)
-    plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + 'UTC',fontsize=ff)
-
-    #plot_ocean(ax1)
-    plt.xlabel("x [km] ",fontsize=ff)
-    plt.ylabel("y [km]  ",fontsize=ff)
-    #plt.xticks(fontsize=0)
-    #plt.yticks(fontsize=0)
-    plt.grid(color='r')
-    plt.xlim(-420,390)
-    plt.ylim(-4700, -3700)
-    plt.tight_layout()
-
-    plot_radar(blon, blat, ax2, reproject=True)
-
-
-    plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
-    plt.show()
-    plt.close()
-'''

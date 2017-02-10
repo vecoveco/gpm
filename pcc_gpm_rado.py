@@ -10,30 +10,27 @@ Radolanpfad:
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as col
-import pandas as pd
 import wradlib
 import glob
-import math
-import pandas as pd
 from scipy import stats
-import matplotlib as mpl
 import wradlib as wrl
 from osgeo import osr
-import os
-import matplotlib.ticker as ticker
-from matplotlib.colors import LogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-#import mpl_toolkits.basemap.pyproj as pyproj
+
 
 
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
-TH_rain= 0.2
+
 
 # Zeitstempel nach YYYYMMDDhhmmss
-#ZP = '20141007023500'#'20141007023500'#'20161024232500'#'20150427223500' #'20141007023500'#'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
+#ZP = '20141007023500'#'20161024232500'#'20150427223500' #'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
 #ZP = '20170203005500'
-ZP = '20141007023500'
+#ZP = '20141007023500'# '20140629150000'
+ZP = '20140629150000'
+#ZP = '20140826221000'
+#ZP = '20140921071000'
+#ZP = '20161024232500'
+#ZP = '20161001060000'
+
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 ye = ZP[2:4]
 
@@ -46,71 +43,54 @@ pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
 
 pfad_radolan = pfad[:-3]
 
-print pfad
-print pfad_radolan
-####### pfad
+print 'RADOLAN PFAD: ', pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+try:
+    rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+except EnvironmentError:
+    rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
-rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
+#Binaere Grid
+rn = rwdata.copy()
+rn[rn != -9999] = 1
+rn[rn == -9999] = 0
 
-#sec = rwattrs['secondary']
-#rwdata.flat[sec] = -9999
-#rwdata = np.ma.masked_equal(rwdata, -9999)
+
 radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
 x = radolan_grid_xy[:,:,0]
 y = radolan_grid_xy[:,:,1]
-#Z = wradlib.trafo.idecibel(rwdata)
-#rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
-
-
+rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 
 
 ## Read GPROF
 ## ------------
 pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
 pfad_gprof = glob.glob(pfad2)
-print pfad_gprof
 pfad_gprof_g = pfad_gprof[0]
 
-
 gpmdprs = h5py.File(pfad_gprof_g, 'r')
-gprof_lat=np.array(gpmdprs['NS']['Latitude'])			#(7934, 24)
-gprof_lon=np.array(gpmdprs['NS']['Longitude'])			#(7934, 24)
-#gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRateNearSurface'])
+gprof_lat=np.array(gpmdprs['NS']['Latitude'])
+gprof_lon=np.array(gpmdprs['NS']['Longitude'])
 
-#gprof_pp=np.array(gpmdprs['NS']['SLV']['precipRate'])
-#gprof_pp=np.array(gpmdprs['NS']['DSD']['phase'],dtype=float)
 gprof_pp=np.array(gpmdprs['NS']['SLV']['zFactorCorrectedNearSurface'])
-print gprof_pp.shape
-#print type(gprof_pp[1,2,0])
-#gprof_pp = np.float(gprof_pp)
-gprof_pp[gprof_pp==-9999.9]= 0
+
+gprof_pp[gprof_pp==-9999.9]= np.nan
 
 
 
-from pcc import cut_the_swath2
-blon, blat, gprof_pp_b = cut_the_swath2(gprof_lon,gprof_lat,gprof_pp)
 
-dpr3 = gprof_pp_b
-#gprof_pp_b = gprof_pp_b[:,:,80]
-
-gprof_pp_b[gprof_pp_b==-9999.9]=np.nan
-
-print 'gprof min max:' + str(np.nanmin(gprof_pp_b)), str(np.nanmax(gprof_pp_b)), gprof_pp_b.shape
-
+from pcc import cut_the_swath
+blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
 
 proj_stereo = wrl.georef.create_osr("dwd-radolan")
 proj_wgs = osr.SpatialReference()
 proj_wgs.ImportFromEPSG(4326)
 
-#, ,np.ma.masked_invalid(gprof_pp[latstart:latend]
-#gpm_x, gpm_y = wrl.georef.reproject(gprof_lon[latstart:latend], gprof_lat[latstart:latend], projection_source=proj_ll,projection_target=proj_gk)
+
 gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
 grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
-
-
 
 
 
@@ -120,30 +100,36 @@ from pcc import boxpol_pos
 bonn_pos = boxpol_pos()
 bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
 bonnlat, bonnlon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
-from pcc import plot_borders, plot_ocean
+from pcc import plot_borders
 
-dataset1, inLayer1 = wradlib.io.open_shape('/automount/db01/python/data/ADM/germany/vg250_0101.gk3.shape.ebenen/vg250_ebenen/vg250_l.shp')
+from pcc import get_miub_cmap
+my_cmap = get_miub_cmap()
 
-import matplotlib.cm as cm
-my_cmap = cm.get_cmap('jet',40)
-my_cmap.set_under('lightgrey')
-my_cmap.set_over('darkred')
-
+from pcc import get_my_cmap
+my_cmap2 = get_my_cmap()
 
 ##################################################################INTERLOLATION
 gk3 = wradlib.georef.epsg_to_osr(31467)
 
-grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose() # GPM Grid erschaffen
+grid_gpm_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
 xy = np.vstack((x.ravel(), y.ravel())).transpose()
 
 mask = ~np.isnan(rwdata)
 
-result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)  #Idw
+
+result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
 
 result = np.ma.masked_invalid(result)
 
 rrr = result.reshape(gpm_x.shape)
+
+
+# Interpolation des Binaear Grids
+res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+res_bin = res_bin.reshape(gpm_x.shape)
+res_bin[res_bin!=0]= 1 #Randkorrektur
+
 
 
 
@@ -153,8 +139,11 @@ rrr = result.reshape(gpm_x.shape)
 
 #Zr = wradlib.trafo.idecibel(rrr)
 #rrr = wradlib.zr.z2r(Zr, a=200., b=1.6)
-print np.nanmin(rrr)
-rrr[rrr<=0]=0
+#
+#
+#
+#
+#rrr[rrr<=0]=0
 
 
 
@@ -179,7 +168,7 @@ plot_borders(ax1)
 
 plot_radar(bonnlon, bonnlat, ax1, reproject=True)
 
-plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+plt.title('RADOLAN Ref: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 #plt.xlabel("x [km] ",fontsize=ff)
 #plt.ylabel("y [km]  ",fontsize=ff)
@@ -261,12 +250,12 @@ ax2 = fig.add_subplot(224, aspect='equal')
 
 
 A = np.copy(rrr)
-B = np.ma.masked_invalid(gprof_pp_b)
+B = np.ma.masked_invalid(gprof_pp_b).copy()
 A[A<0.001] = np.nan
 B[B<0.001] = np.nan
 
 ref = np.copy(rrr)
-est = np.ma.masked_invalid(gprof_pp_b)
+est = np.ma.masked_invalid(gprof_pp_b).copy()
 
 mask = ~np.isnan(B) & ~np.isnan(A)
 slope, intercept, r_value, p_value, std_err = stats.linregress(B[mask], A[mask])
@@ -296,3 +285,98 @@ plt.show()
 
 
 
+
+##############################################################################
+
+#Test Fig
+ff = 15
+fig = plt.figure(figsize=(10,10))
+
+ax21 = fig.add_subplot(221, aspect='equal')
+
+plt.pcolormesh(x, y,rn*0.2,
+                     cmap=my_cmap, vmin=0, vmax=1,zorder=2)
+pm21 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
+                     cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
+
+cb = plt.colorbar(shrink=0.8)
+cb.set_label("Ref [dbz]",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
+plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+#plt.xlabel("x [km] ",fontsize=ff)
+#plt.ylabel("y [km]  ",fontsize=ff)
+plt.title('RADOLAN Ref Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+plot_borders(ax21)
+plot_radar(bonnlon, bonnlat, ax21, reproject=True)
+
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
+plt.grid(color='r')
+
+
+ax44 = fig.add_subplot(222, aspect='equal')
+plt.pcolormesh(x, y,rn*0.2,
+                     cmap=my_cmap, vmin=0, vmax=1,zorder=2)
+pm44 = plt.pcolormesh(gpm_x, gpm_y,res_bin,
+                     cmap=my_cmap, vmin=0, vmax=1,zorder=2, alpha=0.2)
+
+cb = plt.colorbar(shrink=0.8)
+cb.set_label("Ref [dbz]",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
+plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+#plt.xlabel("x [km] ",fontsize=ff)
+#plt.ylabel("y [km]  ",fontsize=ff)
+plt.title('RADOLAN Binaeres Grid: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+plot_borders(ax44)
+plot_radar(bonnlon, bonnlat, ax44, reproject=True)
+
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
+plt.grid(color='r')
+
+
+ax22 = fig.add_subplot(223, aspect='equal')
+pm31 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b),
+                     cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
+
+cb = plt.colorbar(shrink=0.8)
+cb.set_label("Ref [dbz]",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
+plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+#plt.xlabel("x [km] ",fontsize=ff)
+#plt.ylabel("y [km]  ",fontsize=ff)
+plt.title('GPM DPR without BinGrid : \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+plot_borders(ax22)
+plot_radar(bonnlon, bonnlat, ax22, reproject=True)
+
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
+plt.grid(color='r')
+
+
+ax444 = fig.add_subplot(224, aspect='equal')
+pm444 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(gprof_pp_b*res_bin),
+                     cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
+
+cb = plt.colorbar(shrink=0.8)
+cb.set_label("Ref [dbz]",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
+plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+#plt.xlabel("x [km] ",fontsize=ff)
+#plt.ylabel("y [km]  ",fontsize=ff)
+plt.title('GPM DPR with BinGrid: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
+       ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
+plot_borders(ax444)
+plot_radar(bonnlon, bonnlat, ax444, reproject=True)
+
+#plt.xlim(-420,390)
+#plt.ylim(-4700, -3700)
+plt.grid(color='r')
+plt.show()
