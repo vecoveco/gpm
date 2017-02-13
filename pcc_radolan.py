@@ -48,8 +48,9 @@ for ij in range(len(zeit)):
     ################################################### Read RADOLAN GK Koordinaten
 
     iii = 0
-    pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
-            str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+
+    r_pro = 'rx'
+    pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
+            str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+str(ye)+str(m)+
             str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
 
     pfad_radolan = pfad[:-3]

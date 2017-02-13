@@ -41,16 +41,23 @@ ye = ZP[2:4]
 ## Read RADOLAN GK Koordinaten
 ## ----------------------------
 iii = 0
-pfad = ('/automount/radar/dwd/rx/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-rx_10000-'+str(ye)+str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
+r_pro = 'rz'
+pfad = ('/automount/radar/dwd/'+r_pro+'/'+str(year)+'/'+str(year)+'-'+str(m)+
+        '/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+str(ye)+
+        str(m)+str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
 
 pfad_radolan = pfad[:-3]
 
 ####### pfad
 
-rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+try:
+    rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+except EnvironmentError:
+    rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+
 rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
-rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
+rwdata = np.ma.masked_equal(rwdata, -9999) #/ 2 - 32.5
 
 radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
 x = radolan_grid_xy[:,:,0]
@@ -200,9 +207,10 @@ my_cmap.set_over('darkred')
 
 
 
-Z = wradlib.trafo.idecibel(rwdata)
-rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
+#Z = wradlib.trafo.idecibel(rwdata)
+#rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
+rwdata = rwdata*8
 
 ######################################################################################## PLOT
 
@@ -245,7 +253,7 @@ ax2.set_ylim(ax1.get_ylim())
 
 plt.show()
 
-
+'''
 
 S1 = ['10.65 GHz V-Pol', '10.65 GHz H-Pol','18.7 GHz V-Pol' , '18.7 GHz H-Pol',
       '23.8 GHz V-Pol','36.64 GHz V-Pol',  '36.64 GHz H-Pol','89.0 GHz V-Pol',
@@ -301,6 +309,7 @@ for jj in range(4):
     plt.tight_layout()
 
 plt.show()
+'''
 '''
 for ii in range(9):
     A = T_pp[:,:,ii][latstart:latend]

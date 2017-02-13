@@ -99,7 +99,12 @@ def cut_the_edge(gpm_x, gpm_y, rrr):
     gg[np.where(gy > rand_y_oben)] = np.nan
     gg[np.where(gx > rand_x_rechts)] = np.nan
 
-
+def cut_the_swath_jetzt_erst_recht(gx,gy,gg):
+    gg[gy < 40]=np.nan
+    gg[gy > 50]=np.nan
+    gg[gx > 14]=np.nan
+    gg[gx < 0]=np.nan
+    return gg
 '''
 # https://github.com/dwyerk/boundaries/blob/master/concave_hulls.ipynb
 # alpha shape funktion
