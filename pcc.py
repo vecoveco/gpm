@@ -137,6 +137,12 @@ def skill_score(estimate, reference, th=None):
     BID = (H +F)/(H + M)
     HSS = (H + C - E) / (N - E)
 
+    #Todo: Bias und RMSE
+    #Bias RMSE
+    #RMSE=sqrt(sum((yobs-yest).^2)/(length(yobs)-1));
+    #Ytemp=[ones(11,1) yest'];
+    #B=Ytemp\yobs';
+
     result = {'H': H,
               'M': M,
               'F': F,

@@ -22,10 +22,10 @@ from osgeo import osr
 #ZP = '20141007023500'#'20161024232500'#'20150427223500' #'20161024232500'#'20140609132500'#'20160917102000'#'20160917102000'#'20160805054500'
 #ZP = '20170203005500'
 #ZP = '20141007023500'# '20140629150000'
-#ZP = '20140629150000'
+ZP = '20140629150000'
 #ZP = '20140826221000'
 #ZP = '20140921071000'
-ZP = '20161024232500'
+#ZP = '20161024232500'
 #ZP = '20161001060000'
 
 year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -254,13 +254,16 @@ plt.scatter(ggg, rrr, label='Reflectivity [dbZ]', color='grey')
 text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
            '\ncorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
         '\nN: '+ str(SS['N'])+
-        '\nHit: ' + str(SS['H'])+
-        '\nMiss: ' + str(SS['M'])+
-        '\nFalse: ' + str(SS['F'])+
-        '\nCnegative: ' + str(SS['C'])+
+        '\nHit: ' + str(round(SS['H']/SS['N'],3)*100)+'%'+
+        '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
+        '\nFalse: ' + str(round(SS['F']/SS['N'],3)*100)+'%'+
+        '\nCnegative: ' + str(round(SS['C']/SS['N'],3)*100)+'%'+
         '\nPOD: ' + str(round(SS['POD'],3))+
         '\nFAR: ' + str(round(SS['FAR'],3))+
-        '\nBID: ' + str(round(SS['BID'],3))
+        '\nBID: ' + str(round(SS['BID'],3))+
+        '\nHSS: ' + str(round(SS['HSS'],3))+
+        '\nHSS: w.i.p' +
+        '\nHSS: w.i.p'
         )
 
 ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
