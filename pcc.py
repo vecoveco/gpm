@@ -5,6 +5,7 @@ GPM VALIDATION
 '''
 
 import numpy as np
+import datetime as dt
 
 def test(arry):
     print 'Shape: ', arry.shape
@@ -142,7 +143,9 @@ def skill_score(estimate, reference, th=None):
     #RMSE=sqrt(sum((yobs-yest).^2)/(length(yobs)-1));
     #Ytemp=[ones(11,1) yest'];
     #B=Ytemp\yobs';
-
+    # nach Sungmin 2016
+    bias = np.nansum(estimate-reference)/H
+    rmse = np.sqrt(np.nansum(((estimate-reference)**2)/H))
     result = {'H': H,
               'M': M,
               'F': F,
@@ -155,7 +158,9 @@ def skill_score(estimate, reference, th=None):
               'POD': POD,
               'FAR': FAR,
               'BID': BID,
-              'HSS': HSS}
+              'HSS': HSS,
+              'bias': bias,
+              'RMSE': rmse}
 
     #for key, value in result.items():
     #    print(key + ':', value)
@@ -733,3 +738,15 @@ def alpha_shape(points, alpha):
     triangles = list(polygonize(m))
     return cascaded_union(triangles), edge_points
 
+def get_time_of_gpm(gpm_lon, gpm_lat, gpm_time):
+    #Todo: Verbesser Momentan Mitte von Swath in RADOLAN, Besser Mitte oder auch ausenpunkte
+    mitte = gpm_lon.shape[1]/2 # midel swath
+    ii = np.where(((gpm_lon[:,mitte]<15) & (gpm_lon[:,mitte]>2)) & ((gpm_lat[:,mitte]<54) & (gpm_lat[:,mitte] > 46)))
+    gpm_year = int(np.median(np.array(gpm_time['Year'])[ii]))
+    gpm_month = int(np.median(np.array(gpm_time['Month'])[ii]))
+    gpm_day = int(np.median(np.array(gpm_time['DayOfMonth'])[ii]))
+    gpm_hour = int(np.median(np.array(gpm_time['Hour'])[ii]))
+    gpm_min = int(np.median(np.array(gpm_time['Minute'])[ii]))
+    gpm_sek = int(np.median(np.array(gpm_time['Second'])[ii]))
+    gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y.%m.%d -- %H:%M:%S")
+    return gpm_dt
