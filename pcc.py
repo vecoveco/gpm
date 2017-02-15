@@ -84,8 +84,8 @@ def histo(data1, data2, bino):
 
     import matplotlib.pyplot as plt
     #Todo: in arbeit
-    plt.hist(data1, bins=bino)
-    plt.hist(data2, bins=bino)
+    plt.hist(data1[~np.isnan(data1)], bins=bino, alpha=0.5)
+    plt.hist(data2[~np.isnan(data2)], bins=bino, alpha=0.5)
     plt.show()
 
 

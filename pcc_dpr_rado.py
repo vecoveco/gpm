@@ -32,12 +32,14 @@ my_cmap = get_miub_cmap()
 from pcc import get_my_cmap
 my_cmap2 = get_my_cmap()
 
-
+GGG = []
+RRR = []
 zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,])
 
+#zz = np.array(['20141007','20140629'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -161,9 +163,6 @@ for i in range(len(zz)):
     ## Nur Niederschlagsrelevante
     rrr[rrr<5]=np.nan
     ggg[ggg<0]=np.nan
-
-
-
 
 
     ff = 15
@@ -312,6 +311,23 @@ for i in range(len(zz)):
     plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_'+ZP + '.png' )
     plt.close()
     #plt.show()
+    #try:
+    #    print len(GGG)#
+
+    #except NameError:
+     #   GGG = np.zeros([len(zz),ggg.shape[0], ggg.shape[1]])
+      #  RRR = np.zeros([len(zz),ggg.shape[0], ggg.shape[1]])
+
+    GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
+    RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
+
+
+G_all = np.concatenate(GGG,axis=0)
+R_all = np.concatenate(RRR,axis=0)
+from pcc import plot_scatter
+plot_scatter(G_all, R_all)
+plt.show()
+
 
 
 
