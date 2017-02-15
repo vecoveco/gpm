@@ -159,7 +159,7 @@ for i in range(len(zz)):
     ggg = gprof_pp_b * res_bin
 
     ## Nur Niederschlagsrelevante
-    rrr[rrr<0]=np.nan
+    rrr[rrr<5]=np.nan
     ggg[ggg<0]=np.nan
 
 
@@ -176,7 +176,7 @@ for i in range(len(zz)):
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
     cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dbZ]",fontsize=ff)
+    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
 
     plot_borders(ax1)
@@ -193,7 +193,8 @@ for i in range(len(zz)):
         right='off',
         left='off',
         labelleft='off')
-
+    plt.xlim(-420,390)
+    plt.ylim(-4700, -3700)
 
     ax2 = fig.add_subplot(222, aspect='equal')#------------------------------------
 
@@ -202,7 +203,7 @@ for i in range(len(zz)):
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
     cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dbZ]",fontsize=ff)
+    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
     plt.title('GPM DPR Reflectivity: \n'+ gpm_zeit + ' UTC',fontsize=ff)
     plot_borders(ax2)
@@ -217,6 +218,8 @@ for i in range(len(zz)):
         right='off',
         left='off',
         labelleft='off')
+    plt.xlim(-420,390)
+    plt.ylim(-4700, -3700)
 
 
     ax2 = fig.add_subplot(223, aspect='equal')#------------------------------------
@@ -226,7 +229,7 @@ for i in range(len(zz)):
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
     cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dbZ]",fontsize=ff)
+    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
 
     plt.title('RADOLAN Reflectivity Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
@@ -242,6 +245,8 @@ for i in range(len(zz)):
         right='off',
         left='off',
         labelleft='off')
+    plt.xlim(-420,390)
+    plt.ylim(-4700, -3700)
 
     ax4 = fig.add_subplot(224, aspect='equal')#------------------------------------
 
@@ -252,11 +257,11 @@ for i in range(len(zz)):
     from pcc import skill_score
     SS = skill_score(ggg,rrr,th=0)
 
-    ax4.scatter(ggg, rrr, label='Reflectivity [dbZ]', color='grey', alpha=0.6)
+    ax4.scatter(ggg, rrr, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
 
     text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
-               '\ncorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
-            '\nN: '+ str(SS['N'])+
+               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
+            '\nN: '+ str(int(SS['N']))+
             '\nHit: ' + str(round(SS['H']/SS['N'],3)*100)+'%'+
             '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
             '\nFalse: ' + str(round(SS['F']/SS['N'],3)*100)+'%'+
@@ -265,7 +270,7 @@ for i in range(len(zz)):
             '\nFAR: ' + str(round(SS['FAR'],3))+
             '\nBID: ' + str(round(SS['BID'],3))+
             '\nHSS: ' + str(round(SS['HSS'],3))+
-            '\nbias: '+ str(round(SS['bias'],3))+
+            '\nBias: '+ str(round(SS['bias'],3))+
             '\nRMSE: '+ str(round(SS['RMSE'],3))
             )
 
@@ -274,28 +279,29 @@ for i in range(len(zz)):
 
     t1 = linspace(0,50,50)
     plt.plot(t1,t1,'k-')
-    plt.plot(t1,t1 + 5,'k-.', lw=1)
-    plt.plot(t1,t1 - 5,'k-.', lw=1)
-    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 )
-    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1 )
-    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1 )
-    plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4)
-    plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), '+b', lw = 4)
+    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
+    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label='Regression + 5 dBZ')
+    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 ,label='Regression - 5 dBZ')
+    plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
+    plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
 
     import matplotlib as mpl
     mean = [ np.nanmean(ggg),np.nanmean(rrr)]
     width = np.nanstd(ggg)
     height = np.nanstd(rrr)
     angle = 0
-    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height, angle = 180+angle, color='blue', alpha=0.8, fill=False)
+    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                              angle=180+angle, color='blue', alpha=0.8, fill=False, ls='--')
     ax4.add_patch(ell)
+
+    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
 
     plt.xlim(0,50)
     plt.ylim(0,50)
 
 
-    plt.xlabel('GPM DPR Reflectivity [dbZ]',fontsize=ff)
-    plt.ylabel('RADOLAN Reflectivity [dbZ]',fontsize=ff)
+    plt.xlabel('GPM DPR Reflectivity [dBZ]',fontsize=ff)
+    plt.ylabel('RADOLAN Reflectivity [dBZ]',fontsize=ff)
     plt.xticks(fontsize=ff)
     plt.yticks(fontsize=ff)
     plt.grid(color='r')
