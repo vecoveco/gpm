@@ -172,7 +172,7 @@ for i in range(len(zz)):
     cc = 0.5
     vmini=0
     maxi = np.nanmax([ggg,rrr])+2
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(12,12))
     ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
 
     pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=vmini, vmax=10, zorder=2)
@@ -263,7 +263,7 @@ for i in range(len(zz)):
     plt.scatter(ggg, rrr, label='RR [mm/h]', color='grey', alpha=0.6)
 
     text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
-               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
+               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$ '+  str(round(std_err,3))+
             '\nN: '+ str(int(SS['N']))+
             '\nHit: ' + str(round(SS['H']/SS['N'],3)*100)+'%'+
             '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
@@ -284,11 +284,11 @@ for i in range(len(zz)):
     plt.plot(t1,t1,'k-')
     #plt.plot(t1,t1 + 5,'k-.')
     #plt.plot(t1,t1 - 5,'k-.')
-    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label='Regression + 5 mm/h')
-    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 ,label='Regression - 5 mm/h')
+    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Reg')
+    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mm/h')
+    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
     plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
-    plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
+    #plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
 
 
     import matplotlib as mpl
@@ -298,13 +298,14 @@ for i in range(len(zz)):
     print width, height
     angle = 0
     ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                              angle=180+angle, color='blue', alpha=0.8, fill=False, ls='--')
+                              angle=180+angle, color='blue', alpha=0.8,
+                              fill=False, ls='--', label='Std')
     ax4.add_patch(ell)
 
     plt.xlim(0,maxi)
     plt.ylim(0,maxi)
 
-    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
+    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True, ncol=1)
 
     plt.xlabel('GPM GPROF RR [mm/h]',fontsize=ff)
     plt.ylabel('RADOLAN RR [mm/h]',fontsize=ff)

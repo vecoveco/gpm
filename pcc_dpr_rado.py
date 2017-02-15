@@ -168,7 +168,7 @@ for i in range(len(zz)):
 
     ff = 15
     cc = 0.5
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(12,12))
     ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
 
     pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
@@ -280,10 +280,10 @@ for i in range(len(zz)):
     t1 = linspace(0,50,50)
     plt.plot(t1,t1,'k-')
     plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label='Regression + 5 dBZ')
-    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 ,label='Regression - 5 dBZ')
+    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
+    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
     plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
-    plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
+    #plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
 
     import matplotlib as mpl
     mean = [ np.nanmean(ggg),np.nanmean(rrr)]
@@ -291,7 +291,8 @@ for i in range(len(zz)):
     height = np.nanstd(rrr)
     angle = 0
     ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                              angle=180+angle, color='blue', alpha=0.8, fill=False, ls='--')
+                              angle=180+angle, color='blue', alpha=0.8,
+                              fill=False, ls='--', label='Std')
     ax4.add_patch(ell)
 
     plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
