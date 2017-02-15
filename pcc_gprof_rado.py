@@ -163,8 +163,8 @@ for i in range(len(zz)):
     ## Nur Niederschlagsrelevante
     rrr[rrr <= 0.1] = np.nan
     ggg[ggg <= 0.1] = np.nan
-
-    rrr = rrr*(ggg/ggg) # Rand vom GPROF entfernen !
+    rwdata[rwdata <= 0.1] = np.nan
+    rrr = rrr * (ggg / ggg)  # Rand vom GPROF entfernen !
 
 
 

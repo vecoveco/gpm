@@ -750,3 +750,45 @@ def get_time_of_gpm(gpm_lon, gpm_lat, gpm_time):
     gpm_sek = int(np.median(np.array(gpm_time['Second'])[ii]))
     gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y.%m.%d -- %H:%M:%S")
     return gpm_dt
+
+
+def plot_scatter(est, ref):
+    import matplotlib.pyplot as plt
+    from scipy import stats
+    maske = ~np.isnan(est) & ~np.isnan(ref)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(est[maske], ref[maske])
+    line = slope * est +intercept
+
+    from pcc import skill_score
+    SS = skill_score(est,ref,th=0)
+
+    plt.scatter(est, ref, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
+
+    text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
+               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
+            '\nN: '+ str(int(SS['N']))+
+            '\nHit: ' + str(round(SS['H']/SS['N'],3)*100)+'%'+
+            '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
+            '\nFalse: ' + str(round(SS['F']/SS['N'],3)*100)+'%'+
+            '\nCnegative: ' + str(round(SS['C']/SS['N'],3)*100)+'%'+
+            '\nPOD: ' + str(round(SS['POD'],3))+
+            '\nFAR: ' + str(round(SS['FAR'],3))+
+            '\nBID: ' + str(round(SS['BID'],3))+
+            '\nHSS: ' + str(round(SS['HSS'],3))+
+            '\nBias: '+ str(round(SS['bias'],3))+
+            '\nRMSE: '+ str(round(SS['RMSE'],3))
+            )
+
+    plt.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
+                    horizontalalignment='left', verticalalignment='top')
+
+    t1 = np.linspace(0,50,50)
+    plt.plot(t1,t1,'k-')
+    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
+    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
+    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
+    plt.plot(np.nanmean(est),np.nanmean(ref), 'ob', lw = 4,label='Mean')
+
+    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
+    plt.xlim(0,50)
+    plt.ylim(0,50)
