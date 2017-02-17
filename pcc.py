@@ -815,3 +815,32 @@ def plot_scatter(est, ref):
     plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
     plt.xlim(0,70)
     plt.ylim(0,70)
+
+
+def melde_dich(text):
+    import smtplib
+
+    me = 'velibor.pejcic@gmx.de'
+    you = 'velibor.pejcic@gmx.de'
+
+    # Import the email modules we'll need
+    from email.mime.text import MIMEText
+
+    # Open a plain text file for reading.  For this example, assume that
+    # the text file contains only ASCII characters.
+    fp = open('/home/velibor/shkgpm/texte/t1', 'rb')
+    # Create a text/plain message
+    msg = MIMEText(fp.read())
+    fp.close()
+
+    # me == the sender's email address
+    # you == the recipient's email address
+    msg['Subject'] = text
+    msg['From'] = me
+    msg['To'] = you
+
+    # Send the message via our own SMTP server, but don't include the
+    # envelope header.
+    s = smtplib.SMTP('localhost')
+    s.sendmail(me, [you], msg.as_string())
+    s.quit()

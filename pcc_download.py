@@ -68,3 +68,10 @@ print meinftp.quit()
 print
 print 'Die FTP-Verbindung wurde von mir getrennt.'
 
+import simplemail as e
+e.Simplemail(
+    from_address = u"velibor.pejcic@gmx.de",
+    to_address = u"velibor.pejcic@gmx.de",
+    subject = u"This is PYTHON",
+    message = u"This is the short message body with umlauts PYTHON."
+).send()
