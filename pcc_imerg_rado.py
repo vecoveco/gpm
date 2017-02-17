@@ -165,6 +165,31 @@ for jjj in range(len(pfad_gpm)):
     Z2 = wradlib.trafo.idecibel(rwdata)
     rwdata = wradlib.zr.z2r(Z2, a=200., b=1.6)
 
+     ## Interpolation of the binary Grid
+    ## ------------------------------
+    res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+    res_bin = res_bin.reshape(gx.shape)
+
+    res_bin[res_bin!=0]= 1 # Randkorrektur
+
+    rand_y_unten = 46.952580411190304
+    rand_y_oben = 54.896591448461479
+    rand_x_rechts = 15.704155593113517
+
+
+    rrr[np.where(gy < rand_y_unten)] = np.nan
+    rrr[np.where(gy > rand_y_oben)] = np.nan
+    rrr[np.where(gx > rand_x_rechts)] = np.nan
+
+    res_bin[np.where(gy < rand_y_unten)] = np.nan
+    res_bin[np.where(gy > rand_y_oben)] = np.nan
+    res_bin[np.where(gx > rand_x_rechts)] = np.nan
+    res_bin[res_bin == 0] = np.nan #check nur 1 un NaN
+
+    gpm_pp = gpm_pp * res_bin
+    gpm_pp_ir = gpm_pp_ir * res_bin
+    gpm_pp_mi = gpm_pp_mi * res_bin
+
 
     # PLot ------------------------------------------------------------------------
     from pcc import plot_world
@@ -290,7 +315,9 @@ for jjj in range(len(pfad_gpm)):
     plt.xlabel(('GPM IMERG MI (mm/h)'))
     plt.ylabel(('RADOLAN (mm/h)'))
     plt.grid()
-    plt.savefig('/home/velibor/shkgpm/plot/imerg/imerg_'+imerg_zeit + '.png' )
+
+    plt.tight_layout()
+    plt.savefig('/home/velibor/shkgpm/plot/imerg/test_imerg_'+imerg_zeit + '.png' )
     #plt.show()
     plt.close()
 
