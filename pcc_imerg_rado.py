@@ -32,19 +32,22 @@ from pcc import get_my_cmap
 my_cmap2 = get_my_cmap()
 
 
-ZP = '20140609'
+ZP = '20141007'#'20140609'
 #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
 year, m, d = ZP[0:4], ZP[4:6], ZP[6:8]
 
 ye = ZP[2:4]
 
-
+R_all = []
+G_all_HQ = []
+G_all_IR = []
+G_all_MI = []
 ## Read GPM Data
 ## -------------
 pfad2 = ('/home/velibor/shkgpm/data/imerg/'+str(year)+str(m)+str(d)+'/*.HDF5')
 pfad_gpm = sorted(glob.glob(pfad2))
 
-for jjj in range(1):
+for jjj in range(len(pfad_gpm)):
     pfad_gpm_g = pfad_gpm[jjj]
     imerg_zeit = pfad_gpm_g[62:86]
     print imerg_zeit
@@ -159,19 +162,20 @@ for jjj in range(1):
     Z = wradlib.trafo.idecibel(rrr)
     rrr = wradlib.zr.z2r(Z, a=200., b=1.6)
 
+    Z2 = wradlib.trafo.idecibel(rwdata)
+    rwdata = wradlib.zr.z2r(Z2, a=200., b=1.6)
+
 
     # PLot ------------------------------------------------------------------------
     from pcc import plot_world
 
-    fig = plt.figure(figsize=(14,14))
-    ax11 = fig.add_subplot(222, aspect='equal')
+    fig = plt.figure(figsize=(16,12))
+    ax11 = fig.add_subplot(242, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon,gpm_lat,np.ma.masked_invalid(gpm_pp),
                          vmin=0.1, vmax=10,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
     plot_world(ax11,limit[0],limit[1],limit[2],limit[3])
-    plt.xlim(-180,180)
-    plt.ylim(-60,60)
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('IMERG Multisat Gaug Calibration :\n ' + imerg_zeit)
@@ -180,29 +184,25 @@ for jjj in range(1):
     plt.grid()
 
 
-    ax12 = fig.add_subplot(221, aspect='equal')
+    ax12 = fig.add_subplot(241, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon, gpm_lat,np.ma.masked_invalid(rrr),
                          vmin=0.1, vmax=10,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
     plot_world(ax12,limit[0],limit[1],limit[2],limit[3])
-    plt.xlim(-180,180)
-    plt.ylim(-60,60)
     plt.xlabel("lon")
     plt.ylabel("lat")
-    plt.title('RADOLAN: \n' + ZP +'--' + ht+':'+mt)
+    plt.title('RADOLAN IMERG GRID: \n' + ZP +'--' + ht+':'+mt)
     plt.xlim(limit[0],limit[1])
     plt.ylim(limit[2],limit[3])
     plt.grid()
 
-    ax13 = fig.add_subplot(223, aspect='equal')
+    ax13 = fig.add_subplot(243, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon,gpm_lat,np.ma.masked_invalid(gpm_pp_ir),
                          vmin=0.1, vmax=10,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
     plot_world(ax13,limit[0],limit[1],limit[2],limit[3])
-    plt.xlim(-180,180)
-    plt.ylim(-60,60)
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('IMERG IR : \n' + imerg_zeit)
@@ -210,14 +210,12 @@ for jjj in range(1):
     plt.ylim(limit[2],limit[3])
     plt.grid()
 
-    ax14 = fig.add_subplot(224, aspect='equal')
+    ax14 = fig.add_subplot(244, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon,gpm_lat,np.ma.masked_invalid(gpm_pp_mi),
                          vmin=0.1, vmax=10,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
     plot_world(ax14,limit[0],limit[1],limit[2],limit[3])
-    plt.xlim(-180,180)
-    plt.ylim(-60,60)
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('IMERG Microwave : \n' + imerg_zeit)
@@ -225,6 +223,122 @@ for jjj in range(1):
     plt.ylim(limit[2],limit[3])
     plt.grid()
 
-    #plt.savefig('/home/velibor/shkgpm/plot/imerg/test_imerg_'+imerg_zeit + '.png' )
-    plt.show()
-    #plt.close()
+    ax15 = fig.add_subplot(245, aspect='equal')
+    pm25 = plt.pcolormesh(xx, yy,rwdata,
+                         vmin=0.1, vmax=10,cmap=my_cmap)
+    cbar = plt.colorbar(pm25, shrink=0.75, orientation='horizontal')
+    cbar.set_label("RainRate [mm/h]")
+    plot_world(ax15,limit[0],limit[1],limit[2],limit[3])
+    plt.xlabel("lon")
+    plt.ylabel("lat")
+    plt.title('RADOLAN: \n' + ZP +'--' + ht+':'+mt)
+    plt.xlim(limit[0],limit[1])
+    plt.ylim(limit[2],limit[3])
+    plt.grid()
+
+    from pcc import plot_scatter
+    ax16 = fig.add_subplot(246, aspect='equal')
+    try:
+        plot_scatter(gpm_pp, rrr)
+    except:
+        pass
+    import matplotlib as mpl
+    mean = [ np.nanmean(gpm_pp),np.nanmean(rrr)]
+    width = np.nanstd(gpm_pp)
+    height = np.nanstd(rrr)
+    angle = 0
+    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                              angle=180+angle, color='blue', alpha=0.8,
+                              fill=False, ls='--', label='Std')
+    ax11.add_patch(ell)
+    plt.xlabel(('GPM IMERG (mm/h)'))
+    plt.ylabel(('RADOLAN (mm/h)'))
+    plt.grid()
+
+    ax17 = fig.add_subplot(247, aspect='equal')
+    try:
+        plot_scatter(gpm_pp_ir, rrr)
+    except:
+        pass
+    import matplotlib as mpl
+    mean = [ np.nanmean(gpm_pp_ir),np.nanmean(rrr)]
+    width = np.nanstd(gpm_pp_ir)
+    height = np.nanstd(rrr)
+    angle = 0
+    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                              angle=180+angle, color='blue', alpha=0.8,
+                              fill=False, ls='--', label='Std')
+    ax11.add_patch(ell)
+    plt.xlabel(('GPM IMERG IR (mm/h)'))
+    plt.ylabel(('RADOLAN (mm/h)'))
+    plt.grid()
+
+    ax18 = fig.add_subplot(248, aspect='equal')
+    try:
+        plot_scatter(gpm_pp_mi, rrr)
+    except:
+        pass
+    import matplotlib as mpl
+    mean = [ np.nanmean(gpm_pp_mi),np.nanmean(rrr)]
+    width = np.nanstd(gpm_pp_mi)
+    height = np.nanstd(rrr)
+    angle = 0
+    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                              angle=180+angle, color='blue', alpha=0.8,
+                              fill=False, ls='--', label='Std')
+    ax11.add_patch(ell)
+    plt.xlabel(('GPM IMERG MI (mm/h)'))
+    plt.ylabel(('RADOLAN (mm/h)'))
+    plt.grid()
+    plt.savefig('/home/velibor/shkgpm/plot/imerg/imerg_'+imerg_zeit + '.png' )
+    #plt.show()
+    plt.close()
+
+    R_all.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
+    G_all_HQ.append(gpm_pp.reshape(gpm_pp.shape[0]*gpm_pp.shape[1]))
+    G_all_IR.append(gpm_pp_ir.reshape(gpm_pp_ir.shape[0]*gpm_pp_ir.shape[1]))
+    #G_all_MI.append(gpm_pp_mi.reshape(gpm_pp_mi.shape[0]*gpm_pp_mi.shape[1]))
+
+
+#print R_all.shape, G_all_HQ.shape, G_all_IR.shape, G_all_MI.shape
+G_all_HQ = np.concatenate(G_all_HQ,axis=0)
+G_all_IR = np.concatenate(G_all_IR,axis=0)
+#G_all_MI = np.concatenate(G_all_MI,axis=0)
+R_all = np.concatenate(R_all,axis=0)
+
+fig = plt.figure(figsize=(12,12))
+ax111 = fig.add_subplot(121, aspect='equal')
+plot_scatter(G_all_HQ, R_all)
+import matplotlib as mpl
+mean = [ np.nanmean(G_all_HQ),np.nanmean(R_all)]
+width = np.nanstd(G_all_HQ)
+height = np.nanstd(R_all)
+angle = 0
+ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                          angle=180+angle, color='blue', alpha=0.8,
+                          fill=False, ls='--', label='Std')
+ax111.add_patch(ell)
+plt.xlabel(('GPM IMERG HQ (mm/h)'))
+plt.ylabel(('RADOLAN (mm/h)'))
+plt.grid()
+
+ax121 = fig.add_subplot(122, aspect='equal')
+plot_scatter(G_all_IR, R_all)
+import matplotlib as mpl
+mean = [ np.nanmean(G_all_IR),np.nanmean(R_all)]
+width = np.nanstd(G_all_IR)
+height = np.nanstd(R_all)
+angle = 0
+ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                          angle=180+angle, color='blue', alpha=0.8,
+                          fill=False, ls='--', label='Std')
+ax121.add_patch(ell)
+plt.xlabel(('GPM IMERG IR (mm/h)'))
+plt.ylabel(('RADOLAN (mm/h)'))
+plt.grid()
+
+
+
+plt.savefig('/home/velibor/shkgpm/plot/imerg/all_gpm_imerg_radolan_'+ZP + '.png' )
+#plt.show()
+plt.close()

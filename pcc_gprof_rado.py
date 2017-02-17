@@ -32,11 +32,18 @@ from pcc import plot_radar
 from pcc import get_my_cmap
 my_cmap = get_my_cmap()
 
+GGG = []
+RRR = []
 
+#Alle Zeitpunkte
+#zz = np.array([20140921, 20141007,20140826,
+#               20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
+#               20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
+#               20170113, 20170203,])
+
+#Alle rz rx zeitpunkte
 zz = np.array([20140921, 20141007,20140826,
-               20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
-               20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
-               20170113, 20170203,])
+               20141016, 20150128, 20150227, 20150402, 20150427])
 #zz = np.array([20140921])
 
 for i in range(len(zz)):
@@ -75,7 +82,7 @@ for i in range(len(zz)):
     ## Read RADOLAN Data
     ## -----------------
 
-    r_pro = 'rz'
+    r_pro = 'rx' #rz oder rx###############
 
     pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+
             str(m)+'/'+ str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+
@@ -100,7 +107,11 @@ for i in range(len(zz)):
     radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
     x = radolan_grid_xy[:,:,0]
     y = radolan_grid_xy[:,:,1]
-    rwdata = np.ma.masked_equal(rwdata, -9999) *8 # Einheit 1/100mm pro 5min
+
+    if r_pro=='rz':
+        rwdata = np.ma.masked_equal(rwdata, -9999) *8 # Einheit 1/100mm pro 5min
+    if r_pro=='rx':
+        rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
     #rwdata[rwdata < 0] = np.nan
 
 
@@ -129,7 +140,7 @@ for i in range(len(zz)):
 
     mask = ~np.isnan(rwdata)
 
-    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
 
     result = np.ma.masked_invalid(result)
 
@@ -159,6 +170,21 @@ for i in range(len(zz)):
     res_bin[res_bin == 0] = np.nan #check nur 1 un NaN
 
     ggg = gprof_pp_b * res_bin
+
+
+    if r_pro =='rx':
+        print 'es ist rx'
+        from pcc import z2r2
+        Z = wradlib.trafo.idecibel(rwdata)
+        #rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
+        rwdata = z2r2(Z)
+
+        Z2 = wradlib.trafo.idecibel(rrr)
+        #rrr = wradlib.zr.z2r(Z2, a=200., b=1.6)
+        rrr = z2r2(Z2)
+
+    if r_pro=='rz':
+        print 'es ist rz'
 
     ## Nur Niederschlagsrelevante
     rrr[rrr <= 0.1] = np.nan
@@ -315,20 +341,34 @@ for i in range(len(zz)):
 
 
     plt.tight_layout()
-    plt.savefig('/home/velibor/shkgpm/plot/gpm_gprof_radolan_'+ZP + '.png' )
+    plt.savefig('/home/velibor/shkgpm/plot/gprof/gpm_gprof_radolan_'+r_pro+'_'+ZP + '.png' )
     plt.close()
 
+    GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
+    RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
 
 
 
 
-plt.subplot(1,2,1)
-plt.plot(gpm_x[:,0],gpm_y[:,0], color='r',lw=3)
-plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='r',lw=3)
-plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr*(ggg/ggg)), cmap=my_cmap, vmin=0.01, vmax=10, zorder=2)
+G_all = np.concatenate(GGG,axis=0)
+R_all = np.concatenate(RRR,axis=0)
+from pcc import plot_scatter
 
-plt.subplot(1,2,2)
-plt.plot(gpm_x[:,0],gpm_y[:,0], color='r',lw=3)
-plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='r',lw=3)
-plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr), cmap=my_cmap, vmin=0.01, vmax=10, zorder=2)
-plt.show()
+
+fig = plt.figure(figsize=(12,12))
+ax11 = fig.add_subplot(111, aspect='equal')
+plot_scatter(G_all, R_all)
+import matplotlib as mpl
+mean = [ np.nanmean(G_all),np.nanmean(R_all)]
+width = np.nanstd(G_all)
+height = np.nanstd(R_all)
+angle = 0
+ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                          angle=180+angle, color='blue', alpha=0.8,
+                          fill=False, ls='--', label='Std')
+ax11.add_patch(ell)
+plt.xlabel(('GPM DPR (dBZ)'))
+plt.ylabel(('RADOLAN (dBZ)'))
+plt.grid()
+plt.savefig('/home/velibor/shkgpm/plot/gprof/all_gpm_gprof_radolan_'+ r_pro  + '.png' )
+plt.close()

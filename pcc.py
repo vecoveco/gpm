@@ -6,6 +6,7 @@ GPM VALIDATION
 
 import numpy as np
 import datetime as dt
+import wradlib as wrl
 
 def test(arry):
     print 'Shape: ', arry.shape
@@ -91,6 +92,7 @@ def histo(data1, data2, bino):
 
 #Heidke Skill Score
 # Lit: J. Tan A Novel Approach to Indetify Source of Errors in IMERG for GPM Ground Validation
+#Grundgenauigkeit ist die Trefferate
 #                   |  Estimate  |  Reference
 #-----------------------------------------------
 #Hit H :            |  Yes      |    Yes
@@ -132,13 +134,13 @@ def skill_score(estimate, reference, th=None):
 
     E = 1/N * (((H + M)*(H + F)) +
                        ((C + M) * (C + F)))
-
+    #Entdekungswahrscheinlichkeit
     POD = H/(H + M)
     FAR = F/(H + F)
     BID = (H +F)/(H + M)
     HSS = (H + C - E) / (N - E)
-
-    #Todo: Bias und RMSE
+    #Trefferrate
+    HR = (H+C)/N
     #Bias RMSE
     #RMSE=sqrt(sum((yobs-yest).^2)/(length(yobs)-1));
     #Ytemp=[ones(11,1) yest'];
@@ -155,6 +157,7 @@ def skill_score(estimate, reference, th=None):
               'F_pos': F_pos,
               'C_pos': C_pos,
               'N': N,
+              'HR': HR,
               'POD': POD,
               'FAR': FAR,
               'BID': BID,
@@ -275,6 +278,25 @@ def zeitschleife(sY,sm,sd,sH,sM,sS, eY,em,ed,eH,eM,eS,steps):
 
 #ag = gpm_gpm.reshape(gpm_gpm.shape[0]*gpm_gpm.shape[1])
 #ar = rrr.reshape(rrr.shape[0]*rrr.shape[1])
+def plot_world(ax,lon1, lon2, lat1, lat2):
+
+    from osgeo import osr
+    wgs84 = osr.SpatialReference()
+    wgs84.ImportFromEPSG(4326)
+
+    filename = wrl.util.get_wradlib_data_file('geo/ne_10m_admin_0_countries.shp')
+
+    dataset, inLayer = wrl.io.open_shape(filename)
+    inLayer.SetSpatialFilterRect(lon1, lat1, lon2, lat2)
+    borders, keys = wrl.georef.get_shape_coordinates(inLayer, key='name')
+    wrl.vis.add_lines(ax, borders, color='black', lw=1, zorder=4)
+    ax.autoscale()
+
+def z2r2(z):
+    # Nach E. Goudenhoofdt and L. Delobbe 2016
+    z[np.where(z <=44.)] = ((z[np.where(z<=44.)])/200.)**(1./1.6)
+    z[np.where(z > 44.)] = ((z[np.where(z > 44.)])/77.)**(1./1.9)
+    return z
 
 def plot_ocean(ax):
     # Grenzen der Kuesten
@@ -771,6 +793,7 @@ def plot_scatter(est, ref):
             '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
             '\nFalse: ' + str(round(SS['F']/SS['N'],3)*100)+'%'+
             '\nCnegative: ' + str(round(SS['C']/SS['N'],3)*100)+'%'+
+            '\nHR: ' + str(round(SS['HR'],3))+
             '\nPOD: ' + str(round(SS['POD'],3))+
             '\nFAR: ' + str(round(SS['FAR'],3))+
             '\nBID: ' + str(round(SS['BID'],3))+
@@ -782,7 +805,7 @@ def plot_scatter(est, ref):
     plt.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
                     horizontalalignment='left', verticalalignment='top')
 
-    t1 = np.linspace(0,50,50)
+    t1 = np.linspace(0,70,70)
     plt.plot(t1,t1,'k-')
     plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
     plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
@@ -790,5 +813,5 @@ def plot_scatter(est, ref):
     plt.plot(np.nanmean(est),np.nanmean(ref), 'ob', lw = 4,label='Mean')
 
     plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
-    plt.xlim(0,50)
-    plt.ylim(0,50)
+    plt.xlim(0,70)
+    plt.ylim(0,70)

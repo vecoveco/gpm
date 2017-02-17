@@ -34,6 +34,10 @@ my_cmap2 = get_my_cmap()
 
 GGG = []
 RRR = []
+
+# Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
+TH_ref = 7
+
 zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
@@ -161,8 +165,8 @@ for i in range(len(zz)):
     ggg = gprof_pp_b * res_bin
 
     ## Nur Niederschlagsrelevante
-    rrr[rrr<5]=np.nan
-    ggg[ggg<0]=np.nan
+    rrr[rrr < TH_ref]=np.nan
+    ggg[ggg < TH_ref]=np.nan
 
 
     ff = 15
@@ -265,6 +269,7 @@ for i in range(len(zz)):
             '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
             '\nFalse: ' + str(round(SS['F']/SS['N'],3)*100)+'%'+
             '\nCnegative: ' + str(round(SS['C']/SS['N'],3)*100)+'%'+
+            '\nHR: ' + str(round(SS['HR'],3))+
             '\nPOD: ' + str(round(SS['POD'],3))+
             '\nFAR: ' + str(round(SS['FAR'],3))+
             '\nBID: ' + str(round(SS['BID'],3))+
@@ -311,12 +316,6 @@ for i in range(len(zz)):
     plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_'+ZP + '.png' )
     plt.close()
     #plt.show()
-    #try:
-    #    print len(GGG)#
-
-    #except NameError:
-     #   GGG = np.zeros([len(zz),ggg.shape[0], ggg.shape[1]])
-      #  RRR = np.zeros([len(zz),ggg.shape[0], ggg.shape[1]])
 
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
@@ -325,9 +324,26 @@ for i in range(len(zz)):
 G_all = np.concatenate(GGG,axis=0)
 R_all = np.concatenate(RRR,axis=0)
 from pcc import plot_scatter
-plot_scatter(G_all, R_all)
-plt.show()
 
+
+fig = plt.figure(figsize=(12,12))
+ax11 = fig.add_subplot(111, aspect='equal')
+plot_scatter(G_all, R_all)
+import matplotlib as mpl
+mean = [ np.nanmean(G_all),np.nanmean(R_all)]
+width = np.nanstd(G_all)
+height = np.nanstd(R_all)
+angle = 0
+ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                          angle=180+angle, color='blue', alpha=0.8,
+                          fill=False, ls='--', label='Std')
+ax11.add_patch(ell)
+plt.xlabel(('GPM DPR (dBZ)'))
+plt.ylabel(('RADOLAN (dBZ)'))
+plt.grid()
+plt.savefig('/home/velibor/shkgpm/plot/all_gpm_dpr_radolan_'+ZP + '.png' )
+#plt.show()
+plt.close()
 
 
 
