@@ -36,14 +36,14 @@ GGG = []
 RRR = []
 
 # Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
-TH_ref = 7
+TH_ref = 12#18#7
 
 zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,])
 
-#zz = np.array(['20141007','20140629'])
+#zz = np.array(['20141007'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -168,6 +168,8 @@ for i in range(len(zz)):
     rrr[rrr < TH_ref]=np.nan
     ggg[ggg < TH_ref]=np.nan
 
+    ################################################################Swap!
+    #rrr, ggg = ggg, rrr
 
     ff = 15
     cc = 0.5
@@ -258,24 +260,27 @@ for i in range(len(zz)):
     line = slope * ggg +intercept
 
     from pcc import skill_score
-    SS = skill_score(ggg,rrr,th=0)
+    SS = skill_score(ggg,rrr,th=TH_ref)
 
     ax4.scatter(ggg, rrr, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
+
+    r_value_s, p_value_s = stats.spearmanr(ggg[maske],rrr[maske])
 
     text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
                '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
             '\nN: '+ str(int(SS['N']))+
-            '\nHit: ' + str(round(SS['H']/SS['N'],3)*100)+'%'+
-            '\nMiss: ' + str(round(SS['M']/SS['N'],3)*100)+'%'+
-            '\nFalse: ' + str(round(SS['F']/SS['N'],3)*100)+'%'+
-            '\nCnegative: ' + str(round(SS['C']/SS['N'],3)*100)+'%'+
+            '\nHit: ' + str(SS['H'])+
+            '\nMiss: ' + str(SS['M'])+
+            '\nFalse: ' + str(SS['F'])+
+            '\nCnegative: ' + str(SS['C'])+
             '\nHR: ' + str(round(SS['HR'],3))+
             '\nPOD: ' + str(round(SS['POD'],3))+
             '\nFAR: ' + str(round(SS['FAR'],3))+
             '\nBID: ' + str(round(SS['BID'],3))+
             '\nHSS: ' + str(round(SS['HSS'],3))+
             '\nBias: '+ str(round(SS['bias'],3))+
-            '\nRMSE: '+ str(round(SS['RMSE'],3))
+            '\nRMSE: '+ str(round(SS['RMSE'],3))+
+            '\nCorrS:' +  str(round(r_value_s,3))
             )
 
     ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,

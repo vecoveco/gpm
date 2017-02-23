@@ -4,9 +4,11 @@ Program zum Downloaden von GPM Daten vom Server
 -----------------------------------------------
 """
 
-
+from pcc import melde_dich
 import ftplib
 from datetime import date, timedelta as td
+
+melde_dich('Programm pcc_download.py startet jetzt.')
 
 meinftp = ftplib.FTP("arthurhou.pps.eosdis.nasa.gov")
 
@@ -14,8 +16,8 @@ meinftp.login("bregovic@gmx.de","bregovic@gmx.de")
 
 
 
-d1 = date(2015, 1, 1)
-d2 = date(2015, 12, 31)
+d1 = date(2014, 8, 31)
+d2 = date(2014, 12, 31)
 
 delta = d2 - d1
 
@@ -48,6 +50,7 @@ for i in range(delta.days + 1):
             filename1 = daten[i][-66::]
             filename2 = daten[i][-66::]
 
+
             print
             print 'Ort und Name der lokalen Datei: ' + directory_local + filename2
             print
@@ -68,10 +71,5 @@ print meinftp.quit()
 print
 print 'Die FTP-Verbindung wurde von mir getrennt.'
 
-import simplemail as e
-e.Simplemail(
-    from_address = u"velibor.pejcic@gmx.de",
-    to_address = u"velibor.pejcic@gmx.de",
-    subject = u"This is PYTHON",
-    message = u"This is the short message body with umlauts PYTHON."
-).send()
+
+melde_dich('Das Program pcc_download ist fertig!')

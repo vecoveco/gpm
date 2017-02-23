@@ -190,6 +190,7 @@ for jjj in range(len(pfad_gpm)):
     gpm_pp_ir = gpm_pp_ir * res_bin
     gpm_pp_mi = gpm_pp_mi * res_bin
 
+    #Todo: Radolan ueber 30 min mitteln
 
     # PLot ------------------------------------------------------------------------
     from pcc import plot_world

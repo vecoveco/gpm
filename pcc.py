@@ -146,6 +146,7 @@ def skill_score(estimate, reference, th=None):
     #Ytemp=[ones(11,1) yest'];
     #B=Ytemp\yobs';
     # nach Sungmin 2016
+    # TODO: Bias in extra funktion!
     bias = np.nansum(estimate-reference)/H
     rmse = np.sqrt(np.nansum(((estimate-reference)**2)/H))
     result = {'H': H,
@@ -170,24 +171,6 @@ def skill_score(estimate, reference, th=None):
 
     return result
 
-
-def scores(H_tab, M_tab, F_tab, C_tab, N_tab):
-    #score Lit: Tan et al 2016
-
-    E_tab = 1/N_tab * (((H_tab + M_tab)(H_tab + F_tab)) +
-                       ((C_tab + M_tab) * (C_tab + F_tab)))
-
-    POD = H_tab/(H_tab + M_tab)
-    FAR = F_tab/(H_tab + F_tab)
-    BID = (H_tab +F_tab)/(H_tab + M_tab)
-    HSS = (H_tab + C_tab - E_tab) / (N_tab - E_tab)
-
-    result = {'POD': POD,
-              'FAR': FAR,
-              'BID': BID,
-              'HSS': HSS}
-
-    return result
 
 
 def plot_score(estimate, reference, scoreval):
@@ -515,7 +498,13 @@ def get_miub_cmap():
     colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
     return col.LinearSegmentedColormap.from_list('miub1',colors)
 
-
+def get_3_cmap():
+    import matplotlib.colors as col
+    startcolor = 'red'
+    color1 = 'cyan'
+    endcolor = 'grey'#'red'
+    colors = [startcolor, color1,endcolor]
+    return col.LinearSegmentedColormap.from_list('3',colors)
 
 def get_my_cmap():
     import matplotlib.cm as cm
@@ -844,3 +833,25 @@ def melde_dich(text):
     s = smtplib.SMTP('localhost')
     s.sendmail(me, [you], msg.as_string())
     s.quit()
+
+#Farbe und schrifftart
+#print '\033[92m'+'Hi'
+#color ende
+#print '\033[0m'+'Hi'
+def farbig(stringi, farbe):
+
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+    farben = {'purple': PURPLE, 'cyan':CYAN, 'darkcyan':DARKCYAN, 'blue':BLUE,
+              'green': GREEN, 'red': RED, 'bold':BOLD, 'underline': UNDERLINE}
+
+    return farben[farbe] + stringi + END
