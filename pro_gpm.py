@@ -31,6 +31,7 @@ my_cmap = get_miub_cmap()
 
 from pcc import get_my_cmap
 my_cmap2 = get_my_cmap()
+from pcc import get_4_cmap
 
 
 zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
@@ -71,11 +72,17 @@ for i in range(len(zz)):
 
     #Precipitation water vertically integrate
     gprof_wi=np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
-    gprof_wi[gprof_wi==-9999.9]=np.nan
+    gprof_wi[gprof_wi==-9999]=np.nan
+
+
+    # Precip Typ
+    gprof_typ=np.array(gpmdpr['NS']['CSF']['typePrecip'])
+    gprof_typ[gprof_typ==-9999] = 0
+    gprof_typ[gprof_typ==-1111] = 0
 
     from pcc import get_3_cmap
     from pcc import plot_world
-    x1,x2,y3,y4 = -5, 20, 30, 60
+    x1,x2,y3,y4 = 5, 15, 45, 55
     ff = 15
     asp = 'equal'
     fig = plt.figure(figsize=(15,15))
@@ -109,6 +116,17 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
     plot_world(ax3,x1,x2,y3,y4)
 
+    plt.grid()
+    plt.xlim(x1,x2)
+    plt.ylim(y3,y4)
+
+    ax4 = fig.add_subplot(2,2,4, aspect=asp)
+    plt.pcolormesh(lon, lat, np.ma.masked_invalid(gprof_typ/10000000),cmap=get_4_cmap())
+    cb = plt.colorbar(shrink=0.8)
+    cb.set_label("Typ, (1=strat, 2=conv, 3=other)",fontsize=ff)
+    cb.ax.tick_params(labelsize=ff)
+    plot_world(ax4,x1,x2,y3,y4)
+    print np.unique(gprof_typ/10000000)
     plt.grid()
     plt.xlim(x1,x2)
     plt.ylim(y3,y4)

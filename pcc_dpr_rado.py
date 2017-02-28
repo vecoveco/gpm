@@ -59,12 +59,19 @@ for i in range(len(zz)):
     pfad_gpm_g = pfad_gpm[0]
 
     gpmdpr = h5py.File(pfad_gpm_g, 'r')
-    gprof_lat=np.array(gpmdpr['NS']['Latitude'])
-    gprof_lon=np.array(gpmdpr['NS']['Longitude'])
+    gprof_lat = np.array(gpmdpr['NS']['Latitude'])
+    gprof_lon = np.array(gpmdpr['NS']['Longitude'])
 
-    gprof_pp=np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
+    gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
+    gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
     gprof_pp[gprof_pp==-9999.9]= np.nan
+    gprof_pia[gprof_pia==-9999.9]= np.nan
+
+    print gprof_pp.shape, gprof_pia.shape
+    #gprof_pp = gprof_pp - wradlib.trafo.idecibel(gprof_pia)
+    #gprof_pp = gprof_pp - gprof_pia
+
 
 
     gpm_time = gpmdpr['NS']['ScanTime']
@@ -292,7 +299,7 @@ for i in range(len(zz)):
     plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
     plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
     plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
-    #plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
+    plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
 
     import matplotlib as mpl
     mean = [ np.nanmean(ggg),np.nanmean(rrr)]
@@ -318,7 +325,7 @@ for i in range(len(zz)):
 
 
     plt.tight_layout()
-    plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_'+ZP + '.png' )
+    plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
     plt.close()
     #plt.show()
 
@@ -346,7 +353,7 @@ ax11.add_patch(ell)
 plt.xlabel(('GPM DPR (dBZ)'))
 plt.ylabel(('RADOLAN (dBZ)'))
 plt.grid()
-plt.savefig('/home/velibor/shkgpm/plot/all_gpm_dpr_radolan_'+ZP + '.png' )
+plt.savefig('/home/velibor/shkgpm/plot/all_gpm_dpr_v2_radolan_'+ZP + '.png' )
 #plt.show()
 plt.close()
 

@@ -16,8 +16,8 @@ meinftp.login("bregovic@gmx.de","bregovic@gmx.de")
 
 
 
-d1 = date(2014, 8, 31)
-d2 = date(2014, 12, 31)
+d1 = date(2017, 1, 1)
+d2 = date(2017, 2, 22)
 
 delta = d2 - d1
 

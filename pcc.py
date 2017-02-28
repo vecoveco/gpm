@@ -277,7 +277,11 @@ def plot_world(ax,lon1, lon2, lat1, lat2):
 
 def z2r2(z):
     # Nach E. Goudenhoofdt and L. Delobbe 2016
-    z[np.where(z <=44.)] = ((z[np.where(z<=44.)])/200.)**(1./1.6)
+    # DWD Abschlussbericht
+    z[np.where(z <=36.)] = ((z[np.where(z<=36.)])/200.)**(1./1.6)
+
+    z[np.where((36.5 < z)& (z < 44.))] = ((z[np.where((36.5 < z)& (z < 44.))])/200.)**(1./1.6)
+
     z[np.where(z > 44.)] = ((z[np.where(z > 44.)])/77.)**(1./1.9)
     return z
 
@@ -378,8 +382,25 @@ def plot_borders(ax):
 
             wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
     ax.autoscale()
-
-
+'''
+def plot_dem(ax):
+    filename = wrl.util.get_wradlib_data_file('geo/bangladesh.tif')
+    # pixel_spacing is in output units (lonlat)
+    rastercoords, rastervalues = wrl.io.read_raster_data(filename,
+                                                         spacing=0.005)
+    # specify kwargs for plotting, using terrain colormap and LogNorm
+    dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
+                        rastervalues, cmap=pl.cm.terrain, norm=LogNorm(),
+                        vmin=1, vmax=3000)
+    # make some space on the right for colorbar axis
+    div1 = make_axes_locatable(ax)
+    cax1 = div1.append_axes("right", size="5%", pad=0.1)
+    # add colorbar and title
+    # we use LogLocator for colorbar
+    cb = pl.gcf().colorbar(dem, cax=cax1,
+                           ticks=ticker.LogLocator(subs=range(10)))
+    cb.set_label('terrain height [m]')
+'''
 def boxpol_pos():
     # Koordinaten des Bonner Radar
     pos_boxpol = {'lat_ppi' : 50.730519999999999, 'lon_ppi' : 7.071663
@@ -505,6 +526,15 @@ def get_3_cmap():
     endcolor = 'grey'#'red'
     colors = [startcolor, color1,endcolor]
     return col.LinearSegmentedColormap.from_list('3',colors)
+
+def get_4_cmap():
+    import matplotlib.colors as col
+    startcolor = 'white'
+    color1 = 'blue'
+    color2 = 'red'
+    endcolor = 'grey'#'red'
+    colors = [startcolor, color1, color2, endcolor]
+    return col.LinearSegmentedColormap.from_list('4',colors)
 
 def get_my_cmap():
     import matplotlib.cm as cm
