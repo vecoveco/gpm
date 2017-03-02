@@ -36,15 +36,16 @@ GGG = []
 RRR = []
 
 #Alle Zeitpunkte
+#'''
 zz = np.array([20140921, 20141007,20140826,
                20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
-               20170113, 20170203,])
-
+               20170113, 20170203,20170223])
+#'''
 #Alle rz rx zeitpunkte
 #zz = np.array([20140921, 20141007,20140826,
 #               20141016, 20150128, 20150227, 20150402, 20150427])
-#zz = np.array([20140921])
+#zz = np.array([20170223])
 
 for i in range(len(zz)):
     ZP = str(zz[i])
@@ -178,6 +179,7 @@ for i in range(len(zz)):
         Z = wradlib.trafo.idecibel(rwdata)
         rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
         #rwdata = z2r2(Z)
+        #z2rEnhanced
 
         Z2 = wradlib.trafo.idecibel(rrr)
         rrr = wradlib.zr.z2r(Z2, a=200., b=1.6)

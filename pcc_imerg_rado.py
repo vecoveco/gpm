@@ -98,10 +98,14 @@ for jjj in range(len(pfad_gpm)):
 
     gpm_time = gpm_time[lat_ii[0,0]:lat_ii[0,-1], lon_ii[0,0]:lon_ii[0,-1]]
 
+    print gpm_time
+
     if np.sum(gpm_time)==0:
-        ht, mt = imerg_zeit[10:12], imerg_zeit[12:14]
+        ht, mt = imerg_zeit[10:12], str(int(imerg_zeit[12:14])+15)
+        print mt
     if np.sum(gpm_time)!=0:
-        ht, mt = imerg_zeit[10:12], str((int(np.nanmax(gpm_time))/5)*5)
+        ht, mt = imerg_zeit[10:12], str(((int(np.nanmax(gpm_time))/5)*5)+15)
+        print mt
 
     ## Read RADOLAN Data
     ## -----------------
@@ -122,6 +126,8 @@ for jjj in range(len(pfad_gpm)):
     rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
     radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
+
+    print radolan_zeit
 
     #Binaere Grid
     rn = rwdata.copy()
