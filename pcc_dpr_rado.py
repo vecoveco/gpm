@@ -38,13 +38,13 @@ RRR = []
 # Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
 TH_ref = 12#18#7
 
-#'''
+'''
 zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
-#'''
-#zz = np.array(['20170223'])
+'''
+zz = np.array(['20141007'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -64,14 +64,15 @@ for i in range(len(zz)):
     gprof_lon = np.array(gpmdpr['NS']['Longitude'])
 
     gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
+    #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
     gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
     gprof_pp[gprof_pp==-9999.9]= np.nan
     gprof_pia[gprof_pia==-9999.9]= np.nan
 
     print gprof_pp.shape, gprof_pia.shape
-    #gprof_pp = gprof_pp - wradlib.trafo.idecibel(gprof_pia)
-    #gprof_pp = gprof_pp - gprof_pia
+    #gprof_pp = gprof_pp + wradlib.trafo.idecibel(gprof_pia)
+    #gprof_pp = gprof_pp + gprof_pia
 
 
 
@@ -172,9 +173,13 @@ for i in range(len(zz)):
 
     ggg = gprof_pp_b * res_bin
 
+    ## Dynamischer Threshold
+    THref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
+
     ## Nur Niederschlagsrelevante
-    rrr[rrr < TH_ref]=np.nan
-    ggg[ggg < TH_ref]=np.nan
+    rrr[rrr < THref]=np.nan
+    ggg[ggg < THref]=np.nan
+
 
     ################################################################Swap!
     #rrr, ggg = ggg, rrr
@@ -263,6 +268,7 @@ for i in range(len(zz)):
 
     ax4 = fig.add_subplot(224, aspect='equal')#------------------------------------
 
+
     maske = ~np.isnan(ggg) & ~np.isnan(rrr)
     slope, intercept, r_value, p_value, std_err = stats.linregress(ggg[maske], rrr[maske])
     line = slope * ggg +intercept
@@ -326,9 +332,9 @@ for i in range(len(zz)):
 
 
     plt.tight_layout()
-    plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
-    plt.close()
-    #plt.show()
+    #plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
+    #plt.close()
+    plt.show()
 
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))

@@ -886,3 +886,5 @@ def farbig(stringi, farbe):
               'green': GREEN, 'red': RED, 'bold':BOLD, 'underline': UNDERLINE}
 
     return farben[farbe] + stringi + END
+
+

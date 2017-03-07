@@ -40,12 +40,13 @@ maxi, mini = [], []
 ## -------------
 
 pfad = ('/automount/radar-archiv/archiv/GPM/gprof/*.HDF5')
-pfad_gprof = glob.glob(pfad)
+pfad_gprof = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gprof), ' vorhanden!'
 
-for i in range(4,44,1):
+for i in range(9905, len(pfad_gprof)):
     pfad_gprof_g = pfad_gprof[i]
+    print i
 
     gpmdprs = h5py.File(pfad_gprof_g, 'r')
 
@@ -69,7 +70,6 @@ for i in range(4,44,1):
             mt = '00'
         elif mt == '5':
             mt = '05'
-        print mt
 
         ## Read RADOLAN Data
         ## -----------------
@@ -345,14 +345,16 @@ for i in range(4,44,1):
             gprof_lon, gprof_pp, res_bin, rrr, ggg, rwdata, x, y,slope,
             intercept, r_value, p_value, std_err, line, width, height, ell,
             maxi,gpm_x, gpm_y, Z, Z2, gpm_time, xy,grid_gpm_xy, grid_xy, rn,
-            mask, maske, rn, rwattrs, result, pfad_radolan, SS )
+            mask, maske, rn, rwattrs, result, pfad_radolan, SS, gpmdprs, pfad,
+            pfad_radolan, pfad_gprof, pfad_gprof_g, ht, m, d, ye ,mt, year, t1, cb )
 
 
     except:
         pass
 
-
-
+from pcc import melde_dich
+melde_dich('Das Program pcc_download ist fertig!')
+'''
 G_all = np.concatenate(GGG,axis=0)
 R_all = np.concatenate(RRR,axis=0)
 from pcc import plot_scatter
@@ -375,7 +377,7 @@ plt.ylabel(('RADOLAN (dBZ)'))
 plt.grid()
 plt.savefig('/home/velibor/shkgpm/plot/allegprof/all_gpm_gprof_radolan_'+ r_pro  + '.png' )
 plt.close()
-
+'''
 
 
 

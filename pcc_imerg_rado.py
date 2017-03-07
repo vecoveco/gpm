@@ -110,6 +110,8 @@ for jjj in range(len(pfad_gpm)):
     ## Read RADOLAN Data
     ## -----------------
 
+    #TODO: Mean von 30 min RADOLAN nehmen! [lit. Oliveira, Charactersistics and Durial....]
+
     r_pro = 'rx'
 
     pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+
