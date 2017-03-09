@@ -65,6 +65,10 @@ for i in range(len(zz)):
 
     gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
     #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
+    #g_1 = np.array(gpmdpr['NS']['VER']['sigmaZeroNPCorrected'])
+    #g_2 = np.array(gpmdpr['NS']['PRE']['zFactorMeasured'])
+    #g_3 = np.array(gpmdpr['NS']['PRE']['binRealSurface'])
+
     gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
     gprof_pp[gprof_pp==-9999.9]= np.nan

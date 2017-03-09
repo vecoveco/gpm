@@ -16,6 +16,14 @@ def test(arry):
     print 'Max: ', np.max(arry)
     print 'Unique: ', np.unique(arry)
 
+
+def global_data():
+    '''lit: HAMADA AND TAKAYABU 2015'''
+    Ku_z_th, Ka_z_th = 14.53, 16.32 #dBZ
+    Ku_r_th, Ka_r_th = 0.30, 0.38 #mm/h
+    return Ka_z_th, Ku_z_th, Ku_r_th, Ka_r_th
+
+
 def dscat(xdat, ydat):
     # Todo: erstellen ScatterHistogramplot
     import matplotlib.pyplot as plt, numpy as np, numpy.random, scipy
