@@ -466,24 +466,29 @@ def plot_radar(bx,by, ax, reproject=False):
     #ax.text(x_loc, y_loc, 'Bonn', color='r')
 
 
-def cut_the_swath(gprof_lon, gprof_lat, gprof_pp,eu=False):
+def cut_the_swath(gprof_lon, gprof_lat, gprof_pp,eu):
     # Zurechtschneiden des Scanpfades ueber Deutschland
 
     import numpy as np
 
     # Rand bestimmt nach Radolan Eckpunkten
-
-    bonn_lat1 = 46.952580411190304
-    bonn_lat2 = 54.896591448461479
-    bonn_lon1 = 2.0735617005681379
-    bonn_lon2 = 15.704155593113517
-
-
-    if eu==True:
+    if eu==0:
+        bonn_lat1 = 46.952580411190304
+        bonn_lat2 = 54.896591448461479
+        bonn_lon1 = 2.0735617005681379
+        bonn_lon2 = 15.704155593113517
+    # Rand bestimmt nach Radolan EU Eckpunkten
+    if eu==1:
         bonn_lat1 = 43.874791353919626
         bonn_lat2 = 57.100558552767012
         bonn_lon1 = -0.86239071542899981
         bonn_lon2 = 21.680045338521435
+    # Rand bestimmt nach BoxPol Eckpunkten
+    if eu==2:
+        bonn_lat1 = 49.9400
+        bonn_lat2 = 51.3500
+        bonn_lon1 = 6.40000
+        bonn_lon2 = 8.10000
 
     ilat= np.where((gprof_lat>bonn_lat1) & (gprof_lat<bonn_lat2))
     ilon= np.where((gprof_lon>bonn_lon1) & (gprof_lon<bonn_lon2))
@@ -668,10 +673,14 @@ def cut_the_swath2(gprof_lon, gprof_lat, gprof_pp,eu=False):
 
     # Rand bestimmt nach Radolan Eckpunkten
 
-    bonn_lat1 =47
-    bonn_lat2 = 54.0
-    bonn_lon1 = 4.5
-    bonn_lon2 = 14.6
+    #bonn_lat1 =47
+    #bonn_lat2 = 54.0
+    #bonn_lon1 = 4.5
+    #bonn_lon2 = 14.6
+    bonn_lat1 = 46.952580411190304
+    bonn_lat2 = 54.896591448461479
+    bonn_lon1 = 2.0735617005681379
+    bonn_lon2 = 15.704155593113517
 
 
     if eu==True:
@@ -711,10 +720,18 @@ def cut_the_swath2(gprof_lon, gprof_lat, gprof_pp,eu=False):
 def cut_the_swath3(gx, gy, gg):
     # Zurechtschneiden des Scanpfades ueber Deutschland
 
-    bonn_lat1 =47
-    bonn_lat2 = 54.0
-    bonn_lon1 = 4.5
-    bonn_lon2 = 14.6
+    # Radolan
+    #bonn_lat1 = 46.952580411190304
+    #bonn_lat2 = 54.896591448461479
+    #bonn_lon1 = 2.0735617005681379
+    #bonn_lon2 = 15.704155593113517
+
+    #Bonn Boxpol
+    bonn_lat1 = 49.9400
+    bonn_lat2 = 51.3500
+    bonn_lon1 = 6.40000
+    bonn_lon2 = 8.10000
+
 
     gg[gy < bonn_lat1]=np.nan
     gg[gy > bonn_lat2]=np.nan
@@ -724,6 +741,28 @@ def cut_the_swath3(gx, gy, gg):
     return gx, gy, gg
 
 
+def cut_the_swath4(gx, gy, gg):
+    # Zurechtschneiden des Scanpfades ueber Deutschland
+
+    # Radolan
+    bonn_lat1 = 46.952580411190304
+    bonn_lat2 = 54.896591448461479
+    bonn_lon1 = 2.0735617005681379
+    bonn_lon2 = 15.704155593113517
+
+    #Bonn Boxpol
+    #bonn_lat1 = 49.9400
+    #bonn_lat2 = 51.3500
+    #bonn_lon1 = 6.40000
+    #bonn_lon2 = 8.10000
+
+
+    gg[gy < bonn_lat1]=np.nan
+    gg[gy > bonn_lat2]=np.nan
+    gg[gx > bonn_lon2]=np.nan
+    gg[gx < bonn_lon1]=np.nan
+
+    return gx, gy, gg
 
 
 def alpha_shape(points, alpha):
