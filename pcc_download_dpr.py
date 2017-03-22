@@ -8,7 +8,7 @@ from pcc import melde_dich
 import ftplib
 from datetime import date, timedelta as td
 
-melde_dich('Programm pcc_download.py startet jetzt.')
+melde_dich('Programm pcc_download_gprof.py startet jetzt.')
 
 meinftp = ftplib.FTP("arthurhou.pps.eosdis.nasa.gov")
 

@@ -415,6 +415,26 @@ def boxpol_pos():
     ,'gky_ppi' : -4235.233235191105, 'gkx_ppi' : -216.64772430049572}
     return pos_boxpol
 
+def plot_dem(ax):
+    from matplotlib.colors import LogNorm
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    import matplotlib.ticker as ticker
+    import matplotlib.pyplot as plt
+    filename = wrl.util.get_wradlib_data_file('geo/radolan_900x900_cr_500.tif')
+    # pixel_spacing is in output units (lonlat)
+    rastercoords, rastervalues = wrl.io.read_raster_data(filename)
+    # specify kwargs for plotting, using terrain colormap and LogNorm
+    dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
+                        rastervalues+1, cmap=plt.cm.terrain, norm=LogNorm(),
+                        vmin=1, vmax=3000)
+    # make some space on the right for colorbar axis
+    div1 = make_axes_locatable(ax)
+    cax1 = div1.append_axes("right", size="5%", pad=0.1)
+    # add colorbar and title
+    # we use LogLocator for colorbar
+    cb = plt.gcf().colorbar(dem, cax=cax1,
+                           ticks=ticker.LogLocator(subs=range(10)))
+    cb.set_label('terrain height [m]')
 
 
 def plot_radar(bx,by, ax, reproject=False):
