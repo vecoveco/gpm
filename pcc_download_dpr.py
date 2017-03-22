@@ -7,30 +7,33 @@ Program zum Downloaden von GPM Daten vom Server
 from pcc import melde_dich
 import ftplib
 from datetime import date, timedelta as td
+import pandas as pd
 
-melde_dich('Programm pcc_download_gprof.py startet jetzt.')
 
 meinftp = ftplib.FTP("arthurhou.pps.eosdis.nasa.gov")
 
 meinftp.login("bregovic@gmx.de","bregovic@gmx.de")
 
+a = pd.read_csv('/automount/user/velibor/SHKGPM/prog/output3radolandpr.csv', sep=',')
+overpass_zeiten = a[[0]].values
 
+#zum auslasten 0,500; 500,1000; 1000,1500
 
-d1 = date(2017, 1, 1)
-d2 = date(2017, 2, 22)
+for i in range(1000,1500):
 
-delta = d2 - d1
+    overpass_datum = overpass_zeiten[i][0][0:8]
+    dpr_overpass = '2A.GPM.DPR.V6-20160118.' +overpass_zeiten[i][0]
 
-for i in range(delta.days + 1):
-    zeit = d1 + td(days=i)
-    print zeit
+    print dpr_overpass
 
-    directory = '/gpmdata/'+ str(zeit.strftime("%Y/%m/%d")) +'/gprof/'
+    # DPR gibt es erst ab 2014/03/09
+
+    directory = '/gpmdata/'+ str(overpass_datum[0:4]) + '/' + str(overpass_datum[4:6]) + '/' + str(overpass_datum[6:8]) +'/radar/'
 
     meinftp.cwd(directory)
 
     # Mein Verzeichniss
-    directory_local = '/automount/ags/velibor/gpmdata/gprof/'
+    directory_local = '/automount/ags/velibor/gpmdata/dpr/'
 
 
     #meinftp.retrlines('LIST')
@@ -39,37 +42,26 @@ for i in range(delta.days + 1):
 
     meinftp.dir(daten.append)
 
-    gprof_wort = '2A.GPM.GMI.GPROF2014v2-0.'
 
-    for i in range(len(daten)):
+    print
+    print 'Ort und Name der lokalen Datei: ' + directory_local + dpr_overpass
+    print
 
-        if gprof_wort in daten[i][-66::]:
+    file = open(directory_local+dpr_overpass, 'wb')
 
-            print '>>>>>>>> ', daten[i][-66::]
+    print 'Download: ftp-Server: ' + directory +dpr_overpass
 
-            filename1 = daten[i][-66::]
-            filename2 = daten[i][-66::]
+    meinftp.retrbinary('RETR '+dpr_overpass, file.write)
 
-
-            print
-            print 'Ort und Name der lokalen Datei: ' + directory_local + filename2
-            print
-
-            file = open(directory_local+filename2, 'wb')
-
-            print 'Download: ftp-Server: ' + directory +filename1
-
-            meinftp.retrbinary('RETR '+filename1, file.write)
-
-            print
-            print 'Die lokale Datei ' + directory_local+filename2 +' wird geschlossen.'
+    print
+    print 'Die lokale Datei ' + directory_local+dpr_overpass +' wird geschlossen.'
 
 
-            file.close()
+    file.close()
 
 print meinftp.quit()
 print
 print 'Die FTP-Verbindung wurde von mir getrennt.'
 
 
-melde_dich('Das Program pcc_download ist fertig!')
+melde_dich('Das Program ist fertig!')

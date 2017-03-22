@@ -33,7 +33,7 @@ a = ['20160904','20160917','20160805','20140629','20140921','20141016','20150128
 xx = range(len(a))
 
 fig = plt.figure(figsize=(20,20))
-
+ax = fig.add_subplot(121, aspect='equal')
 for i in xx:
     pfad2 = ('/home/velibor/shkgpm/data/'+a[i]+'/dpr/*.HDF5')
     pfad_gpm = glob.glob(pfad2)
@@ -61,19 +61,20 @@ for i in xx:
     from pcc import plot_borders
 
 
-    ax = fig.add_subplot(int('33'+str(i+1)), aspect='equal')
+    #ax = fig.add_subplot(int('33'+str(i+1)), aspect='equal')
     plt.pcolormesh(gpm_x,gpm_y, (bpp*0.125), cmap=plt.cm.terrain, norm=LogNorm(),
-                        vmin=1, vmax=3000)
+                   vmin=1, vmax=3000)
     plot_borders(ax)
-    cb = plt.colorbar()
-    cb.set_label('binRealSurface [m]')
-    plt.grid()
-    plt.xlim(-600,400)
-    plt.ylim(-4800,-3600)
-    plt.title(str(a[i]))
+
+plt.xlim(-600,400)
+plt.ylim(-4800,-3600)
+    #plt.title(str(a[i]))
+cb = plt.colorbar()
+cb.set_label('binRealSurface [m]')
+plt.grid()
 
 from pcc import plot_dem
-ax2 = fig.add_subplot(339, aspect='equal')
+ax2 = fig.add_subplot(122, aspect='equal')
 #plt.plot(gpm_x[:,0], gpm_y[:,0])
 #plt.plot(gpm_x[:,-1], gpm_y[:,-1])
 plot_dem(ax2)
