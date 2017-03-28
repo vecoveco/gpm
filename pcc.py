@@ -425,7 +425,7 @@ def plot_dem(ax):
     rastercoords, rastervalues = wrl.io.read_raster_data(filename)
     # specify kwargs for plotting, using terrain colormap and LogNorm
     dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
-                        rastervalues+1, cmap=plt.cm.terrain, norm=LogNorm(),
+                        rastervalues+1, cmap=plt.cm.gist_earth, norm=LogNorm(),
                         vmin=1, vmax=3000)
     # make some space on the right for colorbar axis
     div1 = make_axes_locatable(ax)
@@ -551,6 +551,13 @@ def get_miub_cmap():
     endcolor = 'darkmagenta'    # medium dark red
     colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
     return col.LinearSegmentedColormap.from_list('miub1',colors)
+
+def get_2_cmap():
+    import matplotlib.colors as col
+    startcolor = 'blue'
+    endcolor = 'white'#'red'
+    colors = [startcolor,endcolor]
+    return col.LinearSegmentedColormap.from_list('2',colors)
 
 def get_3_cmap():
     import matplotlib.colors as col

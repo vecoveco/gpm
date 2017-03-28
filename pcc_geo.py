@@ -29,7 +29,8 @@ from osgeo import osr
                            ticks=ticker.LogLocator(subs=range(10)))
     cb.set_label('terrain height [m]')
 '''
-a = ['20160904','20160917','20160805','20140629','20140921','20141016','20150128','20150427']
+a = ['20160904','20160917','20160805','20140629','20140921','20141016',
+     '20150128','20150427', '20150227','20150402'][::-1]
 xx = range(len(a))
 
 fig = plt.figure(figsize=(20,20))
@@ -62,7 +63,7 @@ for i in xx:
 
 
     #ax = fig.add_subplot(int('33'+str(i+1)), aspect='equal')
-    plt.pcolormesh(gpm_x,gpm_y, (bpp*0.125), cmap=plt.cm.terrain, norm=LogNorm(),
+    plt.pcolormesh(gpm_x,gpm_y, (bpp), cmap=plt.cm.gist_earth, norm=LogNorm(),
                    vmin=1, vmax=3000)
     plot_borders(ax)
 

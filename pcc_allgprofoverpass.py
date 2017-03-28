@@ -24,18 +24,24 @@ bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
 bonnlat, bonnlon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 from pcc import plot_borders
 from pcc import plot_radar
-#from pcc import get_miub_cmap
-#my_cmap = get_miub_cmap()
-
 from pcc import get_my_cmap
 my_cmap = get_my_cmap()
 from pcc import cut_the_swath
+from pcc import skill_score
+import matplotlib as mpl
+from pcc import z2r2
 
 GGG = []
 RRR = []
 
 maxi, mini = [], []
+rand_y_unten = -4658.6447242655722
+rand_y_oben = -3759.6447242655722
+rand_x_rechts = 375.5378330781441
 
+ff = 15
+cc = 0.5
+vmini=0
 ## Read GPM Data
 ## -------------
 
@@ -44,23 +50,24 @@ pfad_gprof = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gprof), ' vorhanden!'
 
-for i in range(9905, len(pfad_gprof)):
+import csv
+
+f = open('test2.csv','w')
+
+for i in range(0, len(pfad_gprof)):
     pfad_gprof_g = pfad_gprof[i]
     print i
-
-    gpmdprs = h5py.File(pfad_gprof_g, 'r')
-
-    gprof_lat=np.array(gpmdprs['S1']['Latitude'])
-    gprof_lon=np.array(gpmdprs['S1']['Longitude'])
-
-    gprof_pp=np.array(gpmdprs['S1']['surfacePrecipitation'])
-
-    gpm_time = gpmdprs['S1']['ScanTime']
     try:
+        gpmdprs = h5py.File(pfad_gprof_g, 'r')
+
+        gprof_lat=np.array(gpmdprs['S1']['Latitude'])[:,86:135]
+        gprof_lon=np.array(gpmdprs['S1']['Longitude'])[:,86:135]
+
+        gprof_pp=np.array(gpmdprs['S1']['surfacePrecipitation'])[:,86:135]
+
+        gpm_time = gpmdprs['S1']['ScanTime']
+
         gpm_zeit = get_time_of_gpm(gprof_lon, gprof_lat, gpm_time)
-
-
-        print gpm_zeit
 
         gprof_pp[gprof_pp==-9999.9]= np.nan
 
@@ -111,7 +118,7 @@ for i in range(9905, len(pfad_gprof)):
         ## ------------------
 
 
-        blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp, eu=True)
+        blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp, eu=0)
 
         proj_stereo = wrl.georef.create_osr("dwd-radolan")
         proj_wgs = osr.SpatialReference()
@@ -147,10 +154,6 @@ for i in range(9905, len(pfad_gprof)):
 
         res_bin[res_bin!=0]= 1 # Randkorrektur
 
-        rand_y_unten = -4658.6447242655722
-        rand_y_oben = -3759.6447242655722
-        rand_x_rechts = 375.5378330781441
-
 
         rrr[np.where(gpm_y < rand_y_unten)] = np.nan
         rrr[np.where(gpm_y > rand_y_oben)] = np.nan
@@ -165,8 +168,8 @@ for i in range(9905, len(pfad_gprof)):
 
 
         if r_pro =='rx':
-            print 'es ist rx'
-            from pcc import z2r2
+            #print 'es ist rx'
+
             Z = wradlib.trafo.idecibel(rwdata)
             rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
             #rwdata = z2r2(Z)
@@ -188,9 +191,8 @@ for i in range(9905, len(pfad_gprof)):
 
 
 
-        ff = 15
-        cc = 0.5
-        vmini=0
+
+
         maxi = np.nanmax([ggg,rrr])+2
         fig = plt.figure(figsize=(12,12))
         ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
@@ -273,84 +275,108 @@ for i in range(9905, len(pfad_gprof)):
 
         ax4 = fig.add_subplot(224, aspect='equal')#------------------------------------
 
-        maske = ~np.isnan(ggg) & ~np.isnan(rrr)
-        slope, intercept, r_value, p_value, std_err = stats.linregress(ggg[maske], rrr[maske])
-        line = slope * ggg +intercept
+        try:
 
-        from pcc import skill_score
-        SS = skill_score(ggg,rrr,th=0)
-        print ggg.shape, rrr.shape
-        plt.scatter(ggg, rrr, label='RR [mm/h]', color='grey', alpha=0.6)
-
-        text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
-                   '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
-                '\nN: '+ str(int(SS['N']))+
-                '\nHit: ' + str(SS['H'])+
-                '\nMiss: ' + str(SS['M'])+
-                '\nFalse: ' + str(SS['F'])+
-                '\nCnegative: ' + str(SS['C'])+
-                '\nHR: ' + str(round(SS['HR'],3))+
-                '\nPOD: ' + str(round(SS['POD'],3))+
-                '\nFAR: ' + str(round(SS['FAR'],3))+
-                '\nBID: ' + str(round(SS['BID'],3))+
-                '\nHSS: ' + str(round(SS['HSS'],3))+
-                '\nBias: '+ str(round(SS['bias'],3))+
-                '\nRMSE: '+ str(round(SS['RMSE'],3))
-                )
-
-        ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
-                        horizontalalignment='left', verticalalignment='top', color='blue')
-
-        t1 = linspace(0,maxi,maxi)
-        plt.plot(t1,t1,'k-')
-        #plt.plot(t1,t1 + 5,'k-.')
-        #plt.plot(t1,t1 - 5,'k-.')
-        plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Reg')
-        plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mm/h')
-        plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
-        plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
-        #plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
+            maske = ~np.isnan(ggg) & ~np.isnan(rrr)
+            slope, intercept, r_value, p_value, std_err = stats.linregress(ggg[maske], rrr[maske])
+            line = slope * ggg +intercept
 
 
-        import matplotlib as mpl
-        mean = [ np.nanmean(ggg),np.nanmean(rrr)]
-        width = np.nanstd(ggg)
-        height = np.nanstd(rrr)
-        angle = 0
-        ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                                  angle=180+angle, color='blue', alpha=0.8,
-                                  fill=False, ls='--', label='Std')
-        ax4.add_patch(ell)
+            SS = skill_score(ggg,rrr,th=0)
+            #print ggg.shape, rrr.shape
+            plt.scatter(ggg, rrr, label='RR [mm/h]', color='grey', alpha=0.6)
 
-        plt.xlim(0,maxi)
-        plt.ylim(0,maxi)
+            text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
+                       '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
+                    '\nN: '+ str(int(SS['N']))+
+                    '\nHit: ' + str(SS['H'])+
+                    '\nMiss: ' + str(SS['M'])+
+                    '\nFalse: ' + str(SS['F'])+
+                    '\nCnegative: ' + str(SS['C'])+
+                    '\nHR: ' + str(round(SS['HR'],3))+
+                    '\nPOD: ' + str(round(SS['POD'],3))+
+                    '\nFAR: ' + str(round(SS['FAR'],3))+
+                    '\nBID: ' + str(round(SS['BID'],3))+
+                    '\nHSS: ' + str(round(SS['HSS'],3))+
+                    '\nBias: '+ str(round(SS['bias'],3))+
+                    '\nRMSE: '+ str(round(SS['RMSE'],3))
+                    )
 
-        plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True, ncol=1)
+            ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
+                            horizontalalignment='left', verticalalignment='top', color='blue')
 
-        plt.xlabel('GPM GPROF RR [mm/h]',fontsize=ff)
-        plt.ylabel('RADOLAN RR [mm/h]',fontsize=ff)
-        plt.xticks(fontsize=ff)
-        plt.yticks(fontsize=ff)
-        plt.grid(color='r')
+            t1 = linspace(0,maxi,maxi)
+            plt.plot(t1,t1,'k-')
+            #plt.plot(t1,t1 + 5,'k-.')
+            #plt.plot(t1,t1 - 5,'k-.')
+            plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Reg')
+            plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mm/h')
+            plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
+            plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
+            #plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
 
+
+
+            mean = [ np.nanmean(ggg),np.nanmean(rrr)]
+            width = np.nanstd(ggg)
+            height = np.nanstd(rrr)
+            angle = 0
+            ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                                      angle=180+angle, color='blue', alpha=0.8,
+                                      fill=False, ls='--', label='Std')
+            ax4.add_patch(ell)
+
+            plt.xlim(0,maxi)
+            plt.ylim(0,maxi)
+
+            plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True, ncol=1)
+
+            plt.xlabel('GPM GPROF RR [mm/h]',fontsize=ff)
+            plt.ylabel('RADOLAN RR [mm/h]',fontsize=ff)
+            plt.xticks(fontsize=ff)
+            plt.yticks(fontsize=ff)
+            plt.grid(color='r')
+
+            writer = csv.writer(f, dialect='excel')
+            writer.writerow([pfad_gprof_g[-41::],gpm_zeit])
+
+            del(text,slope,
+            intercept, r_value, p_value, std_err, line, width, height, ell,SS,maske,mean,t1)
+
+        except:
+            pass
 
         plt.tight_layout()
-        plt.savefig('/home/velibor/shkgpm/plot/allegprof/gpm_gprof_radolan_'+r_pro+'_'+str(gpm_zeit) + '.png' )
+        plt.savefig('/home/velibor/shkgpm/plot/test2/gpm_gprof_radolan_'+r_pro+'_'+str(gpm_zeit) + '.png' )
         plt.close()
 
-        GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
-        RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
 
-        del(fig, ax4,ax3, ax2, ax1, pm1, pm2, pm3,text,gprof_lat,
-            gprof_lon, gprof_pp, res_bin, rrr, ggg, rwdata, x, y,slope,
-            intercept, r_value, p_value, std_err, line, width, height, ell,
+        #GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
+        #RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
+
+
+
+        #print locals().keys()
+
+        del(fig, ax4,ax3, ax2, ax1, pm1, pm2, pm3,gprof_lat,
+            gprof_lon, gprof_pp, res_bin, rrr, ggg, rwdata, x, y,
             maxi,gpm_x, gpm_y, Z, Z2, gpm_time, xy,grid_gpm_xy, grid_xy, rn,
-            mask, maske, rn, rwattrs, result, pfad_radolan, SS, gpmdprs, pfad,
-            pfad_radolan, pfad_gprof, pfad_gprof_g, ht, m, d, ye ,mt, year, t1, cb )
+            mask,  rn, rwattrs, result, pfad_radolan,  gpmdprs, pfad,
+            pfad_radolan, pfad_gprof, pfad_gprof_g, ht, m, d, ye ,mt, year,
+            cb, rw_filename, radolan_grid_xy, radolan_zeit,
+            proj_stereo , proj_wgs)
+
 
 
     except:
         pass
+        #del(pfad_gprof_g,gpmdprs,gprof_lat,gprof_lon,gprof_pp,gpm_time)
+        #print locals().keys()
+        #print locals().keys()
+
+
+
+f.close()
 
 from pcc import melde_dich
 melde_dich('Das Program pcc_download ist fertig!')
