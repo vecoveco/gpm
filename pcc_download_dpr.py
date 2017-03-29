@@ -15,7 +15,7 @@ meinftp = ftplib.FTP("arthurhou.pps.eosdis.nasa.gov")
 meinftp.login("bregovic@gmx.de","bregovic@gmx.de")
 
 
-a = pd.read_csv('/automount/user/velibor/SHKGPM/prog/output3radolandpr.csv', sep=',')
+a = pd.read_csv('/automount/ags/velibor/text/overpass_dpr_radolan.csv', sep=',')
 overpass_zeiten = a[[0]].values
 
 #zum auslasten 0,500; 500,1000; 1000,1500
