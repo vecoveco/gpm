@@ -41,7 +41,9 @@ pfad_gpm = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 
-for i in range(469, len(pfad_gpm)):
+minstart_ex = 148 # Ex Daten erst spater
+
+for i in range(minstart_ex+230, len(pfad_gpm)):
     #ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
     #year, m, d = ZP[0:4], ZP[4:6], ZP[6:8]
@@ -86,7 +88,7 @@ for i in range(469, len(pfad_gpm)):
         ## Read RADOLAN Data
         ## -----------------
 
-        r_pro = 'rx'
+        r_pro = 'ex'
 
         pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+
                 str(m)+'/'+ str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+
@@ -107,18 +109,17 @@ for i in range(469, len(pfad_gpm)):
         rn[rn != -9999] = 1
         rn[rn == -9999] = 0
 
-        radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
+        radolan_grid_xy = wradlib.georef.get_radolan_grid(1500,1400)
         x = radolan_grid_xy[:,:,0]
         y = radolan_grid_xy[:,:,1]
         rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
-        #rwdata[rwdata < 0] = np.nan
 
 
         ## Cut the GPM Swath
         ## ------------------
 
 
-        blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp,eu=0)
+        blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp,eu=1)
 
         proj_stereo = wrl.georef.create_osr("dwd-radolan")
         proj_wgs = osr.SpatialReference()
@@ -139,7 +140,7 @@ for i in range(469, len(pfad_gpm)):
 
         mask = ~np.isnan(rwdata)
 
-        result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+        result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata[mask].reshape(1500*1400,1), wrl.ipol.Idw, nnearest=4)
 
         result = np.ma.masked_invalid(result)
 
@@ -149,23 +150,26 @@ for i in range(469, len(pfad_gpm)):
 
         ## Interpolation of the binary Grid
         ## ------------------------------
-        res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+        res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn[mask].reshape(1500*1400,1), wrl.ipol.Idw, nnearest=4)
         res_bin = res_bin.reshape(gpm_x.shape)
 
         res_bin[res_bin!=0]= 1 # Randkorrektur
 
-        rand_y_unten = -4658.6447242655722
-        rand_y_oben = -3759.6447242655722
-        rand_x_rechts = 375.5378330781441
-
+        rand_y_unten = -5008.6#rand_y_unten = -5008.6447242655722
+        rand_y_oben = -3509.6#rand_y_oben = -3509.6447242655722
+        rand_x_rechts = 725.5#rand_x_rechts = 725.5378330781441
+        rand_x_links = -673.4#rand_x_links = -673.4621669218559
 
         rrr[np.where(gpm_y < rand_y_unten)] = np.nan
         rrr[np.where(gpm_y > rand_y_oben)] = np.nan
         rrr[np.where(gpm_x > rand_x_rechts)] = np.nan
+        rrr[np.where(gpm_x < rand_x_links)] = np.nan
 
         res_bin[np.where(gpm_y < rand_y_unten)] = np.nan
         res_bin[np.where(gpm_y > rand_y_oben)] = np.nan
         res_bin[np.where(gpm_x > rand_x_rechts)] = np.nan
+        res_bin[np.where(gpm_x < rand_x_links)] = np.nan
+
         res_bin[res_bin == 0] = np.nan #check nur 1 un NaN
 
         ggg = gprof_pp_b * res_bin
@@ -174,8 +178,8 @@ for i in range(469, len(pfad_gpm)):
         THref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
 
         ## Nur Niederschlagsrelevante
-        rrr[rrr < THref]=np.nan
-        ggg[ggg < THref]=np.nan
+        rrr[rrr < THref] = np.nan
+        ggg[ggg < THref] = np.nan
 
 
         ################################################################Swap!
@@ -183,8 +187,8 @@ for i in range(469, len(pfad_gpm)):
 
         ff = 15
         cc = 0.5
-        fig = plt.figure(figsize=(12,12))
-        ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
+        fig = plt.figure(figsize=(22,22))
+        ax1 = fig.add_subplot(231, aspect='equal')#------------------------------------
 
         pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
 
@@ -208,10 +212,10 @@ for i in range(469, len(pfad_gpm)):
             right='off',
             left='off',
             labelleft='off')
-        plt.xlim(-420,390)
-        plt.ylim(-4700, -3700)
+        plt.xlim(-800,850)
+        plt.ylim(-5120, -3420)
 
-        ax2 = fig.add_subplot(222, aspect='equal')#------------------------------------
+        ax2 = fig.add_subplot(232, aspect='equal')#------------------------------------
 
         pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ggg),
                              cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
@@ -233,11 +237,11 @@ for i in range(469, len(pfad_gpm)):
             right='off',
             left='off',
             labelleft='off')
-        plt.xlim(-420,390)
-        plt.ylim(-4700, -3700)
+        plt.xlim(-800,850)
+        plt.ylim(-5120, -3420)
 
 
-        ax3 = fig.add_subplot(223, aspect='equal')#------------------------------------
+        ax3 = fig.add_subplot(233, aspect='equal')#------------------------------------
 
         pm3 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
                              cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
@@ -260,10 +264,10 @@ for i in range(469, len(pfad_gpm)):
             right='off',
             left='off',
             labelleft='off')
-        plt.xlim(-420,390)
-        plt.ylim(-4700, -3700)
+        plt.xlim(-800,850)
+        plt.ylim(-5120, -3420)
 
-        ax4 = fig.add_subplot(224, aspect='equal')#------------------------------------
+        ax4 = fig.add_subplot(234, aspect='equal')#------------------------------------
 
         try:
             maske = ~np.isnan(ggg) & ~np.isnan(rrr)
@@ -327,19 +331,42 @@ for i in range(469, len(pfad_gpm)):
             plt.yticks(fontsize=ff)
             plt.grid(color='r')
 
-            del(text, slope, intercept, r_value, p_value, std_err, line, width, height, ell,maske,SS,t1)
+            ax5 = fig.add_subplot(235, aspect='equal')#------------------------------------
+            plt.pcolormesh(x, y,rn, cmap='copper')
+            plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(res_bin), cmap='bone')
+
+            plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
+            plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+            plt.title('Res_bin: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
+            plot_borders(ax5)
+            plot_radar(bonnlon, bonnlat, ax5, reproject=True)
+            plt.grid(color='r')
+            plt.xlim(-800,850)
+            plt.ylim(-5120, -3420)
+
+            ax6 = fig.add_subplot(236, aspect='equal')#------------------------------------
+            hist_gpm = plt.hist(ggg[maske],bins=100,  alpha=0.3, color='blue', label='GPM')
+            hist_radolan = plt.hist(rrr[maske],bins=100, alpha=0.3, color='green', label='RADOLAN')
+
+            plt.legend()
+            plt.xlabel('Reflectivity [dBZ]')
+            plt.ylabel('frequency')
+
+
+            del(text, slope, intercept, r_value, p_value, std_err, line, width, height,
+                ell,maske,SS,t1, ax5, ax6, hist_gpm, hist_radolan)
 
         except:
             pass
 
         plt.tight_layout()
-        plt.savefig('/automount/ags/velibor/plot/alledpr/gpm_dpr_radolan_'+ str(gpm_zeit) + '.png' )
+        plt.savefig('/automount/ags/velibor/plot/alledpreu/gpm_dpr_radolaneu_'+ str(gpm_zeit) + '.png' )
         plt.close()
         #plt.show()
 
 
-
-        del(fig, ax4,ax3, ax2, ax1, pm1, pm2, pm3,gprof_lat,
+'''
+        del(fig, ax4,ax3, ax2, ax1,ax5, ax6, pm1, pm2, pm3,gprof_lat,
                 gprof_lon, gprof_pp, res_bin, rrr, ggg, rwdata, x, y,
                 gpm_x, gpm_y, gpm_time, xy,grid_gpm_xy, grid_xy,
                 mask,  rn, rwattrs, result,  pfad,
@@ -354,7 +381,7 @@ for i in range(469, len(pfad_gpm)):
 
             #print locals()
 
-
+'''
 
 
 

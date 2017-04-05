@@ -22,14 +22,14 @@ from pcc import plot_radar
 bonn_pos = boxpol_pos()
 bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
 blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
-
+from pcc import plot_borders
 
 ############################################### Zeitstempel nach YYYYMMDDhhmmss
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2017,2,23,19,20,0,
-          2017,2,23,19,25,0,
+zeit = zt(2014,10,07,02,30,0,
+          2014,10,07,02,35,0,
           steps=30)
 
 
@@ -79,72 +79,12 @@ for ij in range(len(zeit)):
     # Marshall and Palmer 1948
     rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
 
-    ########################################################### Landgrenzenfunktion
-
-    def plot_borders(ax):
-
-        from osgeo import osr
-        wgs84 = osr.SpatialReference()
-        wgs84.ImportFromEPSG(4326)
-        india = osr.SpatialReference()
-        # asia south albers equal area conic
-        india.ImportFromEPSG(102028)
-
-        proj_gk = osr.SpatialReference()
-        proj_gk.ImportFromEPSG(31466)
-        proj_ll = osr.SpatialReference()
-        proj_ll.ImportFromEPSG(4326)
-        gk3 = wradlib.georef.epsg_to_osr(31467)
-        proj_stereo = wrl.georef.create_osr("dwd-radolan")
-        proj_wgs = osr.SpatialReference()
-        proj_wgs.ImportFromEPSG(4326)
-
-        # country list
-        countries = ['Germany']#,'France','Denmark', 'Netherlands', 'Poland']
-        # open the input data source and get the layer
-        filename = wradlib.util.get_wradlib_data_file('/automount/db01/python/data/NED/10m/cultural/10m_cultural/10m_cultural/ne_10m_admin_0_countries.shp')
-        dataset, inLayer = wradlib.io.open_shape(filename)
-        # iterate over countries, filter accordingly, get coordinates and plot
-        for item in countries:
-            #print item
-            # SQL-like selection syntax
-            fattr = "(name='"+item+"')"
-            inLayer.SetAttributeFilter(fattr)
-            # get borders and names
-            borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
-
-            for j in range(borders.shape[0]):
-                bu = np.array(borders[j].shape)
-                a = np.array(bu.shape)
-
-                if a==1:
-                    for i in range(0,borders[j].shape[0],1):
-                        bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
-                        bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-
-                        wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-                if a==2:    #richtig
-                    bordx, bordy = wrl.georef.reproject(borders[j][:,0], borders[j][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
-                    bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-
-                    wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-
-                bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
-
-                wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
-        ax.autoscale()
-
-
-    dataset1, inLayer1 = wradlib.io.open_shape('/automount/db01/python/data/ADM/'
-                                               'germany/vg250_0101.gk3.shape.ebenen'
-                                               '/vg250_ebenen/vg250_l.shp')
-
     my_cmap = pcc.get_my_cmap()
     cmap2 = pcc.get_miub_cmap() #' bei Reflektivitat'
     ########################################################################## PLOT
 
     ff = 15
-    fig = plt.figure(figsize=(14,10))
+    fig = plt.figure(figsize=(14,6))
 
     ax1 = fig.add_subplot(121, aspect='equal')
     plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
@@ -165,7 +105,15 @@ for ij in range(len(zeit)):
     plt.ylim(-4700, -3700)
     plt.tight_layout()
 
-    plot_radar(blon, blat, ax1, reproject=True)
+
+    from pcc import get_radar_locations
+    radar = get_radar_locations()
+
+    for i in range(len(radar.keys())):
+        plot_radar(radar[radar.keys()[i]]['lon'],
+                   radar[radar.keys()[i]]['lat'],
+                   ax1, reproject=True, cband=True)
+    #plot_radar(blon, blat, ax1, reproject=True, cband=False)
 
     ax2 = fig.add_subplot(122, aspect='equal')
     plt.pcolormesh(x, y, ZZ,vmin=-30,vmax=50, cmap=cmap2, zorder=2)
@@ -186,7 +134,10 @@ for ij in range(len(zeit)):
     plt.ylim(-4700, -3700)
     plt.tight_layout()
 
-    plot_radar(blon, blat, ax2, reproject=True)
+    for i in range(len(radar.keys())):
+        plot_radar(radar[radar.keys()[i]]['lon'],
+                   radar[radar.keys()[i]]['lat'],
+                   ax2, reproject=True, cband=True)
 
 
     plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')

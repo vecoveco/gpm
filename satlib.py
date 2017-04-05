@@ -41,7 +41,7 @@ def read_rado(zeitstempel):
     year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
     ye = ZP[2:4]
 
-    r_pro = 'rz'
+    r_pro = 'rx'
 
     pfad = ('/automount/radar/dwd/'+r_pro+'/'+str(year)+'/'+str(year)+'-'+str(m)+
             '/'+str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+str(ye)+
@@ -56,7 +56,8 @@ def read_rado(zeitstempel):
 
     rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 
-    rwdata = np.ma.masked_equal(rwdata, -9999)*8
+    #rwdata = np.ma.masked_equal(rwdata, -9999)*8
+    rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 
     radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
     x = radolan_grid_xy[:,:,0]
@@ -90,16 +91,42 @@ def time_of_dpr(gpm_lon, gpm_lat, gpm_time):
     gpm_sek = int(np.median(np.array(gpm_time['Second'])[ii]))
     gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y.%m.%d -- %H:%M:%S")
     return gpm_dt
+
 '''
-plt.subplot(1,3,1)
-plt.pcolormesh(x,y,z, vmin=0, vmax=10)
-plt.subplot(1,3,2)
-plt.pcolormesh(x,y,z2, vmin=0, vmax=10)
-plt.subplot(1,3,3)
-plt.pcolormesh(x,y,np.ma.masked_invalid(zzz), vmin=0, vmax=10)
+x1,y1,z1 = read_rado("201410070235")
+x2,y2,z2 = read_rado("201410070240")
+z1[z1<0.2]=np.nan
+z2[z2<0.2]=np.nan
+from scipy import stats, linspace
+maske = ~np.isnan(z1) & ~np.isnan(z2)
+slope, intercept, r_value, p_value, std_err = stats.linregress(z1[maske], z2[maske])
+plt.subplot(2,2,1)
+plt.pcolormesh(x1,y1,z1, vmin=0.1, vmax=10)
+plt.subplot(2,2,2)
+plt.pcolormesh(x2,y2,z2, vmin=0.1, vmax=10)
+plt.subplot(2,2,3)
+plt.pcolormesh(x1,y2,z1-z2, vmin=0.1, vmax=10)
+plt.subplot(2,2,4)
+plt.scatter(z1,z2)
+plt.title(str(r_value))
 plt.show()
 '''
 
 
 
+def cp_dist(data1, data2):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots()
+    counts1, bins1, patches1 = plt.hist(data1, alpha=0.4, color='green')
+    counts2, bins2, patches2 = plt.hist(data2, alpha=0.4, color='blue')
+
+    bin_centers1 = np.mean(zip(bins1[:-1], bins1[1:]), axis=1)
+    bin_centers2 = np.mean(zip(bins2[:-1], bins2[1:]), axis=1)
+
+    ax.plot(bin_centers1, counts1.cumsum(), 'go-')
+    ax.plot(bin_centers2, counts2.cumsum(), 'bo-')
+
+    plt.show()
 

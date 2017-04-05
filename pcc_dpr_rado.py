@@ -44,7 +44,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20141007'])
+zz = np.array(['20150227'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -119,13 +119,17 @@ for i in range(len(zz)):
     y = radolan_grid_xy[:,:,1]
     rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
     #rwdata[rwdata < 0] = np.nan
+    from satlib import read_rado
+    #x1,y1,r1 = read_rado('201502270820')
+    #rwdata = (rwdata+r1)/2
+
 
 
     ## Cut the GPM Swath
     ## ------------------
 
 
-    blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
+    blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp, eu=0)
 
     proj_stereo = wrl.georef.create_osr("dwd-radolan")
     proj_wgs = osr.SpatialReference()
@@ -339,7 +343,7 @@ for i in range(len(zz)):
     #plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
     #plt.close()
     plt.show()
-
+'''
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
 
@@ -367,7 +371,7 @@ plt.grid()
 plt.savefig('/home/velibor/shkgpm/plot/all_gpm_dpr_v2_radolan_'+ZP + '.png' )
 #plt.show()
 plt.close()
-
+'''
 
 
 

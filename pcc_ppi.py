@@ -31,8 +31,8 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,6,9,18,55,0,
-          2014,6,9,19,00,0,
+zeit = zt(2014,10,7,02,30,0,
+          2014,10,7,02,35,0,
           steps=30)
 
 
@@ -59,7 +59,7 @@ for ij in range(len(zeit)):
     pfad = ('/automount/'+sc+'/scans/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
             str(year)+'-'+str(m)+'-'+str(d)+'/ppi_1p5deg/'+str(year)+'-'+str(m)+'-'+
             str(d)+'--'+str(ht)+':'+str(mt)+':00,00.mvol')
-
+    print sc
     #Todo: die an der Uhrzeit am nachliegensten Uhrzeit nehmen
 
     boxpol_filename = wradlib.util.get_wradlib_data_file(pfad)

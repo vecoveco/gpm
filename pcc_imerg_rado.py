@@ -198,6 +198,10 @@ for jjj in range(len(pfad_gpm)):
     gpm_pp_ir = gpm_pp_ir * res_bin
     gpm_pp_mi = gpm_pp_mi * res_bin
 
+    gpm_pp[gpm_pp<= 0]= np.nan
+    gpm_pp_ir[gpm_pp_ir<= 0]= np.nan
+    gpm_pp_mi[gpm_pp_mi<= 0]= np.nan
+
     #Todo: Radolan ueber 30 min mitteln
 
     # PLot ------------------------------------------------------------------------

@@ -32,6 +32,7 @@ my_cmap = get_miub_cmap()
 from pcc import get_my_cmap
 my_cmap2 = get_my_cmap()
 
+import csv
 
 # Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
 TH_ref = 12#18#7
@@ -41,7 +42,12 @@ pfad_gpm = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 
-for i in range(469, len(pfad_gpm)):
+f = open('/home/velibor/shkgpm/texte/dpr_stat.csv','w')
+writer = csv.writer(f, dialect='excel')
+writer.writerow(['time','r_value','std_err','N','H','M','F','C','HR','POD','FAR','BID','HSS','bias','RMSE','meanG','meanR','medG','medR'])
+
+
+for i in range(0, len(pfad_gpm)):
     #ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
     #year, m, d = ZP[0:4], ZP[4:6], ZP[6:8]
@@ -181,89 +187,6 @@ for i in range(469, len(pfad_gpm)):
         ################################################################Swap!
         #rrr, ggg = ggg, rrr
 
-        ff = 15
-        cc = 0.5
-        fig = plt.figure(figsize=(12,12))
-        ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
-
-        pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
-
-        plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
-        plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
-        cb = plt.colorbar(shrink=cc)
-        cb.set_label("Reflectivity [dBZ]",fontsize=ff)
-        cb.ax.tick_params(labelsize=ff)
-
-        plot_borders(ax1)
-        plot_radar(bonnlon, bonnlat, ax1, reproject=True)
-
-        plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + ' UTC',fontsize=ff)
-        plt.grid(color='r')
-        plt.tick_params(
-            axis='both',
-            which='both',
-            bottom='off',
-            top='off',
-            labelbottom='off',
-            right='off',
-            left='off',
-            labelleft='off')
-        plt.xlim(-420,390)
-        plt.ylim(-4700, -3700)
-
-        ax2 = fig.add_subplot(222, aspect='equal')#------------------------------------
-
-        pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ggg),
-                             cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
-        plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
-        plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
-        cb = plt.colorbar(shrink=cc)
-        cb.set_label("Reflectivity [dBZ]",fontsize=ff)
-        cb.ax.tick_params(labelsize=ff)
-        plt.title('GPM DPR Reflectivity: \n '+str(gpm_zeit)+'UTC',fontsize=ff)
-        plot_borders(ax2)
-        plot_radar(bonnlon, bonnlat, ax2, reproject=True)
-        plt.grid(color='r')
-        plt.tick_params(
-            axis='both',
-            which='both',
-            bottom='off',
-            top='off',
-            labelbottom='off',
-            right='off',
-            left='off',
-            labelleft='off')
-        plt.xlim(-420,390)
-        plt.ylim(-4700, -3700)
-
-
-        ax3 = fig.add_subplot(223, aspect='equal')#------------------------------------
-
-        pm3 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
-                             cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
-        plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
-        plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
-        cb = plt.colorbar(shrink=cc)
-        cb.set_label("Reflectivity [dBZ]",fontsize=ff)
-        cb.ax.tick_params(labelsize=ff)
-
-        plt.title('RADOLAN Reflectivity Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
-        plot_borders(ax3)
-        plot_radar(bonnlon, bonnlat, ax3, reproject=True)
-        plt.grid(color='r')
-        plt.tick_params(
-            axis='both',
-            which='both',
-            bottom='off',
-            top='off',
-            labelbottom='off',
-            right='off',
-            left='off',
-            labelleft='off')
-        plt.xlim(-420,390)
-        plt.ylim(-4700, -3700)
-
-        ax4 = fig.add_subplot(224, aspect='equal')#------------------------------------
 
         try:
             maske = ~np.isnan(ggg) & ~np.isnan(rrr)
@@ -272,8 +195,6 @@ for i in range(469, len(pfad_gpm)):
 
             from pcc import skill_score
             SS = skill_score(ggg,rrr,th=TH_ref)
-
-            ax4.scatter(ggg, rrr, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
 
             r_value_s, p_value_s = stats.spearmanr(ggg[maske],rrr[maske])
 
@@ -294,14 +215,7 @@ for i in range(469, len(pfad_gpm)):
                     '\nCorrS:' +  str(round(r_value_s,3))
                     )
 
-            ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
-                            horizontalalignment='left', verticalalignment='top')
 
-            t1 = linspace(0,50,50)
-            plt.plot(t1,t1,'k-')
-            plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-            plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
-            plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
             plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
             plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
 
@@ -313,49 +227,125 @@ for i in range(469, len(pfad_gpm)):
             ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
                                       angle=180+angle, color='blue', alpha=0.8,
                                       fill=False, ls='--', label='Std')
-            ax4.add_patch(ell)
-
-            plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
-
-            plt.xlim(0,50)
-            plt.ylim(0,50)
 
 
-            plt.xlabel('GPM DPR Reflectivity [dBZ]',fontsize=ff)
-            plt.ylabel('RADOLAN Reflectivity [dBZ]',fontsize=ff)
-            plt.xticks(fontsize=ff)
-            plt.yticks(fontsize=ff)
-            plt.grid(color='r')
 
-            del(text, slope, intercept, r_value, p_value, std_err, line, width, height, ell,maske,SS,t1)
+            writer.writerow([gpm_zeit,
+                            r_value, std_err,SS['N'],SS['H'],
+                            SS['M'],SS['F'],SS['C'],SS['HR'],SS['POD'],
+                            SS['FAR'],SS['BID'],SS['HSS'],SS['bias'],
+                            SS['RMSE'],np.nanmean(ggg),np.nanmean(rrr),
+                            np.nanmedian(ggg),np.nanmedian(rrr)])
+
+            del(text, slope, intercept, r_value, p_value, std_err, line,
+                width, height, ell,maske,SS)
 
         except:
             pass
 
-        plt.tight_layout()
-        plt.savefig('/automount/ags/velibor/plot/alledpr/gpm_dpr_radolan_'+ str(gpm_zeit) + '.png' )
-        plt.close()
+
         #plt.show()
 
 
 
-        del(fig, ax4,ax3, ax2, ax1, pm1, pm2, pm3,gprof_lat,
-                gprof_lon, gprof_pp, res_bin, rrr, ggg, rwdata, x, y,
-                gpm_x, gpm_y, gpm_time, xy,grid_gpm_xy, grid_xy,
-                mask,  rn, rwattrs, result,  pfad,
-                pfad_radolan, ht, m, d, ye ,mt, year,  cb )
-
-        #except:
-            #print 'ka warum es nicht geht'
-
-            #print dir()
-
-            #print globals()
-
-            #print locals()
+        del(gprof_lat, gprof_lon, gprof_pp, res_bin, rrr, ggg, rwdata, x, y,
+            gpm_x, gpm_y, gpm_time, xy,grid_gpm_xy, grid_xy, mask,  rn,
+            rwattrs, result,  pfad, pfad_radolan, ht, m, d, ye ,mt, year )
 
 
 
+from pcc import melde_dich
+melde_dich('Das Program pcc_alldproverpass_stats.py ist fertig!')
 
+
+import pandas as pd
+
+
+
+f.close()
+
+a = pd.read_csv('/home/velibor/shkgpm/texte/dpr_stat.csv', sep=',')
+b= a.set_index('time')
+
+y = a.values
+
+for i in range(18):
+    plt.subplot(6,3,i+1)
+    plt.plot(y[:,i+1])
+    plt.title(a.columns[i+1])
+    plt.grid()
+
+plt.tight_layout()
+plt.show()
+
+
+plt.subplot(2,2,1)
+plt.plot(y[:,[1]], label='r_value')
+plt.plot(y[:,[2]], label='std_err')
+plt.plot(y[:,[8]], label='HR')
+plt.plot(y[:,[9]], label='POD')
+plt.plot(y[:,[10]], label='FAR')
+plt.plot(y[:,[11]], label='BID')
+plt.plot(y[:,[12]], label='HSS')
+plt.xlabel('overpass')
+plt.grid()
+plt.legend()
+
+plt.subplot(2,2,2)
+plt.plot(y[:,4]/y[:,3]*100, label='H in %')
+plt.plot(y[:,5]/y[:,3]*100, label='M in %')
+plt.plot(y[:,6]/y[:,3]*100, label='F in %')
+plt.plot(y[:,7]/y[:,3]*100, label='C in %')
+plt.legend()
+plt.xlabel('overpass')
+plt.grid()
+
+plt.subplot(2,2,3)
+plt.plot(y[:,[13]], label='bias')
+plt.plot(y[:,[14]], label='RMSE')
+plt.legend()
+plt.grid()
+plt.xlabel('overpass')
+
+
+plt.subplot(2,2,4)
+plt.plot(y[:,[15]], label='Mean GPM in dBZ')
+plt.plot(y[:,[16]], label='Mean RADOLAN in dBZ')
+plt.plot(y[:,[17]], label='Median GPM in dBZ')
+plt.plot(y[:,[18]], label='Median RADOLAN in dBZ')
+plt.legend()
+plt.xlabel('overpass')
+plt.grid()
+plt.show()
+
+
+plt.scatter(np.arange(0,len(y),1), y[:,4], c=y[:,[1]],marker='o',s=50)
+plt.colorbar()
+plt.xlim(0,len(y))
+plt.title("DPR Overpasses with Number of Hits and Correlation")
+#plt.hlines(0.5)
+plt.show()
+
+A = b['r_value'].values
+B = b['H'].values
+C = b['std_err'].values
+D = b['bias'].values
+
+c = b.copy()
+c.index=c.index.to_datetime()
+
+ff=15
+fig = plt.figure(figsize=(10,8))
+fig.autofmt_xdate()
+c['r_value'].plot(style='.', color='black')
+#pd.rolling_median(c['r_value'],6, center=False).plot(linewidth=3)
+pd.rolling_mean(c['r_value'],40, center=False, min_periods=2).plot(linewidth=3, color='red', label='Rollin Median \n Window 40')
+
+plt.xticks(rotation=45)
+plt.ylabel('Correlation', fontsize=ff)
+#plt.xlabel('time', fontsize=ff)
+plt.legend(loc='lower right')
+plt.grid()
+plt.show()
 
 

@@ -71,6 +71,7 @@ for i in range(0, len(pfad_gprof)):
 
         gprof_pp[gprof_pp==-9999.9]= np.nan
 
+
         ht, mt = gpm_zeit[14:16], str(int(round(float(gpm_zeit[17:19])/5.0)*5.0))
         year, ye, m, d = gpm_zeit[0:4], gpm_zeit[2:4], gpm_zeit[5:7], gpm_zeit[8:10]
         if mt == '0':
