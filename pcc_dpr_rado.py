@@ -150,7 +150,7 @@ for i in range(len(zz)):
 
     mask = ~np.isnan(rwdata)
 
-    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=400)
 
     result = np.ma.masked_invalid(result)
 

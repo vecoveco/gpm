@@ -46,5 +46,36 @@ class Arrow3D(FancyArrowPatch):
 plt.show()
 
 import math
+from wradlib.io import read_generic_netcdf
+from wradlib.util import get_wradlib_data_file
+import os
+import glob
+
+def read_and_overview(filename):
+    """Read NetCDF using read_generic_netcdf and print upper level dictionary keys
+    """
+    test = read_generic_netcdf(filename)
+    print("\nPrint keys for file %s" % os.path.basename(filename))
+    for key in test.keys():
+        print("\t%s" % key)
+
+pfad = ('/automount/ags/velibor/gpmdata/nicht3dComposit/*.nc')
+
+pfad_3d = sorted(glob.glob(pfad))[1]
+
+comp3d = get_wradlib_data_file(pfad_3d)
+read_and_overview(comp3d)
+
+from netCDF4 import Dataset
+import numpy as np
+
+comp3d = Dataset(pfad_3d, mode='r')
 
 
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+Axes3D.plot_trisurf(x,y,z)

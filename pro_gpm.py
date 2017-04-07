@@ -40,7 +40,7 @@ from pcc import get_4_cmap
 #               20170113, 20170203,])
 
 #zz = np.array(['20141007'])
-pfad2 = ('/automount/ags/velibor/gpmdata/dpr/*.HDF5')
+pfad2 = ('/automount/ags/velibor/gpmdata/dpr/*2046.V04A.HDF5')
 pfad_gpm = glob.glob(pfad2)
 for i in range(len(pfad_gpm)):
 
@@ -67,11 +67,12 @@ for i in range(len(pfad_gpm)):
             gpm_zeit = ' '
 
         gprof_phase=np.array(gpmdpr['NS']['SLV']['phaseNearSurface'],dtype=int)
-        gprof_wi=np.array(gpmdpr['NS']['CSF']['flagShallowRain'],dtype=float)
-
+        #gprof_wi=np.array(gpmdpr['NS']['CSF']['flagShallowRain'],dtype=float)
+        gprof_wi=np.array(gpmdpr['NS']['PRE']['heightStormTop'])
         gprof_bb=np.array(gpmdpr['NS']['CSF']['heightBB'])
         gprof_bb[gprof_bb==-1111.1] = np.nan
-        gprof_wi[gprof_wi==-1111.] = np.nan
+        gprof_wi[gprof_wi==-9999.9] = np.nan
+        #gprof_wi[gprof_wi==-1111.] = np.nan
         #Phase 0-solid, 1-mixed, 2-liquid, 255-missing
         #gprof_phase[gprof_phase==255.]= np.nan
 
@@ -126,13 +127,13 @@ for i in range(len(pfad_gpm)):
         plt.ylim(y3,y4)
 
         ax3 = fig.add_subplot(2,3,2, aspect=asp)
-        plt.pcolormesh(lon, lat, np.ma.masked_invalid(gprof_wi), cmap='copper')
+        plt.pcolormesh(lon, lat, np.ma.masked_invalid(gprof_wi), cmap='copper',vmin=0, vmax=13000)#'copper'
         plt.plot(lon[:,0],lat[:,0], color='black',lw=1)
         plt.plot(lon[:,-1],lat[:,-1], color='black',lw=1)
         cb = plt.colorbar(shrink=sh, orientation=ori)
-        cb.set_label("Flag",fontsize=ff)
+        cb.set_label("Hight in m",fontsize=ff)
         cb.ax.tick_params(labelsize=ff)
-        plt.title('GPM DPR flagShallowRain: ',fontsize=ff)
+        plt.title('GPM DPR StormTopHight: ',fontsize=ff)
         plot_world(ax3,x1,x2,y3,y4)
 
         plt.grid()
@@ -182,10 +183,10 @@ for i in range(len(pfad_gpm)):
         #plt.tight_layout(pad=0.9, w_pad=0.9, h_pad=0.9)
         #plt.tight_layout()
         #plt.show()
-        plt.savefig('/automount/ags/velibor/plot/alledprskill/pro_dpr_'+str(gpm_zeit) + '.png')#, transparent=True)
+        #plt.savefig('/automount/ags/velibor/plot/alledprskill/pro_dpr_'+str(gpm_zeit) + '.png')#, transparent=True)
         #fig.clf() # CLEAR FIGURE
-        plt.close()
-        #plt.show()
+        #plt.close()
+        plt.show()
 
         del(pfad_gpm_g, gpmdpr, lat, lon, gprof_pp, gpm_time,
         gpm_zeit, gprof_phase, gprof_wi, gprof_typ, fig, ax1, ax2, ax3, ax4, cb, ax33, ax333)
