@@ -443,7 +443,7 @@ def plot_dem(ax):
     cb.set_label('terrain height [m]')
 
 
-def plot_radar(bx,by, ax, reproject=False, cband=False):
+def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
     # Plot der Radar Range von Bonn
     import wradlib as wrl
     import numpy as np
@@ -486,8 +486,8 @@ def plot_radar(bx,by, ax, reproject=False, cband=False):
 
     # create PolyCollections and add to respective axes
     polycoll = mpl.collections.PolyCollection(polygons, closed=True,
-                                              edgecolors='r',
-                                              facecolors='r',
+                                              edgecolors=col,
+                                              facecolors=col,
                                               zorder=2,
                                               alpha=0.2)
 

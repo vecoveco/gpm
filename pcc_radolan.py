@@ -4,6 +4,7 @@ Das Program dient der Veranschaulichung der 5 Minutigen RX Radolan Daten!
 Es werden durch den Zeitstempel Deutschlandweite Niederschlags und
 Reflektivitaeten dargestellt!
 
+
 """
 
 
@@ -30,7 +31,7 @@ from pcc import zeitschleife as zt
 
 zeit = zt(2014,10,07,02,30,0,
           2014,10,07,02,35,0,
-          steps=30)
+          steps=5)
 
 
 for ij in range(len(zeit)):
@@ -84,7 +85,7 @@ for ij in range(len(zeit)):
     ########################################################################## PLOT
 
     ff = 15
-    fig = plt.figure(figsize=(14,6))
+    fig = plt.figure(figsize=(16,10))
 
     ax1 = fig.add_subplot(121, aspect='equal')
     plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
@@ -112,11 +113,11 @@ for ij in range(len(zeit)):
     for i in range(len(radar.keys())):
         plot_radar(radar[radar.keys()[i]]['lon'],
                    radar[radar.keys()[i]]['lat'],
-                   ax1, reproject=True, cband=True)
-    #plot_radar(blon, blat, ax1, reproject=True, cband=False)
+                   ax1, reproject=True, cband=True, col='red')
+    plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
 
     ax2 = fig.add_subplot(122, aspect='equal')
-    plt.pcolormesh(x, y, ZZ,vmin=-30,vmax=50, cmap=cmap2, zorder=2)
+    plt.pcolormesh(x, y, ZZ,vmin=0,vmax=50, cmap=cmap2, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     cb = plt.colorbar(shrink=0.5, extend='both')
     cb.set_label("Reflectivity (dBZ)",fontsize=ff)
@@ -134,13 +135,14 @@ for ij in range(len(zeit)):
     plt.ylim(-4700, -3700)
     plt.tight_layout()
 
+    plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
     for i in range(len(radar.keys())):
         plot_radar(radar[radar.keys()[i]]['lon'],
                    radar[radar.keys()[i]]['lat'],
-                   ax2, reproject=True, cband=True)
+                   ax2, reproject=True, cband=True, col='red')
 
 
-    plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
+    #plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')
     plt.show()
     #plt.close()
 

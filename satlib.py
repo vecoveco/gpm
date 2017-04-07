@@ -50,7 +50,7 @@ def read_dpr(dpr_pfad,scan):
     dpr = h5py.File(dpr_pfad, 'r')
     dpr_lat=np.array(dpr[scan]['Latitude'])
     dpr_lon=np.array(dpr[scan]['Longitude'])
-    dpr_pp=np.array(dpr[scan]['SLV']['precipRateNearSurface'])
+    dpr_pp=np.array(dpr[scan]['SLV']['zFactorCorrectedNearSurface'])
     dpr_time = dpr['NS']['ScanTime']
     #dpr_pp[dpr_pp<=0] = np.nan
 
@@ -77,6 +77,16 @@ def read_rado(zeitstempel, r_pro):
     year, m, d = ZP[0:4], ZP[4:6], ZP[6:8]
     ht, mt, st = ZP[8:10], ZP[10:12], ZP[12:14]
     ye = ZP[2:4]
+
+    mt = str(int(round(float(mt)/5.0)*5.0))
+    print ht, mt
+    if mt == '0':
+        mt = '00'
+    elif mt == '5':
+        mt = '05'
+    elif mt =='60':
+        mt = '55'
+
 
 
     pfad = ('/automount/radar/dwd/'+r_pro+'/'+str(year)+'/'+str(year)+'-'+str(m)+
@@ -174,7 +184,7 @@ def cut_the_swath(gprof_lon, gprof_lat, gprof_pp,eu):
     return blon, blat, gprof_pp_b
 
 
-def gpm_on_radolan(gpm_longitude, gpm_latitude):
+def proj_gpm2radolan(gpm_longitude, gpm_latitude):
     """
     Function:
         Projection of cutted GPM Swath Coordinates on RadolanGrid
@@ -230,6 +240,8 @@ def ipol_rad2gpm(radolan_x, radolan_y, gpm_x, gpm_y, radolan_data):
     rrr = result.reshape(gpm_x.shape)
 
     return rrr
+
+
 
 
 """
