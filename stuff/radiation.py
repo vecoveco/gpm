@@ -21,6 +21,13 @@ def wav2freq(wav):
     frequenc = c / wav
     return frequenc
 
+def K2C(Kelvin):
+    C = Kelvin - 273.15
+    return C
+
+def C2K(C):
+    Kelvin = C + 273.15
+    return Kelvin
 
 def planck(wav, T):
     a1 = (2.0*h*c**2)/(wav**5)
@@ -45,8 +52,8 @@ def intens2Tb(wav,intens):
 
 
 # GP 6.11
-#intens2Tb(micro2m(11), planck(micro2m(11),300)*0.95)
-#intens2Tb(0.0158, planck(0.0158,300)*0.95)
+#T1 = intens2Tb(micro2m(11), planck(micro2m(11),300)*0.95)
+#T2 = intens2Tb(0.0158, planck(0.0158,300)*0.95)
 
 
 emi = np.arange(0.,1,0.01)
