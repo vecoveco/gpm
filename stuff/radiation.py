@@ -78,25 +78,37 @@ def SB2(T):
     S = sigma*T**4.
     return S
 
-def srtm(asw, alw, A):
+def srtm(asw, alw, A, eps=None):
     """
     Simple radiative transfere model of Atmo
     A ::: Albedo
     asw ::: Absorption kurzwellig
     alw ::: Absorbtion langwellig
     """
-    Sm = S / 4.
-    Esurf = ((1. - (1. - asw) * A) * ((2. - asw)/(2. - alw)))
-    Tsurf = (Sm / sigma * (Esurf))**(1./4.)
-    Eatmo = (((1 - A) * (1 - asw) * alw) + (1 + (1 - asw) * A) * asw)/((2 - alw) * alw)
-    Tatmo = (Sm/sigma * (Eatmo))**(1./4.)
-    return Tatmo, Tsurf
+    if eps == None:
+        Sm = S / 4.
+        Esurf = ((1. - (1. - asw) * A) * ((2. - asw)/(2. - alw)))
+        Tsurf = (Sm / sigma * (Esurf))**(1./4.)
+        Eatmo = (((1 - A) * (1 - asw) * alw) + (1 + (1 - asw) * A) * asw)/((2 - alw) * alw)
+        Tatmo = (Sm/sigma * (Eatmo))**(1./4.)
+        return Tatmo, Tsurf
+    if eps != None:
+        eps = eps
+        Sm = S / 4.
+        Esurf = ((A - 1) * (1 - asw) * (1 + (1 - alw)) * (1 - eps) + eps * (A * (1 - asw)**2)-1)/(eps * (2 - alw))
+        Tsurf = (-1* Sm / sigma * (Esurf))**(1./4.)
+        Eatmo = (((A - 1) * (1 - asw))*alw + (1 + ((1 - asw) * A))* asw) / (alw * ( eps * (( 1- alw) + 1)) + ((1 - alw) * (1-eps)))
+        Tatmo = (-1*Sm/sigma * (Eatmo))**(1./4.)
+        return Tatmo, Tsurf
+
 
 
 #Ex6.19a
 a_sw = np.arange(0.01,1.0,0.01)
 a_lw = np.arange(0.01,1.0,0.01)
 Albedo = np.arange(0.01, 1.0, 0.01)
+emi = np.arange(0.01, 1.0, 0.01)
+
 
 # Ex 19a
 Ta, Ts = srtm(a_sw, 0.8, 0.3)
@@ -139,6 +151,17 @@ plt.xlabel('Absorbiton')
 plt.grid()
 plt.legend(loc='upper right')
 plt.show()
+
+# Ex 19d
+Ta, Ts = srtm(0.1, 0.8, 0.3, emi)
+plt.plot(emi, Ta, label='Ta', color='blue')
+plt.plot(emi, Ts, label='Ts', color='green' )
+plt.ylabel('Temp in K')
+plt.xlabel('Albedo')
+plt.grid()
+plt.legend(loc='upper right')
+plt.show()
+
 
 #G.P.?
 #plt.plot(w,planck(w,3000))
