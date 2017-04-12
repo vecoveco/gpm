@@ -349,7 +349,7 @@ for i in range(290, len(pfad_gpm)):
             pass
 
         plt.tight_layout()
-        plt.savefig('/automount/ags/velibor/plot/alledpr/gpm_dpr_rr_radolan_'+ str(gpm_zeit) + '.png' )
+        plt.savefig('/automount/ags/velibor/plot/alledpr/gpm_dpr_rrboxpol_radolan_'+ str(gpm_zeit) + '.png' )
         plt.close()
         #plt.show()
 

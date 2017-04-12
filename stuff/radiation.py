@@ -9,6 +9,9 @@ k = 1.381*10**-23       # Boltzmankonstante in J/K
 sigma = 5.67 *10**-8    # Stefan-Boltzmann in W/ m^2 K^4
 S = 1370                # Solarkonstante in W/m^2
 AU = 150*10**11         # Astronomische Einheit in m
+R_Erde = 6356.0         # Erdradius in km
+kw = 2897.0             # Wien's Komstante in nm K
+
 
 def micro2m(wav):
     wav_neu = wav*10**-6
@@ -63,7 +66,79 @@ def Teffplanet(A, D):
     Teff = ((S * (1.-A)) / (4.*sigma*D**2.))**(1./4.)
     return Teff
 
+def Teff(A, s):
+    Teff = ((s * (1.-A)) / (4.*sigma))**(1./4.)
+    return Teff
 
+def SB(S):
+    T = (S/sigma)**(1./4.)
+    return T
+
+def SB2(T):
+    S = sigma*T**4.
+    return S
+
+def srtm(asw, alw, A):
+    """
+    Simple radiative transfere model of Atmo
+    A ::: Albedo
+    asw ::: Absorption kurzwellig
+    alw ::: Absorbtion langwellig
+    """
+    Sm = S / 4.
+    Esurf = ((1. - (1. - asw) * A) * ((2. - asw)/(2. - alw)))
+    Tsurf = (Sm / sigma * (Esurf))**(1./4.)
+    Eatmo = (((1 - A) * (1 - asw) * alw) + (1 + (1 - asw) * A) * asw)/((2 - alw) * alw)
+    Tatmo = (Sm/sigma * (Eatmo))**(1./4.)
+    return Tatmo, Tsurf
+
+
+#Ex6.19a
+a_sw = np.arange(0.01,1.0,0.01)
+a_lw = np.arange(0.01,1.0,0.01)
+Albedo = np.arange(0.01, 1.0, 0.01)
+
+# Ex 19a
+Ta, Ts = srtm(a_sw, 0.8, 0.3)
+plt.plot(a_sw, Ta, label='Ta', color='blue')
+plt.plot(a_sw, Ts, label='Ts', color='green' )
+plt.ylabel('Temp in K')
+plt.xlabel('Absorbiton')
+plt.grid()
+plt.legend(loc='upper right')
+plt.show()
+
+# Ex 19b
+Ta, Ts = srtm(0.1, a_lw, 0.3)
+plt.plot(a_sw, Ta, label='Ta', color='blue')
+plt.plot(a_sw, Ts, label='Ts', color='green' )
+plt.ylabel('Temp in K')
+plt.xlabel('Absorbiton')
+plt.grid()
+plt.legend(loc='upper right')
+plt.show()
+
+# Ex 19c
+Ta, Ts = srtm(0.1, 0.8, Albedo)
+plt.plot(a_sw, Ta, label='Ta', color='blue')
+plt.plot(a_sw, Ts, label='Ts', color='green' )
+plt.ylabel('Temp in K')
+plt.xlabel('Albedo')
+plt.grid()
+plt.legend(loc='upper right')
+plt.show()
+
+for i in Albedo:
+    Ta, Ts = srtm(a_sw, 0.8, i)
+    plt.plot(a_sw, Ta, label='Ta', color='blue')
+    plt.plot(a_sw, Ts, label='Ts', color='green' )
+
+
+plt.ylabel('Temp in K')
+plt.xlabel('Absorbiton')
+plt.grid()
+plt.legend(loc='upper right')
+plt.show()
 
 #G.P.?
 #plt.plot(w,planck(w,3000))
