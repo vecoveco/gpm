@@ -319,6 +319,17 @@ plt.show()
 
 
 def cp_dist(data1, data2):
+    """
+    Function:
+        Plot of PDF und CDF of two vectors
+
+    Input:
+        data1, data2 ::: Input Data
+
+    Output:
+        plot of PDF and CDF
+
+    """
     import matplotlib.pyplot as plt
     import numpy as np
 
