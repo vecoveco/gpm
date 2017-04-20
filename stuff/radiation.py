@@ -1,8 +1,22 @@
+"""
+This is an self made Library for the Lecture :
+
+Introduction to Atmospheric Radiation and Remote Sensing
+
+The whole contents is from the Lecture 416 and the Book:
+A First Course In Atmospheric Radiation
+Secon edition
+Grant W. Petty
+
+
+"""
+
+
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-# global constants
+# Important Global Constants
 c = 2.998*10**8         # Lichtgeschindigkeit in m/s
 h = 6.626*10**-34       # Plancks Konstante in Js
 k = 1.381*10**-23       # Boltzmankonstante in J/K
