@@ -129,6 +129,9 @@ def skill_score(estimate, reference, th=None):
 
     if th == None:
         th = 0.1 # GMI 0.1, ka 0.2 ku 0.5 Hou et al 2014
+    r1, e1 = reference.copy, estimate.copy
+    # beim Nan zu Null keine Fehler zu machen
+
     reference, estimate = np.nan_to_num(reference), np.nan_to_num(estimate)
 
     #Hit
@@ -161,8 +164,8 @@ def skill_score(estimate, reference, th=None):
     #B=Ytemp\yobs';
     # nach Sungmin 2016
     # TODO: Bias in extra funktion!
-    bias = np.nansum(estimate-reference)/H
-    rmse = np.sqrt(np.nansum(((estimate-reference)**2)/H))
+    bias = np.nansum(e1 - r1)/H
+    rmse = np.sqrt(np.nansum(((e1 - r1)**2.0)/H))
     result = {'H': H,
               'M': M,
               'F': F,

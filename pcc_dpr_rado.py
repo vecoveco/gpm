@@ -44,7 +44,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20150227'])
+zz = np.array(['20140403'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -55,9 +55,13 @@ for i in range(len(zz)):
     ## Read GPM Data
     ## -------------
 
-    pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
-    pfad_gpm = glob.glob(pfad2)
-    pfad_gpm_g = pfad_gpm[0]
+    #pfad2 = ('/home/velibor/shkgpm/data/'+str(year)+str(m)+str(d)+'/dpr/*.HDF5')
+    #pfad_gpm = glob.glob(pfad2)
+    #pfad_gpm_g = pfad_gpm[0]
+
+    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118."+str(year)+str(m)+str(d)+"*.HDF5")[0]
+
+    print pfad_gpm_g
 
     gpmdpr = h5py.File(pfad_gpm_g, 'r')
     gprof_lat = np.array(gpmdpr['NS']['Latitude'])
@@ -206,7 +210,7 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
 
     plot_borders(ax1)
-    plot_radar(bonnlon, bonnlat, ax1, reproject=True)
+    plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
 
     plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + ' UTC',fontsize=ff)
     plt.grid(color='r')
@@ -233,7 +237,7 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
     plt.title('GPM DPR Reflectivity: \n'+ gpm_zeit + ' UTC',fontsize=ff)
     plot_borders(ax2)
-    plot_radar(bonnlon, bonnlat, ax2, reproject=True)
+    plot_radar(bonnlon, bonnlat, ax2, reproject=True, cband=False,col='black')
     plt.grid(color='r')
     plt.tick_params(
         axis='both',
@@ -260,7 +264,7 @@ for i in range(len(zz)):
 
     plt.title('RADOLAN Reflectivity Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
     plot_borders(ax2)
-    plot_radar(bonnlon, bonnlat, ax2, reproject=True)
+    plot_radar(bonnlon, bonnlat, ax2, reproject=True, cband=False,col='black')
     plt.grid(color='r')
     plt.tick_params(
         axis='both',
@@ -339,10 +343,19 @@ for i in range(len(zz)):
     plt.grid(color='r')
 
 
+
     plt.tight_layout()
     #plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
     #plt.close()
     plt.show()
+
+
+    plt.plot(np.unique([ggg]), '-g')
+    plt.plot(np.unique([rrr]), '-r')
+    #plt.title(str(np.nansum(ggg-rrr)/len(np.nansum(ggg-rrr))))
+    print np.nansum(ggg-rrr)
+    plt.show()
+
 '''
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
