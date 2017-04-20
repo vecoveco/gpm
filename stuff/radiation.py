@@ -13,6 +13,40 @@ R_Erde = 6356.0         # Erdradius in km
 kw = 2897.0             # Wien's Komstante in nm K
 
 
+def BeerBougetLambert(F, beta, s):
+    """
+    Function:
+         bouguer-lambert-beersche Gesetz beschreibt die Abschwaechung der
+         Intensitaet einer Strahlung bei dem Durchgang durch ein Medium
+         mit einer absorbierenden Substanz, in Abhaengigkeit von der
+         Konzentration der absorbierenden Substanz und der Schichtdicke
+    Input:
+        F       ::: radiation flux density in W/m2 befor absorption
+        beta    ::: volumen absorption coeff.
+        s       ::: path length
+    Output:
+        F_att   ::: radiation flux density in W/m2 after absorption
+
+    """
+    F_att = F * np.exp(-1* beta * s)
+    return F_att
+
+
+def beta(ni, lam):
+    """
+    Function:
+         Berechnung des volumen absorptions coeff
+    Input:
+
+        ni    ::: refractive Index
+        lam   ::: wellenlaenge
+    Output:
+        beta  ::: absorptions coeff
+
+    """
+    beta = (4* math.pi * ni)/lam
+    return beta
+
 def micro2m(wav):
     wav_neu = wav*10**-6
     return wav_neu
