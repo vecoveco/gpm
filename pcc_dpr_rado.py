@@ -350,12 +350,6 @@ for i in range(len(zz)):
     plt.show()
 
 
-    plt.plot(np.unique([ggg]), '-g')
-    plt.plot(np.unique([rrr]), '-r')
-    #plt.title(str(np.nansum(ggg-rrr)/len(np.nansum(ggg-rrr))))
-    print np.nansum(ggg-rrr)
-    plt.show()
-
 '''
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))

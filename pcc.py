@@ -129,7 +129,7 @@ def skill_score(estimate, reference, th=None):
 
     if th == None:
         th = 0.1 # GMI 0.1, ka 0.2 ku 0.5 Hou et al 2014
-    r1, e1 = reference.copy, estimate.copy
+    r1, e1 = reference.copy(), estimate.copy()
     # beim Nan zu Null keine Fehler zu machen
 
     reference, estimate = np.nan_to_num(reference), np.nan_to_num(estimate)
