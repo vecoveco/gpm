@@ -93,7 +93,7 @@ def plot_stat(b):
 plt.show()
 
 
-plot_stat(a_bd)
+plot_stat(a_rd)
 plot_stat(a_rd)
 plt.show()
 
@@ -119,7 +119,7 @@ plt.grid()
 plt.show()
 '''
 
-df = a_bd
+df = a_rd
 
 cor = df['r_value'].values
 err = df['std_err'].values

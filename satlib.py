@@ -343,5 +343,6 @@ def cp_dist(data1, data2):
     ax.plot(bin_centers1, counts1.cumsum(), 'go-')
     ax.plot(bin_centers2, counts2.cumsum(), 'bo-')
 
+
     plt.show()
 

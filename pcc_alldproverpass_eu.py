@@ -44,6 +44,7 @@ print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 minstart_ex = 148 # Ex Daten erst spater
 
 for i in range(minstart_ex+230, len(pfad_gpm)):
+
     #ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
     #year, m, d = ZP[0:4], ZP[4:6], ZP[6:8]

@@ -44,7 +44,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20140403'])
+zz = np.array(['20140324'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -348,6 +348,10 @@ for i in range(len(zz)):
     #plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
     #plt.close()
     plt.show()
+
+    from satlib import cp_dist
+    cp_dist(ggg[maske],rrr[maske])
+
 
 
 '''
