@@ -42,7 +42,7 @@ pfad_gpm = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 
-f = open('/home/velibor/shkgpm/texte/dpr_stat_rr.csv','w')
+f = open('/home/velibor/shkgpm/texte/dpr_stat_rr2.csv','w')
 writer = csv.writer(f, dialect='excel')
 writer.writerow(['time','r_value','std_err','N','H','M','F','C','HR','POD','FAR','BID','HSS','bias','RMSE','meanG','meanR','medG','medR'])
 
@@ -63,11 +63,11 @@ for i in range(0, len(pfad_gpm)):
     gprof_lat = np.array(gpmdpr['NS']['Latitude'])
     gprof_lon = np.array(gpmdpr['NS']['Longitude'])
 
-    #gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
-    #gprof_pp[gprof_pp==-9999.9]= np.nan
-
-    gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
+    gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
     gprof_pp[gprof_pp==-9999.9]= np.nan
+
+    #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
+    #gprof_pp[gprof_pp==-9999.9]= np.nan
 
 
 
@@ -182,16 +182,16 @@ for i in range(0, len(pfad_gpm)):
 
         ## Dynamischer Threshold
         #THref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
-        THref = 0.1
+        THref = 12
 
         ## Z in R
-        Z = wradlib.trafo.idecibel(rwdata)
-        rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
+        #Z = wradlib.trafo.idecibel(rwdata)
+        #rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
         #rwdata = z2r2(Z)
         #z2rEnhanced
 
-        Z2 = wradlib.trafo.idecibel(rrr)
-        rrr = wradlib.zr.z2r(Z2, a=200., b=1.6)
+        #Z2 = wradlib.trafo.idecibel(rrr)
+        #rrr = wradlib.zr.z2r(Z2, a=200., b=1.6)
 
         ## Nur Niederschlagsrelevante
         rrr[rrr < THref]=np.nan

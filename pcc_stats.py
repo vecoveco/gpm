@@ -121,15 +121,17 @@ plt.show()
 
 df = a_rd
 
+time = np.array(df.index)#.strftime("%Y%m%d-%H%M%S")
+
 cor = df['r_value'].values
 err = df['std_err'].values
 Z = df['H'].values
-date = df.index
 #plt.plot(cor, 'o')
 ff = 15
+
 def statplot(cor, err, Z):
     from pcc import get_my_cmap
-    plt.errorbar(range(0,len(cor)),cor, yerr=err, fmt='o', zorder=1)
+    plt.errorbar(range(0,len(cor)),cor, yerr=err, fmt='o', zorder=1, color='grey')
     plt.scatter(range(0,len(cor)),cor,c=Z, vmin=100, vmax=1000, cmap=get_my_cmap(), zorder=2)
     cb = plt.colorbar(shrink=0.5)
     cb.set_label("Hits in #",fontsize=ff)
@@ -145,18 +147,67 @@ def statplot(cor, err, Z):
 statplot(cor, err, Z)
 plt.show()
 
+def plot_ostat(V, tit):
+    fig = plt.figure(figsize=(16,10))
+    ff = 20
+    fig.suptitle('Number of '+ tit +' for each Overpass', fontsize = ff)
+    ax1 = plt.subplot(121)
+    plt.plot(V,'ok')
+    plt.ylabel('#')
+    plt.xlabel('Overpass')
+    plt.grid(color='blue')
 
-A, B, C = df['r_value'].values, df['std_err'].values, df['H'].values
+    ax2 = plt.subplot(122)
+    plt.hist(V, bins=len(V), orientation='horizontal')
+    plt.grid(color='blue')
+    plt.xlabel('freq')
+    plt.show()
+    #plt.savefig('/automount/ftp/velibor/GPM/Stat/Overpassstat_dpr-rado_'+str(tit)+'.png')
+    #plt.close()
 
-A[np.where(C>80)] = np.nan
-B[np.where(C>80)] = np.nan
-C[np.where(C>80)] = np.nan
+
+'''
+for i in range(17):
+    print i
+    df.columns[i]
+    try:
+        plot_ostat(df[df.columns[i]].values, df.columns[i])
+    except:
+        print str(df.columns[i]) + 'NICHT BERECHNET!'
+
+plt.close()
+'''
+#df.values[:,1][np.where(df['N']<300)]= np.nan
+#plot_ostat(df['HSS'].values, 'HSST')
+#plot_ostat(df['BID'].values, 'BID')
+#plot_ostat(df['FAR'].values, 'FAR')
+#plot_ostat(df['r_value'].values, 'Corr')
+#plot_ostat(df['POD'].values, 'POD')
 
 
-statplot(A, B, C)
+#df[np.where(df['N']<300)] = np.nan#
+
+A = df['r_value'].values.copy()
+B = df['std_err'].values.copy()
+C = df['H'].values.copy()
+
+T = 300
+A[np.where(C<T)] = np.nan
+B[np.where(C<T)] = np.nan
+C[np.where(C<T)] = np.nan
+
+
+
+from pcc import get_my_cmap
+plt.errorbar(range(0,len(A)),A, B, fmt='o', zorder=1, color='grey')
+plt.scatter(range(0,len(A)),A,c=C, vmin=100, vmax=1000, cmap=get_my_cmap(), zorder=2)
+cb = plt.colorbar(shrink=0.5)
+cb.set_label("Hits in #",fontsize=ff)
+cb.ax.tick_params(labelsize=ff)
+plt.ylim(-1,1)
+plt.xlim(0,len(A))
+plt.grid()
+plt.ylabel('Correlation',fontsize=ff)
+plt.xlabel('overpasses with time',fontsize=ff)
+plt.title('Overpass statistics betwen DPR and RADOLAN, \n Threshold: N = '+str(T),fontsize=ff)
 plt.show()
-
-
-
-
-
