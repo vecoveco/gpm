@@ -11,13 +11,13 @@ import pandas as pd
 from io import StringIO
 
 # MRR
-#pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023828.ave.gz'
-pfad_mrr = '/automount/mrr/mrr2/2016/2016-01/2016-01-07/AveData_mrr2_20160107124312.ave.gz'
+pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023828.ave.gz'
+#pfad_mrr = '/automount/mrr/mrr2/2016/2016-01/2016-01-07/AveData_mrr2_20160107124312.ave.gz'
 
 
 # DPR
-#dpr_pfad = '/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.20141007-S015721-E032951.003445.V04A.HDF5'
-dpr_pfad = '/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.20160107-S120629-E133900.010562.V04A.HDF5'
+dpr_pfad = '/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.20141007-S015721-E032951.003445.V04A.HDF5'
+#dpr_pfad = '/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.20160107-S120629-E133900.010562.V04A.HDF5'
 
 
 df = pd.read_csv(pfad_mrr, compression='gzip', header=1, delim_whitespace=True,index_col=False)
