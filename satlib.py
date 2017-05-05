@@ -316,6 +316,21 @@ plt.title(str(r_value))
 plt.show()
 '''
 
+def boxpol_pos():
+    """
+
+    Koordinaten des Bonner Radar BoXPol
+    geografische Laenge 	7.071663 Ost
+    geografische Breite 	50.73052 Nord
+    Hohe uber NN 	99.5 m
+    """
+
+    pos_boxpol = {'lat_ppi' : 50.730519999999999,
+                  'lon_ppi' : 7.071663,
+                  'gky_ppi' : -4235.233235191105,
+                  'gkx_ppi' : -216.64772430049572}
+
+    return pos_boxpol
 
 
 def cp_dist(data1, data2):
