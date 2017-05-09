@@ -11,7 +11,7 @@ import pandas as pd
 from io import StringIO
 
 # MRR
-pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023828.ave.gz'
+pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023528.ave.gz'
 #pfad_mrr = '/automount/mrr/mrr2/2016/2016-01/2016-01-07/AveData_mrr2_20160107124312.ave.gz'
 
 
