@@ -105,8 +105,8 @@ plt.xlim(0,50)
 plt.show()
 
 
-plt.plot(pp[0,:], hdpr)
-plt.plot(df.loc['Z'].values,h, label='Ref. in dBZ', color='blue', linestyle='-', lw=2)
-plt.xlabel('Reflectivity in dBZ')
-plt.grid()
-plt.show()
+#plt.plot(pp[0,:], hdpr)
+#plt.plot(df.loc['Z'].values,h, label='Ref. in dBZ', color='blue', linestyle='-', lw=2)
+#plt.xlabel('Reflectivity in dBZ')
+#plt.grid()
+#plt.show()

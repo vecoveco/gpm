@@ -18,25 +18,190 @@ import matplotlib.patches as patches
 import matplotlib.cm as cm
 import warnings
 
-warnings.filterwarnings('ignore')
-try:
-    get_ipython().magic("matplotlib inline")
-except:
-    pl.ion()
+#warnings.filterwarnings('ignore')
+#try:
+#    get_ipython().magic("matplotlib inline")
+#except:
+#    pl.ion()
 import numpy as np
 import datetime as dt
 from osgeo import osr
+import wradlib as wrl
+import datetime as dt
+import numpy as np
+from osgeo import gdal
+# flake8: noqa
 
 
 # Import from external libraries
 #    these functions and objects will finally have to be moved to wradlib!
 # use relative import
-try:
-    from io_func import *
-except:
-    from . io_func import *
+#try:
+#    from io_func import *
+#except:
+#    from . io_func import *
+def read_gpm(filename):
 
+    pr_data = wrl.io.read_generic_hdf5(filename)
 
+    lon = pr_data['NS/Longitude']['data']
+    lat = pr_data['NS/Latitude']['data']
+
+    year = pr_data['NS/ScanTime/Year']['data']
+    month = pr_data['NS/ScanTime/Month']['data']
+    dayofmonth = pr_data['NS/ScanTime/DayOfMonth']['data']
+    dayofyear = pr_data['NS/ScanTime/DayOfYear']['data']
+    hour = pr_data['NS/ScanTime/Hour']['data']
+    minute = pr_data['NS/ScanTime/Minute']['data']
+    second = pr_data['NS/ScanTime/Second']['data']
+    secondofday = pr_data['NS/ScanTime/SecondOfDay']['data']
+    millisecond = pr_data['NS/ScanTime/MilliSecond']['data']
+    date_array = zip(year, month, dayofmonth,
+                     hour, minute, second,
+                     millisecond.astype(np.int32) * 1000)
+    pr_time = np.array(
+        [dt.datetime(d[0], d[1], d[2], d[3], d[4], d[5], d[6]) for d in
+         date_array])
+
+    sfc = pr_data['NS/PRE/landSurfaceType']['data']
+    pflag = pr_data['NS/PRE/flagPrecip']['data']
+
+    bbflag = pr_data['NS/CSF/flagBB']['data']
+    zbb = pr_data['NS/CSF/heightBB']['data']
+    print(zbb.dtype)
+    bbwidth = pr_data['NS/CSF/widthBB']['data']
+    qbb = pr_data['NS/CSF/qualityBB']['data']
+    qtype = pr_data['NS/CSF/qualityTypePrecip']['data']
+    ptype = pr_data['NS/CSF/typePrecip']['data']
+
+    quality = pr_data['NS/scanStatus/dataQuality']['data']
+    refl = pr_data['NS/SLV/zFactorCorrected']['data']
+
+    # Check for bad data
+    if max(quality) != 0:
+        raise ValueError('GPM contains Bad Data')
+
+    pflag = pflag.astype(np.int8)
+
+    # Determine the dimensions
+    ndim = refl.ndim
+    if ndim != 3:
+        raise ValueError('GPM Dimensions do not match! '
+                         'Needed 3, given {0}'.format(ndim))
+
+    tmp = refl.shape
+    nscan = tmp[0]
+    nray = tmp[1]
+    nbin = tmp[2]
+
+    # Reverse direction along the beam
+    # TODO: Why is this reversed?
+    refl = refl[::-1]
+
+    # Change pflag=1 to pflag=2 to be consistent with 'Rain certain' in TRMM
+    pflag[pflag == 1] = 2
+
+    # Simplify the precipitation types
+    ptype = (ptype/1e7).astype(np.int16)
+
+    # Simplify the surface types
+    imiss = (sfc == -9999)
+    sfc = (sfc/1e2).astype(np.int16) + 1
+    sfc[imiss] = 0
+
+    # Set a quality indicator for the BB and precip type data
+    # TODO: Why is the `quality` variable overwritten?
+
+    quality = np.zeros((nscan, nray), dtype=np.uint8)
+
+    i1 = ((qbb == 0) | (qbb == 1)) & (qtype == 1)
+    quality[i1] = 1
+
+    i2 = ((qbb > 1) | (qtype > 2))
+    quality[i2] = 2
+
+    gpm_data = {}
+    gpm_data.update({'nscan': nscan, 'nray': nray, 'nbin': nbin,
+                     'date': pr_time, 'lon': lon, 'lat': lat,
+                     'pflag': pflag, 'ptype': ptype, 'zbb': zbb,
+                     'bbwidth': bbwidth, 'sfc': sfc, 'quality': quality,
+                     'refl': refl})
+
+    return gpm_data
+def _get_tilts2(dic):
+    i = 0
+    for k in dic.keys():
+        if 'dataset' in k:
+            i += 1
+    return i/5
+
+def read_gr2(filename, loaddata=True):
+
+    gr_data = wrl.io.read_generic_hdf5(filename)
+    dat = gr_data['what']['attrs']['date'].decode()
+    tim = gr_data['what']['attrs']['time'].decode()
+    date = dt.datetime.strptime(dat + tim, "%Y%d%m%H%M%S")
+    source = gr_data['what']['attrs']['source']
+
+    lon = gr_data['where']['attrs']['lon']
+    lat = gr_data['where']['attrs']['lat']
+    alt = gr_data['where']['attrs']['height']
+
+    if gr_data['what']['attrs']['object'].decode() == 'PVOL':
+        ntilt = int(_get_tilts2(gr_data))
+        print("ntilt:", ntilt)
+    else:
+        raise ValueError('GR file is no PPI/Volume File')
+
+    ngate = np.zeros(ntilt, dtype=np.int16)
+    nbeam = np.zeros(ntilt)
+    elang = np.zeros(ntilt)
+    r0 = np.zeros(ntilt)
+    dr = np.zeros(ntilt)
+    a0 = np.zeros(ntilt)
+
+    for i in np.arange(0, ntilt, dtype=np.uint8):
+        a0[i] = gr_data['dataset{0}/how'.format(i+1)]['attrs']['astart']
+        elang[i] = gr_data['dataset{0}/where'.format(i+1)]['attrs']['elangle']
+        ngate[i] = gr_data['dataset{0}/where'.format(i+1)]['attrs']['nbins']
+        r0[i] = gr_data['dataset{0}/where'.format(i+1)]['attrs']['rstart']
+        dr[i] = gr_data['dataset{0}/where'.format(i+1)]['attrs']['rscale']
+        nbeam[i] = gr_data['dataset{0}/where'.format(i+1)]['attrs']['nrays']
+
+    if ((len(np.unique(r0)) != 1) |
+            (len(np.unique(dr)) != 1) |
+            (len(np.unique(a0)) != 1) |
+            (len(np.unique(nbeam)) != 1) |
+            (nbeam[0] != 360)):
+        raise ValueError('GroundRadar Data layout dos not match')
+
+    gr_dict = {}
+    gr_dict.update({'source': source, 'date': date, 'lon': lon, 'lat': lat,
+                    'alt': alt, 'ngate': ngate, 'nbeam': nbeam, 'ntilt': ntilt,
+                    'r0': r0, 'dr': dr, 'a0': a0, 'elang': elang})
+    if not loaddata:
+        return gr_dict
+
+    sdate = []
+    refl = []
+    for i in np.arange(0, ntilt, dtype=np.uint8):
+        dat = gr_data['dataset{0}/what'.format(i+1)]['attrs']['startdate'].decode()
+        tim = gr_data['dataset{0}/what'.format(i+1)]['attrs']['starttime'].decode()
+        date = dt.datetime.strptime(dat + tim, "%Y%d%m%H%M%S")
+        sdate.append(date)
+        quantity = gr_data['dataset{0}/data1/what'.format(i+1)]['attrs']['quantity']
+        factor = gr_data['dataset{0}/data1/what'.format(i+1)]['attrs']['gain']
+        offset = gr_data['dataset{0}/data1/what'.format(i+1)]['attrs']['offset']
+        if quantity.decode() == 'DBZH':
+            dat = gr_data['dataset{0}/data1/data'.format(i+1)]['data'] * factor + offset
+            refl.append(dat)
+
+    sdate = np.array(sdate)
+    refl = np.array(refl)
+
+    gr_dict.update({'sdate': sdate, 'refl': refl})
+
+    return gr_dict
 
 # Space-born precipitation radar parameters
 pr_pars = {"trmm": {
@@ -55,37 +220,38 @@ dr_pr = pr_pars[platf]["dr"]  # PR gate length (meters)
 ee = 2                        # Index that points to the GR elevation angle to be used
 
 # define GPM data set
-gpm_file = wradlib.util.get_wradlib_data_file('gpm/2A-RW-BRS.GPM.Ku.V6-20160118.20141206-S095002-E095137.004383.V04A.HDF5')
+gpm_file = wradlib.util.get_wradlib_data_file('/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.20141007-S015721-E032951.003445.V04A.HDF5')
 
 # define matching ground radar file
-gr2gpm_file = wradlib.util.get_wradlib_data_file('hdf5/IDR66_20141206_094829.vol.h5')
+#gr2gpm_file = wradlib.util.get_wradlib_data_file('hdf5/IDR66_20141206_094829.vol.h5')
+gr2gpm_file = wradlib.util.get_wradlib_data_file('/automount/radar-archiv/scans/2014/2014-10/2014-10-07/ppi_1p5deg/2014-10-07--02:30:00,00.mvol')
 
 # define TRMM data sets
-trmm_2a23_file = wradlib.util.get_wradlib_data_file('trmm/2A-RW-BRS.TRMM.PR.2A23.20100206-S111422-E111519.069662.7.HDF')
-trmm_2a25_file = wradlib.util.get_wradlib_data_file('trmm/2A-RW-BRS.TRMM.PR.2A25.20100206-S111422-E111519.069662.7.HDF')
+#trmm_2a23_file = wradlib.util.get_wradlib_data_file('trmm/2A-RW-BRS.TRMM.PR.2A23.20100206-S111422-E111519.069662.7.HDF')
+#trmm_2a25_file = wradlib.util.get_wradlib_data_file('trmm/2A-RW-BRS.TRMM.PR.2A25.20100206-S111422-E111519.069662.7.HDF')
 
 # define matching ground radar file
-gr2trmm_file = wradlib.util.get_wradlib_data_file('hdf5/IDR66_20100206_111233.vol.h5')
+#gr2trmm_file = wradlib.util.get_wradlib_data_file('hdf5/IDR66_20100206_111233.vol.h5')
 
 
 ##Read and organize the data
 # read spaceborn PR data
 if platf == "gpm":
     pr_data = read_gpm(gpm_file)
-elif platf == "trmm":
-    try:
-        pr_data = read_trmm(trmm_2a23_file, trmm_2a25_file)
-        print("test")
-    except IOError:
-        # Mostly needed on Windows Anaconda (netcdf4 without hdf4 support)
-        pr_data = read_trmm_gdal(trmm_2a23_file, trmm_2a25_file)
+#elif platf == "trmm":
+#    try:
+#        pr_data = read_trmm(trmm_2a23_file, trmm_2a25_file)
+#        print("test")
+#    except IOError:
+#        # Mostly needed on Windows Anaconda (netcdf4 without hdf4 support)
+#        pr_data = read_trmm_gdal(trmm_2a23_file, trmm_2a25_file)
 else:
     raise("Invalid platform")
 # read matching GR data
 if platf == "gpm":
     gr_data = read_gr2(gr2gpm_file)
-elif platf=="trmm":
-    gr_data = read_gr2(gr2trmm_file)
+#elif platf=="trmm":
+#    gr_data = read_gr2(gr2trmm_file)
 else:
     raise("Invalid platform")
 

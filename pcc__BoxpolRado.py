@@ -11,7 +11,7 @@ import wradlib
 import h5py
 from osgeo import osr
 
-zz = '20141007023000'
+zz = '20140609182000'
 
 x, y, rwdata, rn = read_rado(zz, r_pro='rx')
 
@@ -93,22 +93,35 @@ grid_xy = np.vstack((bx.ravel(), by.ravel())).transpose()
 grid_xy = np.vstack((x.ravel(), y.ravel())).transpose() # Radolangitter
 xy=np.concatenate([bx.ravel()[:,None],by.ravel()[:,None]], axis=1)
 
-gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([bx.mean(), by.mean()]), zh.ravel(), wradlib.ipol.Idw)#Linear, Idw, Nearest
+gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([bx.mean(), by.mean()]), zh.ravel(), wradlib.ipol.Idw, nnearest=40)#Linear, Idw, Nearest
 gridded = np.ma.masked_invalid(gridded).reshape(x.shape)
 
 
 from pcc import get_miub_cmap
 from pcc import plot_radar
 
+gridded[np.where(x>-150)]=np.nan
+gridded[np.where(x<-300)]=np.nan
+gridded[np.where(y<-4325)]=np.nan
+gridded[np.where(y>-4150)]=np.nan
+
+rwdata[np.where(x>-150)]=np.nan
+rwdata[np.where(x<-300)]=np.nan
+rwdata[np.where(y<-4325)]=np.nan
+rwdata[np.where(y>-4150)]=np.nan
 
 plt.subplot(2,2,3)
 #wradlib.vis.plot_ppi(zh,r,az, vmin=0, vmax=50)
 plt.pcolormesh(bx, by,zh, cmap=get_miub_cmap(), vmin=0, vmax=50)
 plt.scatter(gkx, gky, s=25, color='black')
+plt.grid(color='black')
+plt.title('BoXPol')
 
 plt.subplot(2,2,2)
 plt.pcolormesh(x,y,rwdata, vmin=0, vmax=50, cmap=get_miub_cmap())
 plt.scatter(gkx, gky, s=25, color='black')
+plt.grid(color='black')
+plt.title('Radolan')
 
 plt.xlim(-350, -100)
 plt.ylim(-4400, -4100)
@@ -116,6 +129,8 @@ plt.ylim(-4400, -4100)
 plt.subplot(2,2,1)
 plt.pcolormesh(x,y,gridded, vmin=0, vmax=50, cmap=get_miub_cmap())
 plt.scatter(gkx, gky, s=25, color='black')
+plt.grid(color='black')
+plt.title('BoXPol on Radolan')
 
 plt.xlim(-350, -100)
 plt.ylim(-4400, -4100)
@@ -124,7 +139,23 @@ plt.ylim(-4400, -4100)
 plt.subplot(2,2,4)
 a = gridded.copy()
 b = rwdata.copy()
-a[a<0]=np.nan
-b[b<0]=np.nan
-plt.scatter(a,b)
+
+#a[np.where(x>-150)]=np.nan
+#a[np.where(x<-300)]=np.nan
+#a[np.where(y>-4325)]=np.nan
+#a[np.where(y<-4150)]=np.nan
+
+
+a[a<5]=np.nan
+b[b<5]=np.nan
+from scipy import stats, linspace
+
+maske = ~np.isnan(a) & ~np.isnan(b)
+slope, intercept, r_value, p_value, std_err = stats.linregress(a[maske], b[maske])
+line = slope * a +intercept
+plt.scatter(a,b, alpha=0.5, label='Ref in dBZ')
+plt.legend(title=str(r_value)+' -+ '+ str(std_err)+ '\n f(x)= ' +str(slope)+'x'+str(intercept))
+plt.xlabel('RADOLAN')
+plt.ylabel('BoXPol')
+plt.grid()
 plt.show()

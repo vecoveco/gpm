@@ -120,8 +120,11 @@ plt.show()
 '''
 
 df = a_rd
+df2 = a_bd
 
 time = np.array(df.index)#.strftime("%Y%m%d-%H%M%S")
+time2 = np.array(df2.index)#.strftime("%Y%m%d-%H%M%S")
+
 
 cor = df['r_value'].values
 err = df['std_err'].values
@@ -191,7 +194,7 @@ A = df['r_value'].values.copy()
 B = df['std_err'].values.copy()
 C = df['H'].values.copy()
 
-T = 300
+T = 100
 A[np.where(C<T)] = np.nan
 B[np.where(C<T)] = np.nan
 C[np.where(C<T)] = np.nan
@@ -200,7 +203,7 @@ C[np.where(C<T)] = np.nan
 
 from pcc import get_my_cmap
 plt.errorbar(range(0,len(A)),A, B, fmt='o', zorder=1, color='grey')
-plt.scatter(range(0,len(A)),A,c=C, vmin=100, vmax=1000, cmap=get_my_cmap(), zorder=2)
+plt.scatter(range(0,len(A)),A,c=C,s=300,linewidths=0.001, vmin=T, vmax=1000, cmap=get_my_cmap(), zorder=2)
 cb = plt.colorbar(shrink=0.5)
 cb.set_label("Hits in #",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
@@ -210,4 +213,25 @@ plt.grid()
 plt.ylabel('Correlation',fontsize=ff)
 plt.xlabel('overpasses with time',fontsize=ff)
 plt.title('Overpass statistics betwen DPR and RADOLAN, \n Threshold: N = '+str(T),fontsize=ff)
+plt.show()
+
+dataframes = [df, df2]
+names = ['RADOLAN','BoXPol']
+
+for j in range(2):
+    DF = dataframes[j]
+    hits = DF['H'].values.copy()
+
+    th = np.arange(np.nanmax(hits))
+    anzahl_overpass = np.zeros(len(th))
+
+    for i in range(len(th)):
+        anzahl_overpass[i] = len(hits[hits >th[i]])
+
+    plt.plot(th, anzahl_overpass, label=names[j])
+    plt.legend(loc='upper right')
+    plt.grid(color='blue')
+    plt.xlabel('Threshold in hits')
+    plt.ylabel('Overpasses')
+
 plt.show()

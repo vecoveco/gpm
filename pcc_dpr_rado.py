@@ -192,6 +192,10 @@ for i in range(len(zz)):
     rrr[rrr < THref]=np.nan
     ggg[ggg < THref]=np.nan
 
+    # Normalisieren
+    #rrr = rrr/np.nanmax(rrr)
+    #ggg = ggg/np.nanmax(ggg)
+
 
     ################################################################Swap!
     #rrr, ggg = ggg, rrr
