@@ -11,7 +11,7 @@ import pandas as pd
 from io import StringIO
 
 # MRR
-pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023528.ave.gz'
+pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023828.ave.gz'
 #pfad_mrr = '/automount/mrr/mrr2/2016/2016-01/2016-01-07/AveData_mrr2_20160107124312.ave.gz'
 
 
@@ -78,28 +78,34 @@ print zeit
 
 hdpr = 1000 * (np.arange(176,0,-1)*0.125) # Bei 88 500m und bei 176 ist es 250m
 
-
+ff = 20
 
 plt.subplot(1,2,1)
 plt.plot(df.loc['Z'].values,h, label='Ref. in dBZ', color='blue', linestyle='-', lw=2)
+
 plt.plot(df.loc['PIA'].values,h,label='PIA in dB', color='blue', linestyle='-.', lw=2)
 plt.plot(df.loc['z'].values,h,label='att. Ref in dBZ', color='blue', linestyle='--', lw=2)
-plt.plot(df.loc['TF'].values,h,label='TF', color='grey')
+#plt.plot(df.loc['TF'].values,h,label='TF', color='grey')
 plt.plot(df.loc['RR'].values,h,label='RR', linestyle='-', color='black',lw=2)
-plt.plot(df.loc['LWC'].values,h,label='Liquid Water Content')
-plt.plot(df.loc['W'].values,h,label='Fallgeschwindigkeit')
+#plt.plot(df.loc['LWC'].values,h,label='Liquid Water Content')
+#plt.plot(df.loc['W'].values,h,label='Fallgeschwindigkeit')
 plt.grid()
-plt.legend(loc='lower right')
-plt.ylabel('Hight in m')
-plt.title('MRR - ' + pfad_mrr[44:44+28])
+plt.legend(loc='lower right', fontsize=ff)
+plt.ylabel('Hight in m', fontsize=ff)
+plt.title('MRR - ' + pfad_mrr[44:44+28], fontsize=ff)
 plt.ylim(0,6000)
 plt.xlim(0,50)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
 
 plt.subplot(1,2,2)
 plt.plot(pp[0,:], hdpr)
-plt.title('DPR '+ zeit)
-plt.xlabel('Reflectivity in dBZ')
+plt.title('DPR '+ zeit, fontsize=ff)
+plt.xlabel('Reflectivity in dBZ', fontsize=ff)
 plt.grid()
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
 plt.ylim(0,6000)
 plt.xlim(0,50)
 plt.show()

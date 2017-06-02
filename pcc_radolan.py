@@ -29,10 +29,10 @@ from pcc import plot_borders
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,10,07,02,30,0,
-          2014,10,07,02,35,0,
+zeit = zt(2014,10,07,02,35,0,
+          2014,10,07,02,40,0,
           steps=5)
-
+#zeit = zt(2014,10,07,02,35,0, 2014,10,07,02,40,0, steps=5)
 
 for ij in range(len(zeit)):
 
@@ -94,26 +94,40 @@ for ij in range(len(zeit)):
     cb.set_label("Rainrate (mm/h)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
     plot_borders(ax1)
-    plt.title('RADOLAN Rainrate: \n'+ radolan_zeit + 'UTC',fontsize=ff)
 
+    #plt.plot(gpm_x[:,0], gpm_y[:,0], color='black')
+    #plt.plot(gpm_x[:,-1], gpm_y[:,-1], color='black')
+    #plt.plot(gpm_x[:,23], gpm_y[:,23], color='black', ls='--')
+
+    plt.title('RADOLAN RY Rainrate: \n'+ radolan_zeit + 'UTC',fontsize=20)
+    plt.tick_params(
+        axis='both',
+        which='both',
+        bottom='off',
+        top='off',
+        labelbottom='off',
+        right='off',
+        left='off',
+        labelleft='off')
     #plot_ocean(ax1)
-    plt.xlabel("x [km] ",fontsize=ff)
-    plt.ylabel("y [km]  ",fontsize=ff)
+    #plt.xlabel("x [km] ",fontsize=ff)
+    #plt.ylabel("y [km]  ",fontsize=ff)
     #plt.xticks(fontsize=0)
     #plt.yticks(fontsize=0)
     plt.grid(color='r')
     plt.xlim(-420,390)
     plt.ylim(-4700, -3700)
+
     plt.tight_layout()
 
 
     from pcc import get_radar_locations
     radar = get_radar_locations()
 
-    for i in range(len(radar.keys())):
-        plot_radar(radar[radar.keys()[i]]['lon'],
-                   radar[radar.keys()[i]]['lat'],
-                   ax1, reproject=True, cband=True, col='red')
+    #for i in range(len(radar.keys())):
+    #    plot_radar(radar[radar.keys()[i]]['lon'],
+    #               radar[radar.keys()[i]]['lat'],
+    #               ax1, reproject=True, cband=True, col='red')
     plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
 
     ax2 = fig.add_subplot(122, aspect='equal')
@@ -122,12 +136,27 @@ for ij in range(len(zeit)):
     cb = plt.colorbar(shrink=0.5, extend='both')
     cb.set_label("Reflectivity (dBZ)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
+
+    #plt.plot(gpm_x[:,0], gpm_y[:,0], color='black')
+    #plt.plot(gpm_x[:,-1], gpm_y[:,-1], color='black')
+    #plt.plot(gpm_x[:,23], gpm_y[:,23], color='black', ls='--')
+
     plot_borders(ax2)
-    plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + 'UTC',fontsize=ff)
+    plt.title('RADOLAN RX Reflectivity: \n'+ radolan_zeit + 'UTC',fontsize=20)
+
+    plt.tick_params(
+        axis='both',
+        which='both',
+        bottom='off',
+        top='off',
+        labelbottom='off',
+        right='off',
+        left='off',
+        labelleft='off')
 
     #plot_ocean(ax1)
-    plt.xlabel("x [km] ",fontsize=ff)
-    plt.ylabel("y [km]  ",fontsize=ff)
+    #plt.xlabel("x [km] ",fontsize=ff)
+    #plt.ylabel("y [km]  ",fontsize=ff)
     #plt.xticks(fontsize=0)
     #plt.yticks(fontsize=0)
     plt.grid(color='r')
@@ -136,10 +165,10 @@ for ij in range(len(zeit)):
     plt.tight_layout()
 
     plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
-    for i in range(len(radar.keys())):
-        plot_radar(radar[radar.keys()[i]]['lon'],
-                   radar[radar.keys()[i]]['lat'],
-                   ax2, reproject=True, cband=True, col='red')
+    #for i in range(len(radar.keys())):
+    #    plot_radar(radar[radar.keys()[i]]['lon'],
+    #               radar[radar.keys()[i]]['lat'],
+    #               ax2, reproject=True, cband=True, col='red')
 
 
     #plt.savefig('/home/velibor/shkgpm/plot/radolan/rx_'+ radolan_zeit_sav+ '.png')

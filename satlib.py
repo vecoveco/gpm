@@ -11,6 +11,7 @@ import glob
 import wradlib
 import datetime as dt
 from osgeo import osr
+import matplotlib.pyplot as plt
 
 
 def read_gprof(gprof_pfad):
@@ -51,6 +52,28 @@ def read_dpr(dpr_pfad,scan):
     dpr_lat=np.array(dpr[scan]['Latitude'])
     dpr_lon=np.array(dpr[scan]['Longitude'])
     dpr_pp=np.array(dpr[scan]['SLV']['zFactorCorrectedNearSurface'])
+    dpr_time = dpr['NS']['ScanTime']
+    #dpr_pp[dpr_pp<=0] = np.nan
+
+    return dpr_lat, dpr_lon, dpr_pp, dpr_time
+
+def read_dpr_rr(dpr_pfad,scan):
+    """
+    Function:
+        Reading DPR Data
+
+    Input:
+        dpr_pfad ::: pfad zur Datei
+
+        scan ::: 'NS','HS','MS'
+
+    Output:
+        Latitude, Longitude, DPR Precipitation
+    """
+    dpr = h5py.File(dpr_pfad, 'r')
+    dpr_lat=np.array(dpr[scan]['Latitude'])
+    dpr_lon=np.array(dpr[scan]['Longitude'])
+    dpr_pp=np.array(dpr[scan]['SLV']['precipRateNearSurface'])
     dpr_time = dpr['NS']['ScanTime']
     #dpr_pp[dpr_pp<=0] = np.nan
 
@@ -361,3 +384,150 @@ def cp_dist(data1, data2):
 
     plt.show()
 
+
+def validation_plot(data1, data2):
+    """
+    Function:
+        Plot for the validation of two datasets
+
+    Input:
+        data1, data2 ::: Input Data
+
+    Output:
+        Validation PLot
+
+    """
+
+    # Todo: Schoener machen!
+
+    mini = np.nanmin([np.nanmin(data1), np.nanmin(data2)])-5.0
+    maxi = np.nanmax([np.nanmax(data1), np.nanmax(data2)])+5.0
+    cd1 = 'blue'
+    cd2 = 'green'
+
+    from scipy import stats, linspace
+
+
+    fig = plt.figure(figsize=(14,14))
+    ax1 = fig.add_subplot(223, aspect='auto')#------------------------------------
+
+    maske = ~np.isnan(data1) & ~np.isnan(data2)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(data1[maske], data2[maske])
+    line = slope * data1 +intercept
+
+    from pcc import skill_score
+    SS = skill_score(data1,data2,th=12.)
+
+    ax1.scatter(data1, data2, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
+
+    r_value_s, p_value_s = stats.spearmanr(data1[maske],data2[maske])
+
+    text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
+               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
+            '\nN: '+ str(int(SS['N']))+
+            '\nHit: ' + str(SS['H'])+
+            '\nMiss: ' + str(SS['M'])+
+            '\nFalse: ' + str(SS['F'])+
+            '\nCnegative: ' + str(SS['C'])+
+            '\nHR: ' + str(round(SS['HR'],3))+
+            '\nPOD: ' + str(round(SS['POD'],3))+
+            '\nFAR: ' + str(round(SS['FAR'],3))+
+            '\nBID: ' + str(round(SS['BID'],3))+
+            '\nHSS: ' + str(round(SS['HSS'],3))+
+            '\nBias: '+ str(round(SS['bias'],3))+
+            '\nRMSE: '+ str(round(SS['RMSE'],3))+
+            '\nCorrS:' +  str(round(r_value_s,3))
+            )
+
+    ax1.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
+                    horizontalalignment='left', verticalalignment='top')
+
+    t1 = linspace(0,50,50)
+    plt.plot(t1,t1,'k-')
+    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
+    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
+    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
+    plt.plot(np.nanmean(data1),np.nanmean(data2), 'ob', lw = 4,label='Mean')
+    plt.plot(np.nanmedian(data1),np.nanmedian(data2), 'vb', lw = 4,label='Median')
+
+    import matplotlib as mpl
+    mean = [ np.nanmean(data1),np.nanmean(data2)]
+    width = np.nanstd(data1)
+    height = np.nanstd(data2)
+    angle = 0
+    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+                              angle=180+angle, color='blue', alpha=0.8,
+                              fill=False, ls='--', label='Std')
+    ax1.add_patch(ell)
+
+    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
+
+
+    #plt.scatter(data1, data2, alpha=0.5)
+    plt.xlim(mini,maxi)
+    plt.ylim(mini,maxi)
+    plt.xlabel('GPM DPR')
+    plt.ylabel('RADOLAN')
+    plt.grid()
+
+    #plt.colorbar(shrink=1)
+
+
+    ax2 = fig.add_subplot(221, aspect='auto')#------------------------------------
+
+    counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.5,
+                                        color=cd2, label='GPM DPR')
+
+    counts2, bins2, patches2 =plt.hist(data2[maske], bins=int(maxi),
+                                       alpha=0.9, edgecolor='black',
+                                       facecolor="None", label='RADOLAN')
+
+    plt.xlim(mini, maxi)
+    plt.ylabel('frequency in #')
+    plt.grid(color=cd2)
+    plt.legend(loc='upper right')
+
+
+    ax3 = fig.add_subplot(224, aspect='auto')#------------------------------------
+
+    counts2, bins2, patches2 =plt.hist(data2[maske], bins=int(maxi),orientation='horizontal',
+                                       alpha=0.5, color=cd1, label='RADOLAN')
+
+    counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.9, edgecolor='black',
+                                        facecolor="None",orientation='horizontal', label='GPM')
+    plt.xlabel('frequency in #')
+    plt.ylim(mini,maxi)
+    plt.grid(color=cd1)
+    plt.legend(loc='upper right')
+
+    ax4 = fig.add_subplot(222, aspect='auto')#------------------------------------
+    bin_centers1 = np.mean(zip(bins1[:-1], bins1[1:]), axis=1)
+    bin_centers2 = np.mean(zip(bins2[:-1], bins2[1:]), axis=1)
+    ax4.plot(bin_centers1, counts1.cumsum(),color=cd2 ,ls='-', lw=2,alpha=0.5, label='GPM')
+    ax4.plot(bin_centers2, counts2.cumsum(),color=cd1, ls='-', lw=2, alpha=0.5, label='RADOLAN')
+
+    maske = ~np.isnan(counts1) & ~np.isnan(counts2)
+    slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(counts1[maske], counts2[maske])
+    r_value_s, p_value_s = stats.spearmanr(counts1[maske], counts2[maske])
+
+    plt.ylabel('frequency in #')
+    plt.xlabel('Reflectivity in dBz')
+    tit = 'Corr: '+ str(round(r_value2,3)) + r'$\pm$' + str(round(std_err2,3)) + '\n SCorr: '\
+          + str(round(r_value_s,3)) + r'$\pm$' + str(round(p_value_s,3))
+
+    plt.legend(loc='lower right', title=tit)
+
+    plt.grid()
+
+    #plt.show()
+
+
+
+def write2hdf(name, x, y, dat_rad, dat_sat):
+    """wip"""
+    h = h5py.File(str(name) + '.hdf5', 'w')
+    h.create_dataset('x', data=x)
+    h.create_dataset('y', data=y)
+    h.create_dataset('dat_rad', data=dat_rad)
+    h.create_dataset('dat_sat', data=dat_sat)
+    h.close()

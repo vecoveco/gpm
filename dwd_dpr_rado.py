@@ -44,7 +44,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20140826'])
+zz = np.array(['20141007'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -145,6 +145,7 @@ for i in range(len(zz)):
     #rwdata[rwdata <= 0] = np.nan
     #rwdata = np.log10(rwdata)
 
+
     ## INTERLOLATION
     ## --------------
 
@@ -189,13 +190,28 @@ for i in range(len(zz)):
 
     ggg = gprof_pp_b * res_bin
 
+    # BoxPol Region
+    #rb_yoben, rb_yunten = -4128., -4342.
+    #rb_xlinks, rb_xrechts = -323., -110.,
+
+    #rrr[np.where(gpm_y < rb_yunten)] = np.nan
+    #rrr[np.where(gpm_y > rb_yoben)] = np.nan
+    #rrr[np.where(gpm_x > rb_xrechts)] = np.nan
+    #rrr[np.where(gpm_x < rb_xlinks)] = np.nan
+
+
+
 
     ## Dynamischer Threshold
-    THref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
+    #THref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
+    THref = 12
+
 
     ## Nur Niederschlagsrelevante
-    rrr[rrr < THref]=np.nan
-    ggg[ggg < THref]=np.nan
+    rrr[rrr < THref] = np.nan
+    ggg[ggg < THref] = np.nan
+
+
 
     # Normalisieren
     #rrr = rrr/np.nanmax(rrr)
@@ -205,8 +221,8 @@ for i in range(len(zz)):
     ################################################################Swap!
     #rrr, ggg = ggg, rrr
 
-    ff = 15
-    cc = 0.5
+    ff = 20
+    cc = 1
     fig = plt.figure(figsize=(12,12))
     ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
 
@@ -214,14 +230,11 @@ for i in range(len(zz)):
 
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
-    cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
-    cb.ax.tick_params(labelsize=ff)
+    plt.plot(gpm_x[:,23], gpm_y[:,23], color='black', ls='--')
 
     plot_borders(ax1)
     plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
 
-    plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + ' UTC',fontsize=ff)
     plt.grid(color='r')
     plt.tick_params(
         axis='both',
@@ -241,10 +254,11 @@ for i in range(len(zz)):
                          cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+    plt.plot(gpm_x[:,23], gpm_y[:,23], color='black', ls='--')
+
     cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
+    cb.set_label("Reflectivity (dBZ)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
-    plt.title('GPM DPR Reflectivity: \n'+ gpm_zeit + ' UTC',fontsize=ff)
     plot_borders(ax2)
     plot_radar(bonnlon, bonnlat, ax2, reproject=True, cband=False,col='black')
     plt.grid(color='r')
@@ -267,11 +281,8 @@ for i in range(len(zz)):
                          cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
-    cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
-    cb.ax.tick_params(labelsize=ff)
+    plt.plot(gpm_x[:,23], gpm_y[:,23], color='black', ls='--')
 
-    plt.title('RADOLAN Reflectivity Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
     plot_borders(ax2)
     plot_radar(bonnlon, bonnlat, ax2, reproject=True, cband=False,col='black')
     plt.grid(color='r')
@@ -294,107 +305,56 @@ for i in range(len(zz)):
     slope, intercept, r_value, p_value, std_err = stats.linregress(ggg[maske], rrr[maske])
     line = slope * ggg +intercept
 
-    from pcc import skill_score
-    SS = skill_score(ggg,rrr,th=TH_ref)
+    slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(rrr[maske], ggg[maske])
+    line2 = slope2 * rrr +intercept2
 
-    ax4.scatter(ggg, rrr, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
+    diffi = ggg[maske]-rrr[maske]
+    bias = np.nansum(diffi)/len(diffi)
+
+    ax4.scatter(ggg, rrr, color='grey', alpha=0.6)
 
     r_value_s, p_value_s = stats.spearmanr(ggg[maske],rrr[maske])
 
-    text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
-               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
-            '\nN: '+ str(int(SS['N']))+
-            '\nHit: ' + str(SS['H'])+
-            '\nMiss: ' + str(SS['M'])+
-            '\nFalse: ' + str(SS['F'])+
-            '\nCnegative: ' + str(SS['C'])+
-            '\nHR: ' + str(round(SS['HR'],3))+
-            '\nPOD: ' + str(round(SS['POD'],3))+
-            '\nFAR: ' + str(round(SS['FAR'],3))+
-            '\nBID: ' + str(round(SS['BID'],3))+
-            '\nHSS: ' + str(round(SS['HSS'],3))+
-            '\nBias: '+ str(round(SS['bias'],3))+
-            '\nRMSE: '+ str(round(SS['RMSE'],3))+
-            '\nCorrS:' +  str(round(r_value_s,3))
+    text = (#'f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
+               '\n  Corr: ' + str(round(r_value,3)) + r'$\pm$ '+  str(round(std_err,3))+
+            '\n  bias: '+ str(round(bias,3))
+
             )
 
-    ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
+    ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=20,
                     horizontalalignment='left', verticalalignment='top')
 
     t1 = linspace(0,50,50)
-    plt.plot(t1,t1,'k-')
-    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
-    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
-    plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
-    plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
+    plt.plot(t1,t1,'k--')
+    plt.plot(t1,t1*slope + intercept,label='RADOLAN', color='green', lw=1.5)
+    plt.plot(t1*slope2 + intercept2,t1,label='GPM DPR', color='blue', lw=1.5)
+    #plt.plot(t1,t1*slope + intercept , 'r-', lw=3 ,label='Regression')
+    #plt.plot(t1, t1*slope2 + intercept2, 'r-', lw=3 ,label='Regression')
 
-    import matplotlib as mpl
-    mean = [ np.nanmean(ggg),np.nanmean(rrr)]
-    width = np.nanstd(ggg)
-    height = np.nanstd(rrr)
-    angle = 0
-    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                              angle=180+angle, color='blue', alpha=0.8,
-                              fill=False, ls='--', label='Std')
-    ax4.add_patch(ell)
 
-    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
+    plt.legend(loc='lower right', fontsize=15, scatterpoints= 1, numpoints=1,
+               shadow=True, title='lin. Regression. (Ref.)')
 
     plt.xlim(0,50)
     plt.ylim(0,50)
 
 
-    plt.xlabel('GPM DPR Reflectivity [dBZ]',fontsize=ff)
-    plt.ylabel('RADOLAN Reflectivity [dBZ]',fontsize=ff)
+    plt.xlabel('GPM DPR Reflectivity (dBZ)',fontsize=ff)
+    plt.ylabel('RADOLAN Reflectivity (dBZ)',fontsize=ff)
     plt.xticks(fontsize=ff)
     plt.yticks(fontsize=ff)
     plt.grid(color='r')
 
-
-
     plt.tight_layout()
-    #plt.savefig('/home/velibor/shkgpm/plot/gpm_dpr_radolan_v2_'+ZP + '.png' )
-    #plt.close()
+
+    print slope, slope2
+    print intercept, intercept2
+
     plt.show()
 
-    #from satlib import cp_dist
-    #cp_dist(ggg[maske],rrr[maske])
-
-    from satlib import validation_plot
-    validation_plot(ggg,rrr)
 
 
 
-'''
-    GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
-    RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
-
-
-G_all = np.concatenate(GGG,axis=0)
-R_all = np.concatenate(RRR,axis=0)
-from pcc import plot_scatter
-
-
-fig = plt.figure(figsize=(12,12))
-ax11 = fig.add_subplot(111, aspect='equal')
-plot_scatter(G_all, R_all)
-import matplotlib as mpl
-mean = [ np.nanmean(G_all),np.nanmean(R_all)]
-width = np.nanstd(G_all)
-height = np.nanstd(R_all)
-angle = 0
-ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                          angle=180+angle, color='blue', alpha=0.8,
-                          fill=False, ls='--', label='Std')
-ax11.add_patch(ell)
-plt.xlabel(('GPM DPR (dBZ)'))
-plt.ylabel(('RADOLAN (dBZ)'))
-plt.grid()
-plt.savefig('/home/velibor/shkgpm/plot/all_gpm_dpr_v2_radolan_'+ZP + '.png' )
-#plt.show()
-plt.close()
-'''
 
 
 

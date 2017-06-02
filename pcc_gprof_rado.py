@@ -37,10 +37,10 @@ RRR = []
 
 #Alle Zeitpunkte
 #'''
-zz = np.array([20140921, 20141007,20140826,
-               20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
-               20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
-               20170113, 20170203,20170223])
+zz = np.array([20140826])#,
+               #20141016, 20150128, 20150227, 20150402, 20150427, 20160405,
+               #20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
+               #20170113, 20170203,20170223])
 #'''
 #Alle rz rx zeitpunkte
 #zz = np.array([20140921, 20141007,20140826,
@@ -213,7 +213,7 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
 
     plot_borders(ax1)
-    plot_radar(bonnlon, bonnlat, ax1, reproject=True)
+    plot_radar(bonnlon, bonnlat, ax1,  reproject=True, cband=False,col='black')
 
     plt.title('RADOLAN: \n'+ radolan_zeit + ' UTC',fontsize=ff)
     plt.grid(color='r')
@@ -240,17 +240,17 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
     plt.title('GPM GPROF: \n'+'20' + gpm_zeit + ' UTC',fontsize=ff)
     plot_borders(ax2)
-    plot_radar(bonnlon, bonnlat, ax2, reproject=True)
+    plot_radar(bonnlon, bonnlat, ax1,  reproject=True, cband=False,col='black')
     plt.grid(color='r')
-    plt.tick_params(
-        axis='both',
-        which='both',
-        bottom='off',
-        top='off',
-        labelbottom='off',
-        right='off',
-        left='off',
-        labelleft='off')
+    #plt.tick_params(
+    #    axis='both',
+    #    which='both',
+    #    bottom='off',
+    #    top='off',
+    #    labelbottom='off',
+    #    right='off',
+    #    left='off',
+    #    labelleft='off')
     plt.xlim(-420,390)
     plt.ylim(-4700, -3700)
 
@@ -266,7 +266,7 @@ for i in range(len(zz)):
 
     plt.title('RADOLAN Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
     plot_borders(ax2)
-    plot_radar(bonnlon, bonnlat, ax2, reproject=True)
+    plot_radar(bonnlon, bonnlat, ax1,  reproject=True, cband=False,col='black')
     plt.grid(color='r')
     plt.tick_params(
         axis='both',
@@ -345,15 +345,17 @@ for i in range(len(zz)):
 
 
     plt.tight_layout()
-    plt.savefig('/home/velibor/shkgpm/plot/gpm_gprof_radolan_'+r_pro+'_'+ZP + '.png' )
-    plt.close()
+    #plt.savefig('/home/velibor/shkgpm/plot/gpm_gprof_radolan_'+r_pro+'_'+ZP + '.png' )
+    #plt.close()
+    plt.show()
+
 
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
 
 
 
-
+'''
 G_all = np.concatenate(GGG,axis=0)
 R_all = np.concatenate(RRR,axis=0)
 from pcc import plot_scatter
@@ -376,3 +378,4 @@ plt.ylabel(('RADOLAN (dBZ)'))
 plt.grid()
 plt.savefig('/home/velibor/shkgpm/plot/gprof/all_gpm_gprof_radolan_'+ r_pro  + '.png' )
 plt.close()
+'''

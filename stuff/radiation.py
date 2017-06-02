@@ -150,6 +150,22 @@ def srtm(asw, alw, A, eps=None):
         return Tatmo, Tsurf
 
 
+def rainbow_min_def_ang(m, k):
+    """
+    Computes a minimum angle of deflection for a Rainbow
+
+
+    Returns
+    -------
+    angle
+    """
+    res = np.sqrt((m**2)/(k**2 +2*k))
+    res = np.rad2deg(np.arccos(res))
+
+    return res
+
+
+
 
 #Ex6.19a
 a_sw = np.arange(0.01,1.0,0.01)
@@ -242,4 +258,5 @@ for i in emi:
 plt.xlabel('Emmision')
 plt.ylabel('Temperatur in K')
 plt.show()
+
 

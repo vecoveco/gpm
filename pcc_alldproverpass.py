@@ -33,6 +33,10 @@ my_cmap = get_miub_cmap()
 from pcc import get_my_cmap
 my_cmap2 = get_my_cmap()
 
+from pcc import skill_score
+
+from wradlib.trafo import idecibel, decibel
+
 
 # Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
 TH_ref = 0.1
@@ -41,6 +45,12 @@ pfad = ('/automount/ags/velibor/gpmdata/dpr/*.HDF5')
 pfad_gpm = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
+
+import csv
+
+f = open('/home/velibor/shkgpm/texte/dpr_radolan_decibel_ref.csv','w')
+writer = csv.writer(f, dialect='excel')
+writer.writerow(['time','r_value','std_err','r_value_s','N','H','M','F','C','HR','POD','FAR','BID','HSS','bias','RMSE','meanG','meanR','medG','medR'])
 
 for i in range(290, len(pfad_gpm)):
     #ZP = str(zz[i])
@@ -58,11 +68,11 @@ for i in range(290, len(pfad_gpm)):
     gprof_lat = np.array(gpmdpr['NS']['Latitude'])
     gprof_lon = np.array(gpmdpr['NS']['Longitude'])
 
-    #gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
-    #gprof_pp[gprof_pp==-9999.9]= np.nan
-
-    gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
+    gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
     gprof_pp[gprof_pp==-9999.9]= np.nan
+
+    #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
+    #gprof_pp[gprof_pp==-9999.9]= np.nan
 
     gpm_time = gpmdpr['NS']['ScanTime']
 
@@ -88,7 +98,7 @@ for i in range(290, len(pfad_gpm)):
         ## Read RADOLAN Data
         ## -----------------
 
-        r_pro = 'ry'
+        r_pro = 'rx'
 
         pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+
                 str(m)+'/'+ str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+
@@ -112,8 +122,8 @@ for i in range(290, len(pfad_gpm)):
         radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
         x = radolan_grid_xy[:,:,0]
         y = radolan_grid_xy[:,:,1]
-        #rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
-        rwdata = np.ma.masked_equal(rwdata, -9999) *8
+        rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
+        #rwdata = np.ma.masked_equal(rwdata, -9999) *8
         #rwdata[rwdata < 0] = np.nan
 
 
@@ -129,6 +139,9 @@ for i in range(290, len(pfad_gpm)):
 
         gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
         grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
+
+
+        rwdata = idecibel(rwdata)
 
 
         ## INTERLOLATION
@@ -148,10 +161,13 @@ for i in range(290, len(pfad_gpm)):
 
         rrr = result.reshape(gpm_x.shape)
 
+        rrr = decibel(rrr)
+        rwdata = decibel(rwdata)
 
 
         ## Interpolation of the binary Grid
         ## ------------------------------
+
         res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
         res_bin = res_bin.reshape(gpm_x.shape)
 
@@ -174,16 +190,8 @@ for i in range(290, len(pfad_gpm)):
         ggg = gprof_pp_b * res_bin
 
         ## Dynamischer Threshold
-        #TH_ref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
+        TH_ref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
 
-        ## Z in R
-        #Z = wradlib.trafo.idecibel(rwdata)
-        #rwdata = wradlib.zr.z2r(Z, a=200., b=1.6)
-        #rwdata = z2r2(Z)
-        #z2rEnhanced
-
-        #Z2 = wradlib.trafo.idecibel(rrr)
-        #rrr = wradlib.zr.z2r(Z2, a=200., b=1.6)
         ## Nur Niederschlagsrelevante
         rrr[rrr < TH_ref]=np.nan
         ggg[ggg < TH_ref]=np.nan
@@ -197,18 +205,18 @@ for i in range(290, len(pfad_gpm)):
         fig = plt.figure(figsize=(12,12))
         ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
 
-        pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap2, vmin=0.01, vmax=10, zorder=2)
+        pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
 
         plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
         plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
         cb = plt.colorbar(shrink=cc)
-        cb.set_label("Rainrate in mm/h",fontsize=ff)
+        cb.set_label("Reflectivity [dBZ]",fontsize=ff)
         cb.ax.tick_params(labelsize=ff)
 
         plot_borders(ax1)
-        plot_radar(bonnlon, bonnlat, ax1, reproject=True)
+        plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
 
-        plt.title('RADOLAN Rainrate : \n'+ radolan_zeit + ' UTC',fontsize=ff)
+        plt.title('RADOLAN Reflectivity : \n'+ radolan_zeit + ' UTC',fontsize=ff)
         plt.grid(color='r')
         plt.tick_params(
             axis='both',
@@ -225,15 +233,15 @@ for i in range(290, len(pfad_gpm)):
         ax2 = fig.add_subplot(222, aspect='equal')#------------------------------------
 
         pm2 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ggg),
-                             cmap=my_cmap2, vmin=0.01, vmax=10, zorder=2)
+                             cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
         plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
         plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
         cb = plt.colorbar(shrink=cc)
-        cb.set_label("Rainrate in mm/h",fontsize=ff)
+        cb.set_label("Reflectivity [dBZ]",fontsize=ff)
         cb.ax.tick_params(labelsize=ff)
-        plt.title('GPM DPR Rainrate: \n '+str(gpm_zeit)+'UTC',fontsize=ff)
+        plt.title('GPM DPR Reflectivity: \n '+str(gpm_zeit)+'UTC',fontsize=ff)
         plot_borders(ax2)
-        plot_radar(bonnlon, bonnlat, ax2, reproject=True)
+        plot_radar(bonnlon, bonnlat, ax2, reproject=True, cband=False,col='black')
         plt.grid(color='r')
         plt.tick_params(
             axis='both',
@@ -251,16 +259,16 @@ for i in range(290, len(pfad_gpm)):
         ax3 = fig.add_subplot(223, aspect='equal')#------------------------------------
 
         pm3 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
-                             cmap=my_cmap2, vmin=0.01, vmax=10,zorder=2)
+                             cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
         plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
         plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
         cb = plt.colorbar(shrink=cc)
-        cb.set_label("Rainrate in mm/h",fontsize=ff)
+        cb.set_label("Reflectivity [dBZ]",fontsize=ff)
         cb.ax.tick_params(labelsize=ff)
 
-        plt.title('RADOLAN Rainrate Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
+        plt.title('RADOLAN Reflectivity Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
         plot_borders(ax3)
-        plot_radar(bonnlon, bonnlat, ax3, reproject=True)
+        plot_radar(bonnlon, bonnlat, ax3, reproject=True, cband=False,col='black')
         plt.grid(color='r')
         plt.tick_params(
             axis='both',
@@ -279,14 +287,10 @@ for i in range(290, len(pfad_gpm)):
         try:
             maske = ~np.isnan(ggg) & ~np.isnan(rrr)
             slope, intercept, r_value, p_value, std_err = stats.linregress(ggg[maske], rrr[maske])
-            #line = slope * ggg +intercept
-            #line2 = slope * rrr +intercept
-            #slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(rrr[maske], ggg[maske])
 
-            from pcc import skill_score
             SS = skill_score(ggg,rrr,th=TH_ref)
 
-            ax4.scatter(ggg, rrr, label='Rainrate in mm/h', color='grey', alpha=0.6)
+            ax4.scatter(ggg, rrr, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
 
             r_value_s, p_value_s = stats.spearmanr(ggg[maske],rrr[maske])
 
@@ -310,38 +314,28 @@ for i in range(290, len(pfad_gpm)):
             ax4.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
                             horizontalalignment='left', verticalalignment='top')
 
-            t1 = linspace(0,10,10)
+            t1 = linspace(0,50,10)
 
             plt.plot(t1,t1,'k-')
             plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-            #plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-            #plt.plot(t1, t1*slope1 + intercept1, 'g-', lw=3 ,label='Regression')
-
-            #plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
-            #plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
-            #plt.plot(np.nanmean(ggg),np.nanmean(rrr), 'ob', lw = 4,label='Mean')
-            #plt.plot(np.nanmedian(ggg),np.nanmedian(rrr), 'vb', lw = 4,label='Median')
-
-            #import matplotlib as mpl
-            #mean = [ np.nanmean(ggg),np.nanmean(rrr)]
-            #width = np.nanstd(ggg)
-            #height = np.nanstd(rrr)
-            #angle = 0
-            #ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-            #                          angle=180+angle, color='blue', alpha=0.8,
-            #                          fill=False, ls='--', label='Std')
-            #ax4.add_patch(ell)
-
             plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
 
-            plt.xlim(0,10)
-            plt.ylim(0,10)
+            plt.xlim(0,50)
+            plt.ylim(0,50)
 
-            plt.xlabel('GPM DPR Rainrate in mm/h',fontsize=ff)
-            plt.ylabel('RADOLAN Rainrate in mm/h',fontsize=ff)
+            plt.xlabel('GPM DPR Reflectivity [dBZ]',fontsize=ff)
+            plt.ylabel('RADOLAN Reflectivity [dBZ]',fontsize=ff)
             plt.xticks(fontsize=ff)
             plt.yticks(fontsize=ff)
             plt.grid(color='r')
+
+            writer.writerow([gpm_zeit,
+                    r_value, std_err,r_value_s,SS['N'],SS['H'],
+                    SS['M'],SS['F'],SS['C'],SS['HR'],SS['POD'],
+                    SS['FAR'],SS['BID'],SS['HSS'],SS['bias'],
+                    SS['RMSE'],np.nanmean(ggg),np.nanmean(rrr),
+                    np.nanmedian(ggg),np.nanmedian(rrr)])
+
 
             del(text, slope, intercept, r_value, p_value, std_err,maske,SS,t1)# width, height, ell, line)
 
@@ -349,10 +343,17 @@ for i in range(290, len(pfad_gpm)):
             pass
 
         plt.tight_layout()
-        plt.savefig('/automount/ags/velibor/plot/alledpr/gpm_dpr_rrboxpol_radolan_'+ str(gpm_zeit) + '.png' )
+        plt.savefig('/automount/ags/velibor/plot/alldprdeci/gpm_dpr_radolan_'+ str(gpm_zeit) + '.png' )
         plt.close()
         #plt.show()
-
+        try:
+            from satlib import validation_plot
+            validation_plot(ggg,rrr)
+            plt.title('RADOLAN vs. DPR Reflectivity in dBZ: \n'+ radolan_zeit + ' UTC',fontsize=ff)
+            plt.savefig('/automount/ags/velibor/plot/alldprdeci/gpm_dpr_radolan_'+ str(gpm_zeit) + '_b.png' )
+            plt.close()
+        except:
+            pass
 
 
         del(fig, ax4,ax3, ax2, ax1, pm1, pm2, pm3,gprof_lat,
@@ -361,17 +362,13 @@ for i in range(290, len(pfad_gpm)):
                 mask,  rn, rwattrs, result,  pfad,
                 pfad_radolan, ht, m, d, ye ,mt, year,  cb )
 
-        #except:
-            #print 'ka warum es nicht geht'
-
-            #print dir()
-
-            #print globals()
-
-            #print locals()
 
 
 
+from pcc import melde_dich
+melde_dich('Das Program pcc_alldproverpass_stats_rr.py ist fertig!')
 
+
+f.close()
 
 

@@ -19,8 +19,8 @@ import h5py
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,6,9,18,55,0,
-          2014,6,9,19,00,0,
+zeit = zt(2014,10,07,02,37,44,
+          2014,10,07,02,45,0,
           steps=30)
 
 

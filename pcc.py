@@ -458,6 +458,7 @@ def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
     proj_wgs.ImportFromEPSG(4326)
     x_loc, y_loc = (bx, by)
 
+
     r = np.arange(1, 101) * 1000
 
     if cband==True:
@@ -474,6 +475,7 @@ def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
 
 
 
+
     if reproject:
         # reproject to radolan polar stereographic projection
         polygons = wrl.georef.reproject(polygons,
@@ -487,19 +489,59 @@ def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
                                             projection_target=proj_stereo)
 
 
+
     # create PolyCollections and add to respective axes
     polycoll = mpl.collections.PolyCollection(polygons, closed=True,
                                               edgecolors=col,
                                               facecolors=col,
                                               zorder=2,
-                                              alpha=0.2)
+                                              alpha=1)
+
+    ax.add_collection(polycoll, autolim=True)
+
+    # plot radar location and information text
+    print np.unique(polygons)
+    ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
+    #ax.text(x_loc, y_loc, 'Bonn', color='k', fontsize=20)
+
+
+def plot_radar_boxpol(bx,by, ax):
+    # Plot der Radar Range von Bonn
+    import wradlib as wrl
+    import numpy as np
+    from osgeo import osr
+    import matplotlib as mpl
+
+    gk3 = wrl.georef.epsg_to_osr(31467)
+
+    x_loc, y_loc = (bx, by)
+
+    r = np.arange(1, 101)
+
+
+    # azimuth array 1 degree spacing
+    az = np.linspace(0, 360, 361)[0:-1]
+
+    # build polygons for maxrange rangering
+    polygons = wrl.georef.polar2polyvert(r, az,
+                                         (x_loc, y_loc))
+    polygons.shape = (len(az), len(r), 5, 2)
+    polygons = polygons[:, -1, :, :]
+
+
+
+    # create PolyCollections and add to respective axes
+    polycoll = mpl.collections.PolyCollection(polygons, closed=True,
+                                              edgecolors='black',
+                                              facecolors='black',
+                                              zorder=2,
+                                              alpha=0.9)
 
     ax.add_collection(polycoll, autolim=True)
 
     # plot radar location and information text
     ax.plot(x_loc, y_loc, 'r+')
     #ax.text(x_loc, y_loc, 'Bonn', color='r')
-
 
 def cut_the_swath(gprof_lon, gprof_lat, gprof_pp,eu):
     # Zurechtschneiden des Scanpfades ueber Deutschland

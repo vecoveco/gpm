@@ -120,8 +120,8 @@ PV_name = ['Rainrate (mm/h)','Z (dBZ)']
 
 # Swath ueber Deutschland
 from pcc import cut_the_swath
-blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp)
-ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr)
+blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp, eu=0)
+ablon, ablat, dpr3 = cut_the_swath(gprof_lon,gprof_lat,dpr, eu=0)
 
 dpr4 = np.copy(dpr3)
 dpr4[dpr4<100]=dpr4[dpr4<100]-100
@@ -454,7 +454,7 @@ cb.set_label("Rainrate (mm/h)",fontsize=ff)
 cb.ax.tick_params(labelsize=ff)
 plot_borders(ax1)
 
-plot_radar(blon, blat, ax1, reproject=True)
+plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
 
 plt.title('RADOLAN Rainrate: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
@@ -482,7 +482,7 @@ plt.xlabel("x [km] ",fontsize=ff)
 plt.ylabel("y [km]  ",fontsize=ff)
 plt.title('GPM DPR Rainrate: \n'+ '2014-10-07 T: 023600 UTC',fontsize=ff)
 plot_borders(ax2)
-plot_radar(blon, blat, ax2, reproject=True)
+plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
 
 #plt.xticks(fontsize=ff)
 #plt.yticks(fontsize=ff)
@@ -513,7 +513,7 @@ plt.ylabel("y [km]  ",fontsize=ff)
 plt.title('RADOLAN Rainrate Interpoliert: \n'+'20' + str(pfad_radolan[-20:-18])+'-'+str(pfad_radolan[-18:-16])+'-'+str(pfad_radolan[-16:-14])+
        ' T: '+str(pfad_radolan[-14:-10]) + '00 UTC',fontsize=ff) #RW Product Polar Stereo
 plot_borders(ax2)
-plot_radar(blon, blat, ax2, reproject=True)
+plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
 
 plt.xlim(-420,390)
 plt.ylim(-4700, -3700)
