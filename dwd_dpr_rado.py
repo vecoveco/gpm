@@ -64,16 +64,17 @@ for i in range(len(zz)):
     print pfad_gpm_g
 
     gpmdpr = h5py.File(pfad_gpm_g, 'r')
-    gprof_lat = np.array(gpmdpr['NS']['Latitude'])
-    gprof_lon = np.array(gpmdpr['NS']['Longitude'])
+    sc = 'HS'
+    gprof_lat = np.array(gpmdpr[sc]['Latitude'])
+    gprof_lon = np.array(gpmdpr[sc]['Longitude'])
 
-    gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
+    gprof_pp = np.array(gpmdpr[sc]['SLV']['zFactorCorrectedNearSurface'])
     #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
     #g_1 = np.array(gpmdpr['NS']['VER']['sigmaZeroNPCorrected'])
     #g_2 = np.array(gpmdpr['NS']['PRE']['zFactorMeasured'])
     #g_3 = np.array(gpmdpr['NS']['PRE']['binRealSurface'])
 
-    gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
+    gprof_pia = np.array(gpmdpr[sc]['SLV']['piaFinal'])
 
     gprof_pp[gprof_pp==-9999.9]= np.nan
     gprof_pia[gprof_pia==-9999.9]= np.nan
@@ -84,7 +85,7 @@ for i in range(len(zz)):
 
 
 
-    gpm_time = gpmdpr['NS']['ScanTime']
+    gpm_time = gpmdpr[sc]['ScanTime']
     gpm_zeit = get_time_of_gpm(gprof_lon, gprof_lat, gpm_time)
 
     ht, mt = gpm_zeit[14:16], str(int(round(float(gpm_zeit[17:19])/5.0)*5.0))

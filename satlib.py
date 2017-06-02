@@ -385,7 +385,7 @@ def cp_dist(data1, data2):
     plt.show()
 
 
-def validation_plot(data1, data2):
+def validation_plot(data1, data2, th_ss):
     """
     Function:
         Plot for the validation of two datasets
@@ -415,8 +415,12 @@ def validation_plot(data1, data2):
     slope, intercept, r_value, p_value, std_err = stats.linregress(data1[maske], data2[maske])
     line = slope * data1 +intercept
 
+    slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(data2[maske], data1[maske])
+    line2 = slope2 * data2 +intercept2
+
+
     from pcc import skill_score
-    SS = skill_score(data1,data2,th=12.)
+    SS = skill_score(data1,data2,th=th_ss)
 
     ax1.scatter(data1, data2, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
 
@@ -444,21 +448,24 @@ def validation_plot(data1, data2):
 
     t1 = linspace(0,50,50)
     plt.plot(t1,t1,'k-')
-    plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-    plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
-    plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
-    plt.plot(np.nanmean(data1),np.nanmean(data2), 'ob', lw = 4,label='Mean')
-    plt.plot(np.nanmedian(data1),np.nanmedian(data2), 'vb', lw = 4,label='Median')
+    #plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
+    #plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
+    #plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
+    plt.plot(t1,t1*slope + intercept,label='RADOLAN', color='green', lw=1.5)
+    plt.plot(t1*slope2 + intercept2,t1,label='GPM', color='blue', lw=1.5)
 
-    import matplotlib as mpl
-    mean = [ np.nanmean(data1),np.nanmean(data2)]
-    width = np.nanstd(data1)
-    height = np.nanstd(data2)
-    angle = 0
-    ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                              angle=180+angle, color='blue', alpha=0.8,
-                              fill=False, ls='--', label='Std')
-    ax1.add_patch(ell)
+    #plt.plot(np.nanmean(data1),np.nanmean(data2), 'ob', lw = 4,label='Mean')
+    #plt.plot(np.nanmedian(data1),np.nanmedian(data2), 'vb', lw = 4,label='Median')
+
+    #import matplotlib as mpl
+    #mean = [ np.nanmean(data1),np.nanmean(data2)]
+    #width = np.nanstd(data1)
+    #height = np.nanstd(data2)
+    #angle = 0
+    #ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
+    #                          angle=180+angle, color='blue', alpha=0.8,
+    #                          fill=False, ls='--', label='Std')
+    #ax1.add_patch(ell)
 
     plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
 
@@ -483,7 +490,7 @@ def validation_plot(data1, data2):
                                        facecolor="None", label='RADOLAN')
 
     plt.xlim(mini, maxi)
-    plt.ylabel('frequency in #')
+    plt.ylabel('g_frequency in #')
     plt.grid(color=cd2)
     plt.legend(loc='upper right')
 
@@ -495,7 +502,7 @@ def validation_plot(data1, data2):
 
     counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.9, edgecolor='black',
                                         facecolor="None",orientation='horizontal', label='GPM')
-    plt.xlabel('frequency in #')
+    plt.xlabel('r_frequency in #')
     plt.ylim(mini,maxi)
     plt.grid(color=cd1)
     plt.legend(loc='upper right')
@@ -503,8 +510,8 @@ def validation_plot(data1, data2):
     ax4 = fig.add_subplot(222, aspect='auto')#------------------------------------
     bin_centers1 = np.mean(zip(bins1[:-1], bins1[1:]), axis=1)
     bin_centers2 = np.mean(zip(bins2[:-1], bins2[1:]), axis=1)
-    ax4.plot(bin_centers1, counts1.cumsum(),color=cd2 ,ls='-', lw=2,alpha=0.5, label='GPM')
-    ax4.plot(bin_centers2, counts2.cumsum(),color=cd1, ls='-', lw=2, alpha=0.5, label='RADOLAN')
+    ax4.plot(counts1.cumsum(),color=cd2 ,ls='-', lw=2,alpha=0.5, label='GPM')
+    ax4.plot(counts2.cumsum(),color=cd1, ls='-', lw=2, alpha=0.5, label='RADOLAN')
 
     maske = ~np.isnan(counts1) & ~np.isnan(counts2)
     slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(counts1[maske], counts2[maske])
@@ -519,7 +526,7 @@ def validation_plot(data1, data2):
 
     plt.grid()
 
-    #plt.show()
+    plt.show()
 
 
 
