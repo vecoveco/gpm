@@ -30,7 +30,7 @@ pfad_gpm = sorted(glob.glob(pfad))
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 
 
-for i in range(230, len(pfad_gpm)):
+for i in range(700, len(pfad_gpm)):
 
     ## Read GPM Data
 
@@ -38,7 +38,7 @@ for i in range(230, len(pfad_gpm)):
     print pfad_gpm_g
     gpmdpr = h5py.File(pfad_gpm_g, 'r')
     # sc = ['NS', 'HS', 'MS']
-    sc = 'HS'
+    sc = 'MS'
     gprof_lat = np.array(gpmdpr[sc]['Latitude'])
     gprof_lon = np.array(gpmdpr[sc]['Longitude'])
 
@@ -77,19 +77,8 @@ for i in range(230, len(pfad_gpm)):
 
 
         try:
-            if (int(year) < 2014) and (int(m) < 2) and (int(d) <= 23):
-                rw_filename = wradlib.util.get_wradlib_data_file(pfad)
-            else:
-                rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
-        #try:
-        #    rw_filename = wradlib.util.get_wradlib_data_file(pfad)
-        #except EnvironmentError:
-        #    print 'Fehler durch gz'
 
-        #try:
-        #    rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
-        #except EnvironmentError:
-        #    print 'Datei '+pfad+' nicht gefunden! '
+            rw_filename = wradlib.util.get_wradlib_data_file(glob.glob(pfad_radolan+'*')[0])
 
             rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
 

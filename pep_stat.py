@@ -12,14 +12,18 @@ pfad_gpm = sorted(glob.glob(pfad))
 
 
 r_rad, r_sat = [], []
+#len(pfad_gpm)
 
 for ii in range(len(pfad_gpm)):
-    print ii
+    #print ii
     R = h5py.File(pfad_gpm[ii], 'r')
     rrr = np.array(R['dat_rad'])
     ggg = np.array(R['dat_sat'])
-    #x=  np.array(R['x'])
-    #y = np.array(R['y'])
+    #xx=  np.array(R['x'])
+    #yy = np.array(R['y'])
+
+    # TODO: Chek einbauen ob der Uberflug relevant ist
+
     rrr = rrr.reshape(rrr.shape[0]*rrr.shape[1])
     ggg = ggg.reshape(ggg.shape[0]*ggg.shape[1])
     #print rrr.shape

@@ -20,6 +20,7 @@ min = '40'
 pfad_mrr = glob.glob('/automount/mrr/mrr2/'+yy+'/'+yy+'-'+mm+'/'+yy+'-'+mm+'-'+dd+'/AveData_mrr2_'+yy+mm+dd+hh+min+'*.ave.gz')[0]
 
 
+
 df = pd.read_csv(pfad_mrr, compression='gzip', header=1, delim_whitespace=True,index_col=False)
 df = df.set_index(u'H')
 
