@@ -7,20 +7,42 @@ from scipy import stats, linspace
 
 import matplotlib.pyplot as plt
 
-pfad = ('/automount/ags/velibor/gpmdata/dumpdata/RR_NS*.hdf5')
+para = ['RR_MS', 'RR_NS', 'RR_HS', 'REF_MS', 'REF_NS', 'REF_HS']
+
+# Threshold ATBD GPM 2016
+thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
+
+pp = 0
+
+TH = thresh[pp]
+
+#pfad = ('/automount/ags/velibor/gpmdata/dumpdata/RR_MS/RR_MS*.hdf5')
+pfad = ('/automount/ags/velibor/gpmdata/dumpdata/' + para[pp] + '/' + para[pp] + '*.hdf5')
+
 pfad_gpm = sorted(glob.glob(pfad))
 
+print 'Es sind ',len(pfad_gpm), 'Dateien vorhanden!'
 
+sommer, winter, = ['07','08','06'], ['12','01','02']
 r_rad, r_sat = [], []
+rmax_rad, rmax_sat = [], []
+rmin_rad, rmin_sat = [], []
+rm_rad, rm_sat = [], []
+
 #len(pfad_gpm)
 
 for ii in range(len(pfad_gpm)):
     #print ii
+
+
+    #if pfad_gpm[ii][56:58] in sommer:
     R = h5py.File(pfad_gpm[ii], 'r')
     rrr = np.array(R['dat_rad'])
     ggg = np.array(R['dat_sat'])
     #xx=  np.array(R['x'])
     #yy = np.array(R['y'])
+    rrr[rrr<=0]=np.nan
+    ggg[ggg<=0]=np.nan
 
     # TODO: Chek einbauen ob der Uberflug relevant ist
 
@@ -32,18 +54,29 @@ for ii in range(len(pfad_gpm)):
     r_rad = np.concatenate((r_rad, rrr), axis=0)
     r_sat = np.concatenate((r_sat, ggg), axis=0)
 
+    rmax_rad.append(np.nanmax(rrr))
+    rmax_sat.append(np.nanmax(ggg))
+
+    rmin_rad.append(np.nanmin(rrr))
+    rmin_sat.append(np.nanmin(ggg))
+
+    rm_rad.append(np.nanmean(rrr))
+    rm_sat.append(np.nanmean(ggg))
+    #else:
+    #    pass
     #print r_rad.shape
 
+print r_rad
 
-TH = 0.5
 r_rad[r_rad<=TH]=np.nan
 r_sat[r_sat<=TH]=np.nan
 
 
 print r_rad.shape, r_sat.shape
-print np.nanmin(r_rad), np.nanmin(r_sat)
-print np.nanmean(r_rad), np.nanmean(r_sat)
-print np.nanmax(r_rad), np.nanmax(r_sat)
+print '------RADAR ------------ Satellite'
+print 'Min: ',np.nanmin(r_rad), np.nanmin(r_sat)
+print 'Mean: ', np.nanmean(r_rad), np.nanmean(r_sat)
+print 'Max: ',np.nanmax(r_rad), np.nanmax(r_sat)
 
 maske = ~np.isnan(r_sat) & ~np.isnan(r_rad)
 slope, intercept, r_value, p_value, std_err = stats.linregress(r_sat[maske], r_rad[maske])
@@ -52,7 +85,7 @@ line = slope * r_sat +intercept
 slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(r_rad[maske], r_sat[maske])
 line2 = slope2 * r_rad +intercept2
 
-diffi = r_sat[maske]-r_rad[maske]
+diffi = r_sat[maske] - r_rad[maske]
 bias = np.nansum(diffi)/len(diffi)
 
 biaslog = 10*np.log10(np.nansum(r_sat[maske])/np.nansum(r_rad[maske]))
@@ -93,7 +126,7 @@ plt.ylabel('RADOLAN Reflectivity (dBZ)',fontsize=ff)
 plt.xticks(fontsize=ff)
 plt.yticks(fontsize=ff)
 plt.grid(color='r')
-
+plt.title(str(para[pp]))
 plt.tight_layout()
 
 
@@ -103,3 +136,35 @@ plt.show()
 
 from satlib import validation_plot
 validation_plot(r_sat, r_rad, TH)
+plt.title(str(para[pp]))
+plt.show()
+
+rm_rad = np.array(rm_rad)
+rm_sat = np.array(rm_sat)
+rmin_rad = np.array(rmin_rad)
+rmin_sat = np.array(rmin_sat)
+rmax_rad = np.array(rmax_rad)
+rmax_sat = np.array(rmax_sat)
+
+rm_rad[rm_rad<=0]=np.nan
+rm_sat[rm_sat<=0]=np.nan
+rmin_rad[rmin_rad<=0]=np.nan
+rmin_sat[rmin_sat<=0]=np.nan
+rmax_rad[rmax_rad<=0]=np.nan
+rmax_sat[rmax_sat<=0]=np.nan
+
+plt.subplot(3,1,1)
+plt.plot(rm_rad)
+plt.plot(rm_sat)
+
+plt.subplot(3,1,2)
+plt.plot(rmin_rad)
+plt.plot(rmin_sat)
+
+plt.subplot(3,1,3)
+plt.plot(rmax_rad)
+plt.plot(rmax_sat)
+
+plt.title(str(para[pp]))
+
+plt.show()

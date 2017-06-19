@@ -451,8 +451,8 @@ def validation_plot(data1, data2, th_ss):
     #plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
     #plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
     #plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
-    plt.plot(t1,t1*slope + intercept,label='RADOLAN', color='green', lw=1.5)
-    plt.plot(t1*slope2 + intercept2,t1,label='GPM', color='blue', lw=1.5)
+    plt.plot(t1,t1*slope + intercept,label='RADOLAN', color='green', lw=1.5, alpha=0.5)
+    plt.plot(t1*slope2 + intercept2,t1,label='GPM', color='blue', lw=1.5, alpha=0.5)
 
     #plt.plot(np.nanmean(data1),np.nanmean(data2), 'ob', lw = 4,label='Mean')
     #plt.plot(np.nanmedian(data1),np.nanmedian(data2), 'vb', lw = 4,label='Median')
@@ -526,7 +526,7 @@ def validation_plot(data1, data2, th_ss):
 
     plt.grid()
 
-    plt.show()
+    #plt.show()
 
 
 

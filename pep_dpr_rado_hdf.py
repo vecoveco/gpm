@@ -23,6 +23,7 @@ from satlib import write2hdf as w2h
 
 # Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
 TH_ref = 0.1
+sc = ['NS', 'HS', 'MS']
 
 pfad = ('/automount/ags/velibor/gpmdata/dpr/*.HDF5')
 pfad_gpm = sorted(glob.glob(pfad))
@@ -30,7 +31,7 @@ pfad_gpm = sorted(glob.glob(pfad))
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 
 
-for i in range(700, len(pfad_gpm)):
+for i in range(0, len(pfad_gpm)):
 
     ## Read GPM Data
 
@@ -38,7 +39,7 @@ for i in range(700, len(pfad_gpm)):
     print pfad_gpm_g
     gpmdpr = h5py.File(pfad_gpm_g, 'r')
     # sc = ['NS', 'HS', 'MS']
-    sc = 'MS'
+    sc = 'NS'#'HS'#'MS'
     gprof_lat = np.array(gpmdpr[sc]['Latitude'])
     gprof_lon = np.array(gpmdpr[sc]['Longitude'])
 

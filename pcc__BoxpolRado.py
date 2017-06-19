@@ -11,7 +11,7 @@ import wradlib
 import h5py
 from osgeo import osr
 
-zz = '20140609182000'
+zz = '20141007024500'
 
 x, y, rwdata, rn = read_rado(zz, r_pro='rx')
 
@@ -50,6 +50,9 @@ def read_boxpol(zeitstempel):
     return zh, r, az, lon_ppi, lat_ppi, alt_ppi
 
 zh, r, az, lon_ppi, lat_ppi, alt_ppi = read_boxpol(zz)
+import numpy as np
+zh[151:165]=np.nan
+
 
 """proj_stereo = wrl.georef.create_osr("dwd-radolan")
 proj_wgs = osr.SpatialReference()
@@ -146,8 +149,8 @@ b = rwdata.copy()
 #a[np.where(y<-4150)]=np.nan
 
 
-a[a<5]=np.nan
-b[b<5]=np.nan
+a[a<15]=np.nan
+b[b<15]=np.nan
 from scipy import stats, linspace
 
 maske = ~np.isnan(a) & ~np.isnan(b)
