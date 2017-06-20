@@ -400,10 +400,15 @@ def validation_plot(data1, data2, th_ss):
 
     # Todo: Schoener machen!
 
-    mini = np.nanmin([np.nanmin(data1), np.nanmin(data2)])-5.0
-    maxi = np.nanmax([np.nanmax(data1), np.nanmax(data2)])+5.0
+    mini = np.nanmin([np.nanmin(data1), np.nanmin(data2)]) - 5.0
+    maxi = np.nanmax([np.nanmax(data1), np.nanmax(data2)]) + 5.0
+    print 'Max data1: ', np.nanmax(data1)
+    print 'Max data2: ', np.nanmax(data2)
+
     cd1 = 'blue'
     cd2 = 'green'
+
+    print '________________________ Maxi:', maxi
 
     from scipy import stats, linspace
 
@@ -446,7 +451,7 @@ def validation_plot(data1, data2, th_ss):
     ax1.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
                     horizontalalignment='left', verticalalignment='top')
 
-    t1 = linspace(0,50,50)
+    t1 = linspace(mini,maxi,50)
     plt.plot(t1,t1,'k-')
     #plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
     #plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
@@ -538,3 +543,156 @@ def write2hdf(name, x, y, dat_rad, dat_sat):
     h.create_dataset('dat_rad', data=dat_rad)
     h.create_dataset('dat_sat', data=dat_sat)
     h.close()
+
+
+def validation_plot_log(data1, data2, th_ss):
+    """
+    Function:
+        Plot for the validation of two datasets
+
+    Input:
+        data1, data2 ::: Input Data
+
+    Output:
+        Validation PLot
+
+    """
+
+    # Todo: Schoener machen!
+
+    #mini = np.nanmin([np.nanmin(data1), np.nanmin(data2)]) - 5.0
+    mini = 0.0
+    maxi = np.nanmax([np.nanmax(data1), np.nanmax(data2)]) + 5.0
+    print 'LIMITS: ', mini, maxi
+
+    cd1 = 'blue'
+    cd2 = 'green'
+
+
+    from scipy import stats, linspace
+
+
+    fig = plt.figure(figsize=(14,14))
+    ax1 = fig.add_subplot(223, aspect='auto')#---------------------------------------------------------------
+
+    maske = ~np.isnan(data1) & ~np.isnan(data2)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(data1[maske], data2[maske])
+    line = slope * data1 +intercept
+
+    slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(data2[maske], data1[maske])
+    line2 = slope2 * data2 +intercept2
+
+
+    from pcc import skill_score
+    SS = skill_score(data1,data2,th=th_ss)
+
+    ax1.scatter(data1, data2, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
+    plt.yscale('log')
+    plt.xscale('log')
+
+
+    r_value_s, p_value_s = stats.spearmanr(data1[maske],data2[maske])
+
+    text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
+               '\nCorr: ' + str(round(r_value,3)) + r'$\pm$: '+  str(round(std_err,3))+
+            '\nN: '+ str(int(SS['N']))+
+            '\nHit: ' + str(SS['H'])+
+            '\nMiss: ' + str(SS['M'])+
+            '\nFalse: ' + str(SS['F'])+
+            '\nCnegative: ' + str(SS['C'])+
+            '\nHR: ' + str(round(SS['HR'],3))+
+            '\nPOD: ' + str(round(SS['POD'],3))+
+            '\nFAR: ' + str(round(SS['FAR'],3))+
+            '\nBID: ' + str(round(SS['BID'],3))+
+            '\nHSS: ' + str(round(SS['HSS'],3))+
+            '\nBias: '+ str(round(SS['bias'],3))+
+            '\nRMSE: '+ str(round(SS['RMSE'],3))+
+            '\nCorrS:' +  str(round(r_value_s,3))
+            )
+
+    ax1.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
+                    horizontalalignment='left', verticalalignment='top')
+
+    t1 = linspace(0,50,5000)
+    plt.plot(t1,t1,'k-')
+    plt.yscale('log')
+    plt.xscale('log')
+    #plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
+    #plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
+    #plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
+    plt.plot(t1,t1*slope + intercept,label='RADOLAN', color='green', lw=1.5, alpha=0.5)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.plot(t1*slope2 + intercept2,t1,label='GPM', color='blue', lw=1.5, alpha=0.5)
+    plt.yscale('log')
+    plt.xscale('log')
+
+
+
+    plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
+
+    plt.xlim(mini,maxi)
+    plt.ylim(mini,maxi)
+    plt.xlabel('GPM DPR')
+    plt.ylabel('RADOLAN')
+    plt.grid()
+
+
+    ax2 = fig.add_subplot(221, aspect='auto')#-----------------------------------------------------------------------------
+
+    counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.5,
+                                        color=cd2, label='GPM DPR')
+    plt.yscale('log')
+    plt.xscale('log')
+    counts2, bins2, patches2 =plt.hist(data2[maske], bins=int(maxi),
+                                       alpha=0.9, edgecolor='black',
+                                       facecolor="None", label='RADOLAN')
+    plt.yscale('log')
+    plt.xscale('log')
+
+    plt.xlim(mini, maxi)
+    plt.ylabel('g_frequency in #')
+    plt.grid(color=cd2)
+    plt.legend(loc='upper right')
+
+
+    ax3 = fig.add_subplot(224, aspect='auto')#-------------------------------------------------------------------------------
+
+    counts2, bins2, patches2 =plt.hist(data2[maske], bins=int(maxi),orientation='horizontal',
+                                       alpha=0.5, color=cd1, label='RADOLAN')
+    plt.yscale('log')
+    plt.xscale('log')
+
+    counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.9, edgecolor='black',
+                                        facecolor="None",orientation='horizontal', label='GPM')
+    plt.yscale('log')
+    plt.xscale('log')
+
+    plt.xlabel('r_frequency in #')
+    plt.ylim(mini,maxi)
+    plt.grid(color=cd1)
+    plt.legend(loc='upper right')
+
+    ax4 = fig.add_subplot(222, aspect='auto')#---------------------------------------------------------------------------------
+    bin_centers1 = np.mean(zip(bins1[:-1], bins1[1:]), axis=1)
+    bin_centers2 = np.mean(zip(bins2[:-1], bins2[1:]), axis=1)
+    ax4.plot(counts1.cumsum(),color=cd2 ,ls='-', lw=2,alpha=0.5, label='GPM')
+    ax4.plot(counts2.cumsum(),color=cd1, ls='-', lw=2, alpha=0.5, label='RADOLAN')
+
+    plt.yscale('log')
+    plt.xscale('log')
+
+    maske = ~np.isnan(counts1) & ~np.isnan(counts2)
+    slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(counts1[maske], counts2[maske])
+    r_value_s, p_value_s = stats.spearmanr(counts1[maske], counts2[maske])
+
+    plt.ylabel('frequency in #')
+    plt.xlabel('Reflectivity in dBz')
+    tit = 'Corr: '+ str(round(r_value2,3)) + r'$\pm$' + str(round(std_err2,3)) + '\n SCorr: '\
+          + str(round(r_value_s,3)) + r'$\pm$' + str(round(p_value_s,3))
+
+    plt.legend(loc='lower right', title=tit)
+
+    plt.grid()
+
+    #plt.show()

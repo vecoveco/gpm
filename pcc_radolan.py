@@ -29,8 +29,8 @@ from pcc import plot_borders
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,10,07,02,35,0,
-          2014,10,07,02,40,0,
+zeit = zt(2014,9,30,20,55,0,
+          2014,9,30,21,00,0,
           steps=5)
 #zeit = zt(2014,10,07,02,35,0, 2014,10,07,02,40,0, steps=5)
 
