@@ -31,8 +31,8 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2014,10,07,02,30,0,
-          2014,10,07,02,35,0,
+zeit = zt(2017,3,07,02,45,0,
+          2017,3,07,02,55,0,
           steps=5)
 
 
@@ -112,6 +112,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
+    plt.grid()
 
     fig.add_subplot(232, aspect='equal')
     ax2, pm2 = wradlib.vis.plot_ppi(zv,r,az, vmin=0, vmax=50, cmap=cmap2)
@@ -129,6 +130,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
+    plt.grid()
 
     fig.add_subplot(233, aspect='equal')
     ax3, pm3 = wradlib.vis.plot_ppi(zdr,r,az, vmin=-1, vmax=3, cmap=cmap2)
@@ -146,6 +148,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
+    plt.grid()
 
     fig.add_subplot(234, aspect='equal')
     ax4, pm4 = wradlib.vis.plot_ppi(phidp,r,az, cmap=cmap2, vmin=-100, vmax=0)
@@ -163,6 +166,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
+    plt.grid()
 
     fig.add_subplot(235, aspect='equal')
     ax5, pm5 = wradlib.vis.plot_ppi(rhohv,r,az, vmin=.7, vmax=.99, cmap=cmap2)
@@ -180,6 +184,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
+    plt.grid()
 
 
     fig.add_subplot(236, aspect='equal')
@@ -198,6 +203,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
+    plt.grid()
 
     plt.tight_layout()
     plt.show()
