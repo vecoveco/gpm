@@ -11,7 +11,7 @@ para = ['RR_MS', 'RR_NS', 'RR_HS', 'REF_MS', 'REF_NS', 'REF_HS']
 # Threshold ATBD GPM 2016
 thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
 
-pp = 5
+pp = 1
 
 #TH = thresh[pp]
 #TH = 0.15
@@ -74,7 +74,9 @@ print minirad, minisat
 maxrad, maxsat = np.nanmax(r_rad), np.nanmax(r_sat)
 print maxrad, maxsat
 
-TH = np.nanmax(np.array([minirad, minisat]))
+#TH = np.nanmax(np.array([minirad, minisat]))
+TH = np.nanmin(np.array([minirad, minisat]))
+
 print TH
 
 r_rad[r_rad<=TH]=np.nan
@@ -90,7 +92,7 @@ print 'Max: ',np.nanmax(r_rad), np.nanmax(r_sat)
 
 from satlib import validation_plot_log
 from satlib import validation_plot
-validation_plot(r_sat, r_rad, TH)
+validation_plot_log(r_sat, r_rad, TH)
 plt.title(str(para[pp])+ '- TH: ' + str(TH))
 plt.show()
 #plt.savefig('/automount/ags/velibor/plot/validation/validation'+para[pp]+'.png' )

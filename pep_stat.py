@@ -11,10 +11,10 @@ para = ['RR_MS', 'RR_NS', 'RR_HS', 'REF_MS', 'REF_NS', 'REF_HS']
 # Threshold ATBD GPM 2016
 thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
 
-for jjj in range(6):
+for jjj in range(3):
     pp = jjj
 
-    TH = thresh[pp]
+    #TH = thresh[pp]
 
     #pfad = ('/automount/ags/velibor/gpmdata/dumpdata/RR_MS/RR_MS*.hdf5')
     pfad = ('/automount/ags/velibor/gpmdata/dumpdata/' + para[pp] + '/' + para[pp] + '*.hdf5')
@@ -34,67 +34,80 @@ for jjj in range(6):
     for ii in range(len(pfad_gpm)):
         #print ii
 
+        # by REF nicht 56:58 sonder 58:60
+        if pfad_gpm[ii][56:58] in sommer:
+            #print pfad_gpm[ii][56:58]
+            R = h5py.File(pfad_gpm[ii], 'r')
+            rrr = np.array(R['dat_rad'])
+            ggg = np.array(R['dat_sat'])
+            #xx=  np.array(R['x'])
+            #yy = np.array(R['y'])
+            rrr[rrr<=0] = np.nan
+            ggg[ggg<=0] = np.nan
 
-        #if pfad_gpm[ii][56:58] in sommer:
-        R = h5py.File(pfad_gpm[ii], 'r')
-        rrr = np.array(R['dat_rad'])
-        ggg = np.array(R['dat_sat'])
-        #xx=  np.array(R['x'])
-        #yy = np.array(R['y'])
-        rrr[rrr<=0] = np.nan
-        ggg[ggg<=0] = np.nan
+            rrr[rrr>1000000000] = np.nan
+            ggg[ggg>1000000000] = np.nan
 
-        rrr[rrr>1000000000] = np.nan
-        ggg[ggg>1000000000] = np.nan
+            # TODO: Chek einbauen ob der Uberflug relevant ist
 
-        # TODO: Chek einbauen ob der Uberflug relevant ist
-
-        rrr = rrr.reshape(rrr.shape[0]*rrr.shape[1])
-        ggg = ggg.reshape(ggg.shape[0]*ggg.shape[1])
-        #print rrr.shape
+            rrr = rrr.reshape(rrr.shape[0]*rrr.shape[1])
+            ggg = ggg.reshape(ggg.shape[0]*ggg.shape[1])
+            #print rrr.shape
 
 
-        r_rad = np.concatenate((r_rad, rrr), axis=0)
-        r_sat = np.concatenate((r_sat, ggg), axis=0)
+            r_rad = np.concatenate((r_rad, rrr), axis=0)
+            r_sat = np.concatenate((r_sat, ggg), axis=0)
 
-        rmax_rad.append(np.nanmax(rrr))
-        rmax_sat.append(np.nanmax(ggg))
+            rmax_rad.append(np.nanmax(rrr))
+            rmax_sat.append(np.nanmax(ggg))
 
-        rmin_rad.append(np.nanmin(rrr))
-        rmin_sat.append(np.nanmin(ggg))
+            rmin_rad.append(np.nanmin(rrr))
+            rmin_sat.append(np.nanmin(ggg))
 
-        rm_rad.append(np.nanmean(rrr))
-        rm_sat.append(np.nanmean(ggg))
-        #else:
-        #    pass
+            rm_rad.append(np.nanmean(rrr))
+            rm_sat.append(np.nanmean(ggg))
+        else:
+            pass
         #print r_rad.shape
-
+    print np.nanmin(r_rad), np.nanmin(r_sat)
     minirad, minisat = np.nanmin(r_rad), np.nanmin(r_sat)
-    print minirad, minisat
+    print minirad
+    #print minirad, minisat
 
     maxrad, maxsat = np.nanmax(r_rad), np.nanmax(r_sat)
-    print maxrad, maxsat
+    #print maxrad, maxsat
 
     TH = np.nanmax(np.array([minirad, minisat]))
-    print TH
+    #print TH
+    #TH = 10
 
     r_rad[r_rad<=TH]=np.nan
     r_sat[r_sat<=TH]=np.nan
 
 
-    print r_rad.shape, r_sat.shape
-    print '------RADAR ------------ Satellite'
-    print 'Min: ',np.nanmin(r_rad), np.nanmin(r_sat)
-    print 'Mean: ', np.nanmean(r_rad), np.nanmean(r_sat)
-    print 'Max: ',np.nanmax(r_rad), np.nanmax(r_sat)
+    #print r_rad.shape, r_sat.shape
+    #print '------RADAR ------------ Satellite'
+    #print 'Min: ',np.nanmin(r_rad), np.nanmin(r_sat)
+    #print 'Mean: ', np.nanmean(r_rad), np.nanmean(r_sat)
+    #print 'Max: ',np.nanmax(r_rad), np.nanmax(r_sat)
 
 
-    from satlib import validation_plot
-    validation_plot(r_sat, r_rad, TH)
-    plt.title(str(para[pp]))
-    #plt.show()
-    plt.savefig('/automount/ags/velibor/plot/validation/validation'+para[pp]+'.png' )
-    plt.close()
+    from satlib import validation_plot, validation_plot_log
+    if pp <= 2:
+        print '-----------------------> RR'
+        validation_plot_log(r_sat, r_rad, TH)
+        plt.title(str(para[pp])+ '- TH: ' + str(TH))
+        #plt.show()
+        plt.savefig('/automount/ags/velibor/plot/validation/run/validation_dynTH_JJA'+ para[pp] +'.png' )
+        plt.close()
+    if pp>2:
+        print '----------------------> REF'
+        validation_plot(r_sat, r_rad, TH)
+        plt.title(str(para[pp])+ '- TH: ' + str(TH))
+        #plt.show()
+        plt.savefig('/automount/ags/velibor/plot/validation/run/validation_dynTH_JJA'+ para[pp] +'.png' )
+        plt.close()
+
 '''
 rm_rad = np.array(rm_rad)
 rm_sat = np.array(rm_sat)

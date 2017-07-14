@@ -48,7 +48,11 @@ plt.show()
 #ToDo : Zeitlicher VErlauf vom MRR einfugen
 
 """
-def plot_mrr1(t_start='2016-6-12 20:55', time_delta=20):
+def plot_mrr1(t_start='2016-6-25 03:04', time_delta=10):
+    """
+    Creat by Jo. Beer
+
+    """
 
     import numpy as np
     import pymysql as mysql
@@ -98,4 +102,4 @@ def plot_mrr1(t_start='2016-6-12 20:55', time_delta=20):
     pl.show()
 
 
-plot_mrr1(t_start='2016-6-12 20:55', time_delta=20)
+plot_mrr1(t_start='2016-6-25 03:04', time_delta=10)

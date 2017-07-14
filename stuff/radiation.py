@@ -260,3 +260,111 @@ plt.ylabel('Temperatur in K')
 plt.show()
 
 
+def calc_S_from_ground(I1, I2, w1, w2):
+    """
+    GP 7.8 Problem
+
+    I1, I2 gemessene Intensitaeten
+
+    w1, w2 Einfallswinkel in Grad
+
+    """
+    ww1 = 1/np.cos(np.deg2rad(w1))
+    ww2 = 1/np.cos(np.deg2rad(w2))
+
+    tau = (-1 * np.log(I1/I2)) / (ww1-ww2)
+    S0 = I1 * np.exp(tau / np.cos(np.deg2rad(w1)))
+
+    return tau , S0
+
+
+def atmo_h(z):
+    piz = np.exp(-z/8)
+    return piz
+
+def atmo_tau_t(z, const=1, winkel=0):
+    tau = const * 8 * np.exp(-z/8)
+    t =  np.exp(-tau/np.cos(np.deg2rad(winkel)))
+    return tau, t
+
+def atmo_w(t, winkel=0):
+    tw = np.exp(-z/8)*t/np.cos(np.deg2rad(winkel))
+    return tw
+
+def atmo(z):
+    tau = np.exp(-z)
+    t =  np.exp(-tau)
+    return tau, t
+
+for i in np.array([0, 30, 60 ,80]):
+    ww = i
+    z = np.arange(0,100,0.01)
+    tau, t = atmo_tau_t(z, winkel=ww)
+    rho = atmo_h(z)
+    tw = atmo_w(t, winkel=ww)
+    plt.subplot(2,2,1)
+    plt.plot(t,z, label='transmission__'+str(ww))
+    plt.legend()
+    plt.xlim(0,1)
+    plt.grid()
+    plt.subplot(2,2,4)
+    plt.plot(rho,z, label='dichte__'+str(ww))
+    plt.legend()
+    plt.xlim(0,1)
+    plt.grid()
+    plt.subplot(2,2,3)
+    plt.plot(tau,z, label='optische dicke__'+str(ww))
+    plt.legend()
+    plt.xlim(0,1)
+    plt.grid()
+    plt.subplot(2,2,2)
+    plt.plot(tw,z, label='gewichtete transmission__'+str(ww))
+    plt.legend()
+    plt.xlim(0,1)
+    plt.grid()
+
+
+plt.show()
+
+z = np.arange(0,100,0.01)
+tau, t = atmo(z)
+plt.plot(t,z); plt.plot(tau,z); plt.show()
+
+def taus(ka, w1,rho, H):
+    taus = ka * w1 * rho * H
+    return taus
+
+
+def wfunc(z,taus, winkel, H=8):
+    mu = 1./np.cos(np.deg2rad(winkel))
+    A1 = (taus / (H * mu)) * np.exp(-z/H)
+    A2 = np.exp((-taus/mu) * np.exp(-z/H))
+    Wz = A1 * A2
+    return Wz
+
+
+def t1(asw,alw,A):
+    res1 = (1.-(1.-asw)*A)*(2.-asw) - (1.-asw)*(1.-A)*(2.-alw)
+    return res1
+
+
+######################### AUFGABE
+def ts(asw, alw, A, S, sig):
+    res1 = (1.-(1.-asw)*A) *((2.-asw)/(2.-alw))
+    #res2 = res1 /(2.-alw)*alw
+    res3 = ((S/sig)*res1)**(1./4.)
+    return res3
+
+def ta(asw, alw, A, S, sig):
+    res1 = (1.-A)*(1.-asw)*alw + ((1. + (1.-asw)*A)*asw)
+    res2 = res1/((2-alw)*alw)
+    res3 = ((S/sig)*res2)**(1./4.)
+    return res3
+
+
+def taa(asw, alw, A, S, sig):
+    res1 = (1.-A)*(1.-asw)-(1.- (1. - asw)*A) * ((2.-asw)/(2.-alw))
+    res2 = res1/(-1*alw)
+    res3 = ((S/sig)*res2)**(1./4.)
+    return res3
+

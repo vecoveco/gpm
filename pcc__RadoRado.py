@@ -1,6 +1,6 @@
 """
 
-Vergleich der Radar Momente von BoxPol und RADOLAN
+Vergleich der Radar Momente von  RADOLAN und deren ZEITLICH VERSCHIEBUNG
 
 """
 

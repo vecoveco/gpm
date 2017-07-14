@@ -527,7 +527,7 @@ def validation_plot(data1, data2, th_ss):
     tit = 'Corr: '+ str(round(r_value2,3)) + r'$\pm$' + str(round(std_err2,3)) + '\n SCorr: '\
           + str(round(r_value_s,3)) + r'$\pm$' + str(round(p_value_s,3))
 
-    plt.legend(loc='lower right', title=tit)
+    plt.legend(loc='lower right')#, title=tit)
 
     plt.grid()
 
@@ -586,7 +586,9 @@ def validation_plot_log(data1, data2, th_ss):
     from pcc import skill_score
     SS = skill_score(data1,data2,th=th_ss)
 
-    ax1.scatter(data1, data2, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
+    ax1.scatter(data1, data2, label='RR in mm/h', color='grey', alpha=0.6)
+    #plt.boxplot(data1[maske],vert=0)
+    #plt.boxplot(data2[maske],vert=1)
     plt.yscale('log')
     plt.xscale('log')
 
@@ -613,73 +615,74 @@ def validation_plot_log(data1, data2, th_ss):
     ax1.annotate(text, xy=(0.01, 0.99), xycoords='axes fraction', fontsize=10,
                     horizontalalignment='left', verticalalignment='top')
 
-    t1 = linspace(0,50,5000)
+    #t1 = linspace(0,50,5000)
+    t1=10 ** np.linspace(np.log10(10**-2), np.log10(10**2), 5000)
+
     plt.plot(t1,t1,'k-')
-    plt.yscale('log')
-    plt.xscale('log')
-    #plt.plot(t1, t1*slope + intercept, 'r-', lw=3 ,label='Regression')
-    #plt.plot(t1, t1*slope + (intercept+5), 'r-.', lw=1.5 ,label=r'Reg $\pm$ 5 mdBZ')
-    #plt.plot(t1, t1*slope + (intercept-5), 'r-.', lw=1.5 )
-    plt.plot(t1,t1*slope + intercept,label='RADOLAN', color='green', lw=1.5, alpha=0.5)
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.plot(t1*slope2 + intercept2,t1,label='GPM', color='blue', lw=1.5, alpha=0.5)
-    plt.yscale('log')
-    plt.xscale('log')
+    #plt.plot(np.log10(t1),np.log10(t1),'k-')
+    #plt.plot(t1,t1*slope+intercept,label='RADOLAN', color='green', lw=1.5, alpha=0.5)
+
+    #plt.plot(t1*slope2+intercept2,t1,label='GPM', color='blue', lw=1.5, alpha=0.5)
+
 
 
 
     plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
 
-    plt.xlim(mini,maxi)
-    plt.ylim(mini,maxi)
+    #plt.xlim(mini,maxi)
+    #plt.ylim(mini,maxi)
+    plt.xlim(10**-2,10**2)
+    plt.ylim(10**-2,10**2)
     plt.xlabel('GPM DPR')
     plt.ylabel('RADOLAN')
     plt.grid()
 
 
     ax2 = fig.add_subplot(221, aspect='auto')#-----------------------------------------------------------------------------
-
-    counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.5,
+    st = 50
+    counts1, bins1, patches1 = plt.hist(data1[maske], bins=10 ** np.linspace(np.log10(10**-2), np.log10(10**2), st), alpha=0.5,
                                         color=cd2, label='GPM DPR')
     plt.yscale('log')
     plt.xscale('log')
-    counts2, bins2, patches2 =plt.hist(data2[maske], bins=int(maxi),
+    counts2, bins2, patches2 =plt.hist(data2[maske], bins=10 ** np.linspace(np.log10(10**-2), np.log10(10**2), st),
                                        alpha=0.9, edgecolor='black',
                                        facecolor="None", label='RADOLAN')
     plt.yscale('log')
     plt.xscale('log')
 
-    plt.xlim(mini, maxi)
+    #plt.xlim(mini, maxi)
+
+
     plt.ylabel('g_frequency in #')
     plt.grid(color=cd2)
     plt.legend(loc='upper right')
+    plt.xlim(10**-2,10**2)
 
 
     ax3 = fig.add_subplot(224, aspect='auto')#-------------------------------------------------------------------------------
 
-    counts2, bins2, patches2 =plt.hist(data2[maske], bins=int(maxi),orientation='horizontal',
+    counts2, bins2, patches2 =plt.hist(data2[maske], bins=10 ** np.linspace(np.log10(10**-2), np.log10(10**2), st),orientation='horizontal',
                                        alpha=0.5, color=cd1, label='RADOLAN')
     plt.yscale('log')
     plt.xscale('log')
 
-    counts1, bins1, patches1 = plt.hist(data1[maske], bins=int(maxi), alpha=0.9, edgecolor='black',
+    counts1, bins1, patches1 = plt.hist(data1[maske], bins=10 ** np.linspace(np.log10(10**-2), np.log10(10**2), st), alpha=0.9, edgecolor='black',
                                         facecolor="None",orientation='horizontal', label='GPM')
     plt.yscale('log')
     plt.xscale('log')
 
     plt.xlabel('r_frequency in #')
-    plt.ylim(mini,maxi)
+    #plt.ylim(mini,maxi)
     plt.grid(color=cd1)
     plt.legend(loc='upper right')
+    plt.ylim(10**-2,10**2)
 
     ax4 = fig.add_subplot(222, aspect='auto')#---------------------------------------------------------------------------------
     bin_centers1 = np.mean(zip(bins1[:-1], bins1[1:]), axis=1)
     bin_centers2 = np.mean(zip(bins2[:-1], bins2[1:]), axis=1)
-    ax4.plot(counts1.cumsum(),color=cd2 ,ls='-', lw=2,alpha=0.5, label='GPM')
-    ax4.plot(counts2.cumsum(),color=cd1, ls='-', lw=2, alpha=0.5, label='RADOLAN')
-
-    plt.yscale('log')
+    ax4.plot(bin_centers1,counts1.cumsum(),color=cd2 ,ls='-', lw=2,alpha=0.5, label='GPM')
+    ax4.plot(bin_centers2,counts2.cumsum(),color=cd1, ls='-', lw=2, alpha=0.5, label='RADOLAN')
+    #plt.yscale('log')
     plt.xscale('log')
 
     maske = ~np.isnan(counts1) & ~np.isnan(counts2)
@@ -687,12 +690,12 @@ def validation_plot_log(data1, data2, th_ss):
     r_value_s, p_value_s = stats.spearmanr(counts1[maske], counts2[maske])
 
     plt.ylabel('frequency in #')
-    plt.xlabel('Reflectivity in dBz')
+    plt.xlabel('RR in mm/h')
     tit = 'Corr: '+ str(round(r_value2,3)) + r'$\pm$' + str(round(std_err2,3)) + '\n SCorr: '\
           + str(round(r_value_s,3)) + r'$\pm$' + str(round(p_value_s,3))
 
-    plt.legend(loc='lower right', title=tit)
-
+    plt.legend(loc='lower right')#, title=tit)
+    #plt.xlim(10**-2,10**3)
     plt.grid()
 
     #plt.show()
