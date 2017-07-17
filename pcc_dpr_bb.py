@@ -154,7 +154,7 @@ for ii in dates:
     plt.ylim(49,53)
 
     #plt.show()
-    plt.savefig('/automount/ags/velibor/plot/BB/'+'2dprbb_'+str(zzz)+'.png' )
+    plt.savefig('/automount/ags/velibor/plot/BB/'+'HS2dprbb_'+str(zzz)+'.png' )
     plt.close()
 
     #plt.plot(pp[0,:], hdpr)
