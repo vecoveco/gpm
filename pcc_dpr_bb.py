@@ -13,10 +13,10 @@ import satlib as sl
 import h5py
 import glob
 
-dates = ['20150128','20150330', '20150404','20151208','20151216','20160107','20160601','20160612','20161019','20161024','20161109','20161222',
-         '20170113','20141007','20140708', '20140729']#, '20151015','20160209', '20160915','20161121', '20141008'
+#dates = ['20150128','20150330', '20150404','20151208','20151216','20160107','20160601','20160612','20161019','20161024','20161109','20161222',
+#         '20170113','20141007','20140708', '20140729']#, '20151015','20160209', '20160915','20161121', '20141008'
 
-#dates =['20141007']
+dates =['20141007']
 
 for ii in dates:
     zt=ii
@@ -36,11 +36,6 @@ for ii in dates:
     #dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170222-S113453-E130727.016971.V05A.HDF5'
     #dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170401-S003803-E021037.017555.V05A.HDF5'
     #dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170603-S235100-E012332.018550.V05A.HDF5'
-
-
-
-
-
 
 
     scan  = 'NS' #or MS
@@ -91,7 +86,11 @@ for ii in dates:
     print jahr, monat, tag, stunde, minute
 
     h = np.arange(150,4800,150)
-    hdpr = 1000 * (np.arange(176,0,-1)*0.125)
+    if scan=='HS':
+        hdpr = 1000 * (np.arange(88,0,-1)*0.250)
+
+    else:
+        hdpr = 1000 * (np.arange(176,0,-1)*0.125)
     hhh = np.array(len(pp[:,0])*list(hdpr))
     ppp = pp.reshape(pp.shape[0]*pp.shape[1])
 
@@ -153,9 +152,9 @@ for ii in dates:
     plt.xlim(2,12)
     plt.ylim(49,53)
 
-    #plt.show()
-    plt.savefig('/automount/ags/velibor/plot/BB/'+'HS2dprbb_'+str(zzz)+'.png' )
-    plt.close()
+    plt.show()
+    #plt.savefig('/automount/ags/velibor/plot/BB/'+'HS2dprbb_'+str(zzz)+'.png' )
+    #plt.close()
 
     #plt.plot(pp[0,:], hdpr)
     #plt.plot(df.loc['Z'].values,h, label='Ref. in dBZ', color='blue', linestyle='-', lw=2)
