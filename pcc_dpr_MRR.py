@@ -22,8 +22,8 @@ pfad_mrr = '/automount/mrr/mrr2/2014/2014-10/2014-10-07/AveData_mrr2_20141007023
 #dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170306-S151005-E164237.017160.V05A.HDF5'
 #dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170223-S182621-E195854.016991.V05A.HDF5'
 #dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170222-S113453-E130727.016971.V05A.HDF5'
-dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170401-S003803-E021037.017555.V05A.HDF5'
-#dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170603-S235100-E012332.018550.V05A.HDF5'
+#dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170401-S003803-E021037.017555.V05A.HDF5'
+dpr_pfad = '/automount/ags/velibor/gpmdata/dpr_brandon_BB/2A.GPM.DPR.V7-20170308.20170603-S235100-E012332.018550.V05A.HDF5'
 
 df = pd.read_csv(pfad_mrr, compression='gzip', header=1, delim_whitespace=True,index_col=False)
 df = df.set_index(u'H')
@@ -31,7 +31,7 @@ df = df.set_index(u'H')
 
 h = np.arange(150,4800,150)
 
-'''
+
 plt.plot(df.loc['Z'].values,h, label='Ref. in dBZ', color='blue', linestyle='-', lw=2)
 plt.plot(df.loc['PIA'].values,h,label='PIA in dB', color='blue', linestyle='-.', lw=2)
 plt.plot(df.loc['z'].values,h,label='att. Ref in dBZ', color='blue', linestyle='--', lw=2)
@@ -47,7 +47,7 @@ plt.title('MRR - ' + pfad_mrr[44:44+28])
 plt.ylim(0,6000)
 plt.xlim(0,50)
 plt.show()
-'''
+
 
 
 
