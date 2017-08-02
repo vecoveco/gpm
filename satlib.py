@@ -699,3 +699,35 @@ def validation_plot_log(data1, data2, th_ss):
     plt.grid()
 
     #plt.show()
+
+def radolan30(year, m, d, ht, mt, timedelta=30, r_pro='rx'):
+    from pcc import zeitschleife as zt
+    ye = year[2:4]
+    zeit = zt(year,m,d,ht,mt,0,
+              year,m,d,ht,mt,0,
+              steps=5)
+
+    pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+
+            str(m)+'/'+ str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+
+            str(ye)+str(m)+ str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
+
+    pfad_radolan = pfad[:-3]
+
+    try:
+        rw_filename = wradlib.util.get_wradlib_data_file(pfad)
+    except EnvironmentError:
+        rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
+
+    rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
+
+    radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
+    #Binaere Grid
+    rn = rwdata.copy()
+    rn[rn != -9999] = 1
+    rn[rn == -9999] = 0
+
+    radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
+    x = radolan_grid_xy[:,:,0]
+    y = radolan_grid_xy[:,:,1]
+    rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
+

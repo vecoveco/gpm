@@ -102,4 +102,4 @@ def plot_mrr1(t_start='2016-6-25 03:04', time_delta=10):
     pl.show()
 
 
-plot_mrr1(t_start='2016-6-25 03:04', time_delta=10)
+plot_mrr1(t_start='2016-10-24 22:55', time_delta=10)

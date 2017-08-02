@@ -368,3 +368,42 @@ def taa(asw, alw, A, S, sig):
     res3 = ((S/sig)*res2)**(1./4.)
     return res3
 
+def gp7_3(t, H):
+    """
+    H in meter
+    """
+    beta_e = -1* (math.log(t))/H
+    return beta_e
+
+
+def gp_79(H, k, roh):
+    """GP7.9"""
+    res = 0.5/(k * roh * H)
+    z = -1 * np.log(res) * H
+    return z
+
+def gpb(H, k, roh):
+    """GP7.9"""
+    res = (k * roh * H)/0.5
+    z = np.log(res) * H
+    return z
+
+
+def FEstat():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    Uebung = np.arange(1,7,1)
+    Quickies = np.array([3,5,6,5,8,5])
+    Aufgaben = np.array([2,3,4,2,4,8])
+    Program = np.array([1,1,1,1,0,0])
+    plt.plot(Uebung, Quickies, label='Quickies')
+    plt.plot(Uebung, Aufgaben, label='Aufgaben')
+    plt.plot(Uebung, Program, label='Programiereaufgabe')
+    plt.xlabel('Uebung')
+    plt.ylabel('Anzahl')
+    plt.legend('upper left')
+    plt.title('Verlauf der Uebungen in FE')
+    plt.grid()
+    plt.show()
+
+

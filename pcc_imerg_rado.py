@@ -17,6 +17,7 @@ from osgeo import osr
 from pcc import get_time_of_gpm
 from pcc import cut_the_swath
 
+
 ## Landgrenzenfunktion
 ## -------------------
 from pcc import boxpol_pos
@@ -50,7 +51,7 @@ pfad_gpm = sorted(glob.glob(pfad2))
 for jjj in range(len(pfad_gpm)):
     pfad_gpm_g = pfad_gpm[jjj]
     imerg_zeit = pfad_gpm_g[62:86]
-    print imerg_zeit
+    print 'Imerg_Zeit:  ',imerg_zeit
     gpmimerg = h5py.File(pfad_gpm_g, 'r')
     gpm_lat=np.array(gpmimerg['Grid']['lat'])
     gpm_lon=np.array(gpmimerg['Grid']['lon'])
@@ -94,11 +95,11 @@ for jjj in range(len(pfad_gpm)):
     gpm_pp_ir = gpm_pp_ir[lat_ii[0,0]:lat_ii[0,-1], lon_ii[0,0]:lon_ii[0,-1]]
     gpm_pp_mi = gpm_pp_mi[lat_ii[0,0]:lat_ii[0,-1], lon_ii[0,0]:lon_ii[0,-1]]
 
-    print gpm_pp.shape, gpm_pp_ir.shape, gpm_pp_mi.shape
+    #print gpm_pp.shape, gpm_pp_ir.shape, gpm_pp_mi.shape
 
     gpm_time = gpm_time[lat_ii[0,0]:lat_ii[0,-1], lon_ii[0,0]:lon_ii[0,-1]]
 
-    print gpm_time
+    print 'gpm_time: ',gpm_time
 
     if np.sum(gpm_time)==0:
         ht, mt = imerg_zeit[10:12], str(int(imerg_zeit[12:14])+15)
@@ -379,6 +380,6 @@ plt.grid()
 
 
 
-plt.savefig('/home/velibor/shkgpm/plot/imerg/all_gpm_imerg_radolan_'+ZP + '.png' )
+plt.savefig('/home/velibor/shkgpm/plot/imerg/neu/all_gpm_imerg_radolan_'+ZP + '.png' )
 #plt.show()
 plt.close()
