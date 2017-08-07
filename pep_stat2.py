@@ -101,6 +101,12 @@ validation_plot(sat_complex, rad_complex, TH)
 plt.title('Complex:_'+str(para[pp])+ '- TH: ' + str(TH))
 plt.show()
 
+plt.scatter(sat_complex, rad_complex, color='red', alpha=0.2, label='Complex')
+plt.scatter(sat_coast, rad_coast, color='blue', alpha=0.2, label='Coast and Water')
+plt.legend(loc='upper left')
+plt.grid()
+plt.show()
+
 
 from pcc import boxpol_pos
 bonn_pos = boxpol_pos()
@@ -123,3 +129,82 @@ bonnlat, bonnlon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
 
 plt.show()
+
+
+maskx = ~np.isnan(r_sat) & ~np.isnan(gx) & ~np.isnan(r_rad)
+masky = ~np.isnan(r_sat) & ~np.isnan(gy) & ~np.isnan(r_rad)
+
+bbb = 75
+
+fig = plt.figure(figsize=(12,12))
+ax1 = fig.add_subplot(221, aspect='auto')
+plt.hist2d(gx[maskx],r_sat[maskx],bins=bbb)
+cbar = plt.colorbar()
+cbar.set_label('#'+ str(TH), rotation=270)
+plt.grid()
+plt.xlabel('x')
+plt.ylabel('Ref')
+plt.title('GPM NS REF Hist')
+
+ax2 = fig.add_subplot(222, aspect='auto')
+plt.hist2d(r_sat[masky],gy[masky],bins=bbb)
+cbar = plt.colorbar()
+cbar.set_label('#'+ str(TH), rotation=270)
+plt.grid()
+plt.ylabel('y')
+plt.xlabel('Ref')
+plt.title('GPM NS REF Hist')
+
+ax3 = fig.add_subplot(223, aspect='auto')
+plt.hist2d(gx[maskx],r_rad[maskx],bins=bbb)
+cbar = plt.colorbar()
+cbar.set_label('# of Overpases with TH over'+ str(TH), rotation=270)
+plt.grid()
+plt.xlabel('x')
+plt.ylabel('Ref')
+plt.title('RADOLAN REF Hist')
+
+ax4 = fig.add_subplot(224, aspect='auto')
+plt.hist2d(r_rad[masky],gy[masky],bins=bbb)
+cbar = plt.colorbar()
+cbar.set_label('#'+ str(TH), rotation=270)
+plt.grid()
+plt.ylabel('y')
+plt.xlabel('Ref')
+plt.title('RADOLAN REF Hist')
+
+plt.show()
+
+
+maskr = ~np.isnan(r_sat) & ~np.isnan(r_rad)
+
+from pcc import get_my_cmap
+
+fig = plt.figure(figsize=(12,12))
+ax1 = fig.add_subplot(111, aspect='auto')
+plt.hist2d(r_sat[maskr],r_rad[maskr],bins=bbb, cmap=get_my_cmap(), vmin=0.1)
+cbar = plt.colorbar()
+cbar.set_label('#'+ str(TH), rotation=270)
+plt.grid()
+plt.xlabel('x')
+plt.ylabel('Ref')
+plt.title('GPM NS REF Hist')
+plt.show()
+
+A, B = r_rad[maskr],r_sat[maskr]
+
+"""
+extrema = 40
+popo = np.where((A>extrema)&(B>extrema))
+
+fig = plt.figure(figsize=(12,12))
+ax1 = fig.add_subplot(111, aspect='auto')
+plt.hist2d(A[popo], B[popo],bins=bbb, cmap=get_my_cmap(), vmin=0.1)
+cbar = plt.colorbar()
+cbar.set_label('#'+ str(TH), rotation=270)
+plt.grid()
+plt.xlabel('x')
+plt.ylabel('Ref')
+plt.title('GPM NS REF Hist Maxima_ '+ str(extrema))
+plt.show()
+"""
