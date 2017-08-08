@@ -156,7 +156,7 @@ for i in range(len(zz)):
 
     mask = ~np.isnan(rwdata)
 
-    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=400)
+    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=40)
 
     result = np.ma.masked_invalid(result)
 
@@ -219,6 +219,7 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
 
     plot_borders(ax1)
+    print bonnlat, bonnlon
     plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
 
     plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + ' UTC',fontsize=ff)

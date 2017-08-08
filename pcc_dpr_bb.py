@@ -26,7 +26,7 @@ def gpmbb(para=0):
     dpr_pfad = sorted(glob.glob(pfad))[para]
     print dpr_pfad
 
-    scan  = 'NS' #or MS
+    scan  = 'MS' #or MS
 
     dpr = h5py.File(dpr_pfad, 'r')
     dpr_lat=np.array(dpr[scan]['Latitude'])
@@ -121,8 +121,8 @@ def gpmbb(para=0):
     plt.hist2d(ppp[maske],hhh[maske], bins=30, cmap=get_my_cmap(), vmin=0.1)
     print pp.shape
 
-    plt.plot(np.nanmax(pp[:,:],axis=0),hdpr, color='red', lw=2)
-    plt.plot(np.nanmean(pp[:,:],axis=0),hdpr, color='black', lw=2)
+    #plt.plot(np.nanmax(pp[:,:],axis=0),hdpr, color='red', lw=2)
+    plt.plot(np.nanmean(pp[:,:],axis=0),hdpr, color='red', lw=2)
     plt.plot(np.nanmedian(pp[:,:],axis=0),hdpr, color='green', lw=2)
     cbar = plt.colorbar()
     cbar.set_label('#')
@@ -137,6 +137,9 @@ def gpmbb(para=0):
     #plt.ylim(0,6000)
     #plt.xlim(0,50)
     ##################
+    #print np.uniforn(bbh)
+    #mini = np.nanmin(bbh[bbh>0])
+
     ax3 = fig.add_subplot(223, aspect='auto')
     plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(dpr_bbh), vmin=0, vmax=np.nanmax(bbh), cmap=get_miub_cmap())
     cbar = plt.colorbar()
@@ -168,7 +171,7 @@ def gpmbb(para=0):
 
     plt.tight_layout()
     #plt.show()
-    plt.savefig('/automount/ags/velibor/plot/BB/'+'HS2dprbb_'+str(zzz)+'.png' )
+    plt.savefig('/automount/ags/velibor/plot/BB/'+scan+'dprbb_'+str(zzz)+'.png' )
     plt.close()
 
 
@@ -189,5 +192,12 @@ for ii in dates:
 
 
     except:
-        print "round 2!"
-        gpmbb(para=1)
+        print 'nicht geklappt'
+
+        try:
+            print "round 2!"
+            gpmbb(para=1)
+
+        except:
+            print 'nicht geklappt'
+
