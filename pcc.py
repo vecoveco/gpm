@@ -420,9 +420,12 @@ def plot_dem(ax):
 '''
 def boxpol_pos():
     # Koordinaten des Bonner Radar
-    pos_boxpol = {'lat_ppi' : 50.730519999999999, 'lon_ppi' : 7.071663
-    ,'gky_ppi' : -4235.233235191105, 'gkx_ppi' : -216.64772430049572}
+    pos_boxpol = {'lat_ppi' : 50.730519999999999,
+                  'lon_ppi' : 7.071663,
+                  'gky_ppi' : -4235.233235191105,
+                  'gkx_ppi' : -216.64772430049572}
     return pos_boxpol
+
 
 def plot_dem(ax):
     from matplotlib.colors import LogNorm

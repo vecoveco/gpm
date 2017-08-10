@@ -116,6 +116,22 @@ dpr_lat = rad_lat[ii]
 dpr_lon = rad_lon[ii]
 radarname = rad_name[ii]
 
+import wradlib as wrl
+from osgeo import osr
+
+proj_stereo = wrl.georef.create_osr("dwd-radolan")
+proj_wgs = osr.SpatialReference()
+proj_wgs.ImportFromEPSG(4326)
+
+from pcc import boxpol_pos
+bonn_pos = boxpol_pos()
+#bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
+#bonnlat, bonnlon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
+#blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
+
+#dpr_lon, dpr_lat = wradlib.georef.reproject(dpr_lon, dpr_lat, projection_target=proj_stereo , projection_source=proj_wgs)
+#bonnlon, bonnlat = wradlib.georef.reproject(bonnlon, bonnlat, projection_target=proj_stereo , projection_source=proj_wgs)
+
 bonn_lat1 = 49.9400
 bonn_lat2 = 51.3500
 bonn_lon1 = 6.40000

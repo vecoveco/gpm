@@ -44,6 +44,7 @@ for i in range(0, len(pfad_gpm)):
     gprof_lon = np.array(gpmdpr[sc]['Longitude'])
 
     gprof_pp = np.array(gpmdpr[sc]['SLV']['precipRateNearSurface'])
+
     gprof_pp[gprof_pp<=0]= np.nan
 
     gpm_time = gpmdpr[sc]['ScanTime']

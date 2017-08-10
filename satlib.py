@@ -304,7 +304,7 @@ def get_time_of_gpm(gpm_lon, gpm_lat, gpm_time):
         gpm_time :: GPM Times
 
     Output:
-        gpm_dt ::: GPM Time
+        gpm_dt ::: GPM Time for Radolanregion
 
     """
     #Todo: Verbessern
@@ -542,6 +542,19 @@ def write2hdf(name, x, y, dat_rad, dat_sat):
     h.create_dataset('y', data=y)
     h.create_dataset('dat_rad', data=dat_rad)
     h.create_dataset('dat_sat', data=dat_sat)
+    h.close()
+
+def writeskill2hdf(name, x, y, dpr_pp, dpr_bbh, dpr_bbw, dpr_type, dpr_phase):
+    """wip"""
+    h = h5py.File(str(name) + '.hdf5', 'w')
+    h.create_dataset('x', data=x)
+    h.create_dataset('y', data=y)
+    h.create_dataset('sat_pp', data=dpr_pp)
+    h.create_dataset('sat_bbh', data=dpr_bbh)
+    h.create_dataset('sat_bbw', data=dpr_bbw)
+    h.create_dataset('sat_phase', data=dpr_phase)
+    h.create_dataset('sat_type', data=dpr_type)
+
     h.close()
 
 
