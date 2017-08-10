@@ -50,7 +50,10 @@ offset = 2
 #ZP = '20141008094500'
 #ZP = '20150128171500'
 #ZP = '20150128172208'
-ZP = '20160209103500'
+#ZP = '20160209103500'
+#ZP = '20151216024501'
+#ZP = '20151216023500'
+ZP = '20160209103000'
 
 
 year = ZP[0:4]
@@ -63,15 +66,21 @@ st = ZP[12:14]
 
 pfad_radar = glob.glob('/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.' + year + m + d + '*.HDF5')
 print pfad_radar
-pfad_radar = pfad_radar[0]
+pfad_radar = pfad_radar[1]
 #pfad_radar_Ku = pfad_radar[0]
 
+deg_scan =  ["/ppi_1p5deg/","/ppi_2p4deg/","/ppi_3p4deg/",
+             "/n_ppi_010deg/","/n_ppi_045deg/",
+             "/n_ppi_082deg/","/n_ppi_110deg/","/n_ppi_140deg/",
+             "/n_ppi_180deg/","/n_ppi_280deg/","/n_vertical_scan/"][0]
+
+
 try:
-    ppi_datapath=glob.glob('/automount/radar-archiv/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",*.mvol")
+    ppi_datapath=glob.glob('/automount/radar-archiv/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + deg_scan+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",*.mvol")
     print ppi_datapath
     ppi_datapath = ppi_datapath[0]
 except:
-    ppi_datapath=glob.glob('/automount/radar/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + "/ppi_1p5deg/"+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",*.mvol")
+    ppi_datapath=glob.glob('/automount/radar/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + deg_scan+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",*.mvol")
     print ppi_datapath
     ppi_datapath = ppi_datapath[0]
 
@@ -125,8 +134,9 @@ lon0, lat0, radius = blon, blat, 100
 rr = np.sqrt((dpr_lat - lat0)**2 + (dpr_lon - lon0)**2)
 position = rr < radius
 
-dpr_pp[np.where(rr > radius)] = np.nan
-pp=dpr_pp
+pp = dpr_pp.copy()
+
+pp[np.where(rr > radius)] = np.nan
 
 
 radar_location = (lon_ppi, lat_ppi, alt_ppi)
@@ -153,6 +163,7 @@ fig.suptitle('BoXPol vs DPR '+ZP)
 ###################
 ax1 = fig.add_subplot(221, aspect='auto')
 plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(pp),vmin=0, vmax=40, cmap=my_cmap())
+
 plt.colorbar()
 plot_borders(ax1)
 plot_radar(blon0, blat0, ax1, reproject=True, cband=False,col='black')
@@ -162,10 +173,21 @@ plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='bla
 
 plt.xlim(-350,-100)
 plt.ylim(-4350, -4100)
+plt.title('GPM - DPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
 plt.grid()
 
 ax2 = fig.add_subplot(222, aspect='auto')
 plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(gridded),vmin=0, vmax=40, cmap=my_cmap())
+
 plt.colorbar()
 plot_borders(ax2)
 plot_radar(blon0, blat0, ax2, reproject=True, cband=False,col='black')
@@ -175,6 +197,16 @@ plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='bla
 
 plt.xlim(-350,-100)
 plt.ylim(-4350, -4100)
+plt.title('BoXPol - onDPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
 plt.grid()
 
 ax3 = fig.add_subplot(223, aspect='auto')
@@ -188,6 +220,16 @@ plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='bla
 
 plt.xlim(-350,-100)
 plt.ylim(-4350, -4100)
+plt.title('BoXPol - onDPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
 plt.grid()
 
 ax4 = fig.add_subplot(224, aspect='auto')
