@@ -96,6 +96,7 @@ plt.ylabel('Rain in mm/h')
 plt.show()
 
 plt.figure(2)
+plt.subplot(1,2,1)
 A, B = g_top, g_rx
 maske = ~np.isnan(A) & ~np.isnan(B)
 plt.hist2d(A[maske], B[maske], bins=99)
@@ -103,6 +104,15 @@ plt.colorbar()
 plt.title(str(np.corrcoef(A[maske],B[maske])[0,1]))
 plt.xlabel('dpr storm top in m')
 plt.ylabel('radolan Ref. in dbz')
+plt.grid()
+plt.subplot(1,2,2)
+A, B = g_top, g_z2d
+maske = ~np.isnan(A) & ~np.isnan(B)
+plt.hist2d(A[maske], B[maske], bins=99)
+plt.colorbar()
+plt.title(str(np.corrcoef(A[maske],B[maske])[0,1]))
+plt.xlabel('dpr storm top in m')
+plt.ylabel('dpr Ref. in dbz')
 plt.grid()
 plt.show()
 
@@ -115,7 +125,7 @@ plt.scatter(g_z2d[(g_type >=2) & (g_type < 3.)], g_rx[(g_type >=2) & (g_type < 3
             color='green', label='convektiv dpr: ' + corcor(g_z2d[(g_type >=2) & (g_type < 3.)], g_rx[(g_type >=2) & (g_type < 3.)]))
 
 plt.scatter(g_z2d[(g_type >=3)], g_rx[(g_type >=3)], alpha=0.3,
-            color='green', label='other dpr: ' + corcor(g_z2d[(g_type >=3)], g_rx[(g_type >=3)]))
+            color='red', label='other dpr: ' + corcor(g_z2d[(g_type >=3)], g_rx[(g_type >=3)]))
 
 plt.xlabel('DPR')
 plt.ylabel('radolan')
@@ -125,12 +135,16 @@ plt.show()
 
 plt.figure(4)
 plt.subplot(2,2,1)
-plt.scatter(g_z2d[g_phase == 0], g_rx[g_phase== 0],
-            alpha=0.5, color='black', label='solid')
+
 plt.scatter(g_z2d[g_phase == 1], g_rx[g_phase == 1],
             alpha=0.2, color='blue', label='mixed')
 plt.scatter(g_z2d[g_phase == 2], g_rx[g_phase == 2],
             alpha=0.2, color='red', label='liquid')
+plt.scatter(g_z2d[g_phase == 0], g_rx[g_phase== 0],
+            alpha=0.5, color='black', label='solid')
+plt.xlabel('dpr')
+plt.ylabel('radolan')
+
 plt.legend()
 plt.grid()
 
@@ -157,3 +171,66 @@ plt.ylabel('radolan')
 plt.grid()
 plt.colorbar()
 plt.show()
+
+
+plt.figure(5)
+plt.subplot(2,2,1)
+
+plt.scatter(g_p2d[g_phase == 1], g_ry[g_phase == 1],
+            alpha=0.2, color='blue', label='mixed')
+plt.scatter(g_p2d[g_phase == 2], g_ry[g_phase == 2],
+            alpha=0.2, color='red', label='liquid')
+plt.scatter(g_p2d[g_phase == 0], g_ry[g_phase== 0],
+            alpha=0.5, color='black', label='solid')
+plt.xlabel('dpr')
+plt.ylabel('radolan')
+
+plt.legend()
+plt.grid()
+
+plt.subplot(2,2,2)
+maske1 = ~np.isnan(g_p2d[g_phase == 0]) & ~np.isnan(g_ry[g_phase == 0])
+plt.hist2d(g_p2d[g_phase  == 0][maske1], g_ry[g_phase == 0][maske1],bins=99)
+plt.colorbar()
+plt.title('solid - corr: '+ corcor(g_p2d[g_phase  == 0][maske1], g_ry[g_phase == 0][maske1]))
+plt.grid()
+
+plt.subplot(2,2,3)
+maske2 = ~np.isnan(g_p2d[g_phase  == 1]) & ~np.isnan(g_ry[g_phase  == 1])
+plt.hist2d(g_p2d[g_phase  == 1][maske2], g_ry[g_phase  == 1][maske2],bins=99)
+plt.colorbar()
+plt.title('mixed - corr: '+ g_p2d[g_phase  == 1][maske2], g_ry[g_phase  == 1][maske2])
+plt.grid()
+
+plt.subplot(2,2,4)
+maske3 = ~np.isnan(g_p2d[g_phase  == 2]) & ~np.isnan(g_ry[g_phase  == 2])
+plt.hist2d(g_p2d[g_phase  == 2][maske3], g_ry[g_phase  == 2][maske3],bins=99)
+plt.title('liquid - corr: '+corcor(g_p2d[g_phase  == 2][maske3], g_ry[g_phase  == 2][maske3]))
+plt.xlabel('DPR')
+plt.ylabel('radolan')
+plt.grid()
+plt.colorbar()
+plt.show()
+
+
+plt.figure(6)
+A, B = g_z2d[g_bbh<1000], g_rx[g_bbh<1000]
+plt.scatter(A, B, label=corcor(A,B) )
+plt.legend()
+plt.show()
+
+
+plt.figure(7)
+A, B = g_z2d[g_bbw>1000], g_rx[g_bbw>1000]
+plt.scatter(A, B, label=corcor(A,B))
+plt.legend()
+plt.show()
+'''
+for i in range(0,3100,100):
+    print i
+    A, B = g_z2d[(g_bbh>i) & (g_bbh <i+100)], g_rx[(g_bbh>i) & (g_bbh <i+100)]
+    plt.scatter(A, B, label=str(i)+'- -'+corcor(A,B))
+    plt.legend()
+
+
+plt.show()'''
