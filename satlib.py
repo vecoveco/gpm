@@ -544,16 +544,21 @@ def write2hdf(name, x, y, dat_rad, dat_sat):
     h.create_dataset('dat_sat', data=dat_sat)
     h.close()
 
-def writeskill2hdf(name, x, y, dpr_pp, dpr_bbh, dpr_bbw, dpr_type, dpr_phase):
+def writeskill2hdf(name, x, y, dpr_p3d, dpr_bbh, dpr_bbw, dpr_type, dpr_phase, dpr_p2d, dpr_z2d,dpr_top, radolan_ry, radolan_rx):
     """wip"""
     h = h5py.File(str(name) + '.hdf5', 'w')
     h.create_dataset('x', data=x)
     h.create_dataset('y', data=y)
-    h.create_dataset('sat_pp', data=dpr_pp)
+    h.create_dataset('sat_p3d', data=dpr_p3d)
     h.create_dataset('sat_bbh', data=dpr_bbh)
     h.create_dataset('sat_bbw', data=dpr_bbw)
     h.create_dataset('sat_phase', data=dpr_phase)
     h.create_dataset('sat_type', data=dpr_type)
+    h.create_dataset('sat_p2d', data=dpr_p2d)
+    h.create_dataset('sat_z2d', data=dpr_z2d)
+    h.create_dataset('sat_top', data=dpr_top)
+    h.create_dataset('radolan_p2d', data=radolan_ry)
+    h.create_dataset('radolan_z2d', data=radolan_rx)
 
     h.close()
 
@@ -744,3 +749,7 @@ def radolan30(year, m, d, ht, mt, timedelta=30, r_pro='rx'):
     y = radolan_grid_xy[:,:,1]
     rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
 
+
+def corcor(A,B):
+    mask = ~np.isnan(A) & ~np.isnan(B)
+    return str(np.corrcoef(A[mask],B[mask])[0,1])
