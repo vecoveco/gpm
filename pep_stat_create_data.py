@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 #para = ['RR_MS', 'RR_NS', 'RR_HS', 'REF_MS', 'REF_NS', 'REF_HS', 'SKILL_NS', 'SKILL_HS', 'SKILL_MS']
 
-para = ['NS', 'MS', 'HS']
+para = ['HS', 'NS', 'MS']
 
 
 # Threshold ATBD GPM 2016
@@ -33,7 +33,7 @@ for ip in range(1):
 
     #len(pfad_gpm)
 
-    for ii in range(140):
+    for ii in range(len(pfad_gpm)):
 
         print ii,' von ', len(pfad_gpm)
 
@@ -159,7 +159,7 @@ plt.subplot(2,2,3)
 maske2 = ~np.isnan(g_z2d[g_phase  == 1]) & ~np.isnan(g_rx[g_phase  == 1])
 plt.hist2d(g_z2d[g_phase  == 1][maske2], g_rx[g_phase  == 1][maske2],bins=99)
 plt.colorbar()
-plt.title('mixed - corr: '+ g_z2d[g_phase  == 1][maske2], g_rx[g_phase  == 1][maske2])
+plt.title('mixed - corr: '+ corcor(g_z2d[g_phase  == 1][maske2], g_rx[g_phase  == 1][maske2]))
 plt.grid()
 
 plt.subplot(2,2,4)
@@ -199,7 +199,7 @@ plt.subplot(2,2,3)
 maske2 = ~np.isnan(g_p2d[g_phase  == 1]) & ~np.isnan(g_ry[g_phase  == 1])
 plt.hist2d(g_p2d[g_phase  == 1][maske2], g_ry[g_phase  == 1][maske2],bins=99)
 plt.colorbar()
-plt.title('mixed - corr: '+ g_p2d[g_phase  == 1][maske2], g_ry[g_phase  == 1][maske2])
+plt.title('mixed - corr: '+ corcor(g_p2d[g_phase  == 1][maske2], g_ry[g_phase  == 1][maske2]))
 plt.grid()
 
 plt.subplot(2,2,4)
@@ -225,12 +225,12 @@ A, B = g_z2d[g_bbw>1000], g_rx[g_bbw>1000]
 plt.scatter(A, B, label=corcor(A,B))
 plt.legend()
 plt.show()
-'''
+
+
 for i in range(0,3100,100):
     print i
     A, B = g_z2d[(g_bbh>i) & (g_bbh <i+100)], g_rx[(g_bbh>i) & (g_bbh <i+100)]
     plt.scatter(A, B, label=str(i)+'- -'+corcor(A,B))
     plt.legend()
 
-
-plt.show()'''
+plt.show()

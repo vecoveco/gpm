@@ -75,8 +75,8 @@ for i in range(len(zz)):
 
     gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
-    gprof_pp[gprof_pp==-9999.9]= np.nan
-    gprof_pia[gprof_pia==-9999.9]= np.nan
+    gprof_pp[gprof_pp ==-9999.9]= np.nan
+    gprof_pia[gprof_pia ==-9999.9]= np.nan
 
     print gprof_pp.shape, gprof_pia.shape
     #gprof_pp = gprof_pp + wradlib.trafo.idecibel(gprof_pia)
@@ -122,10 +122,16 @@ for i in range(len(zz)):
     x = radolan_grid_xy[:,:,0]
     y = radolan_grid_xy[:,:,1]
     rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
-    #rwdata[rwdata < 0] = np.nan
+
+    #rwdata[rwdata <= 15] = -9999
+    #print ('Min RadolaN: ',np.nanmin(rwdata))
+    #rwdata = np.log10(rwdata)
     from satlib import read_rado
     #x1,y1,r1 = read_rado('201502270820')
     #rwdata = (rwdata+r1)/2
+    #from wradlib.trafo import idecibel
+    #from wradlib.trafo import decibel
+    #rwdata = idecibel(rwdata)
 
 
 
@@ -142,7 +148,7 @@ for i in range(len(zz)):
     gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
     grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
-    #rwdata[rwdata <= 0] = np.nan
+
     #rwdata = np.log10(rwdata)
 
     ## INTERLOLATION
@@ -162,8 +168,11 @@ for i in range(len(zz)):
 
     rrr = result.reshape(gpm_x.shape)
 
+    #rrr = decibel(rrr)
+    #rwdata = decibel(rwdata)
     #rrr = 10**rrr
     #rwdata = 10**rwdata
+
 
 
     ## Interpolation of the binary Grid
@@ -363,7 +372,7 @@ for i in range(len(zz)):
     #cp_dist(ggg[maske],rrr[maske])
 
     from satlib import validation_plot
-    validation_plot(ggg,rrr)
+    validation_plot(ggg,rrr,15)
 
 
 

@@ -43,7 +43,7 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 offset = 2
 
 
-#ZP = '20141007023744'
+ZP = '20141007023744'
 #ZP = '20140826220500'
 #ZP = '20140921071000'
 #ZP = '20141008094000'
@@ -53,7 +53,7 @@ offset = 2
 #ZP = '20160209103500'
 #ZP = '20151216024501'
 #ZP = '20151216023500'
-ZP = '20160209103000'
+#ZP = '20160209103000'
 
 
 year = ZP[0:4]
@@ -66,7 +66,7 @@ st = ZP[12:14]
 
 pfad_radar = glob.glob('/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.' + year + m + d + '*.HDF5')
 print pfad_radar
-pfad_radar = pfad_radar[1]
+pfad_radar = pfad_radar[0]
 #pfad_radar_Ku = pfad_radar[0]
 
 deg_scan =  ["/ppi_1p5deg/","/ppi_2p4deg/","/ppi_3p4deg/",
@@ -138,6 +138,9 @@ pp = dpr_pp.copy()
 
 pp[np.where(rr > radius)] = np.nan
 
+#from wradlib.trafo import idecibel
+#from wradlib.trafo import decibel
+#R = idecibel(R)
 
 radar_location = (lon_ppi, lat_ppi, alt_ppi)
 elevation = 1.5
@@ -155,6 +158,8 @@ gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([lon.mean(), lat
 gridded = np.ma.masked_invalid(gridded).reshape(dpr_lon.shape)
 gridded[np.where(rr > radius)]=np.nan
 
+#R = idecibel(R)
+#gridded = decibel(gridded)
 
 
 fig = plt.figure(figsize=(14,12))
