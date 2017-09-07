@@ -44,7 +44,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20141007'])
+zz = np.array(['20150128'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -162,7 +162,7 @@ for i in range(len(zz)):
 
     mask = ~np.isnan(rwdata)
 
-    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=40)
+    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
 
     result = np.ma.masked_invalid(result)
 
@@ -371,11 +371,44 @@ for i in range(len(zz)):
     #from satlib import cp_dist
     #cp_dist(ggg[maske],rrr[maske])
 
-    from satlib import validation_plot
-    validation_plot(ggg,rrr,15)
+    #from satlib import validation_plot
+    #validation_plot(ggg,rrr,15)
 
 
+ratio2=ggg-rrr
+ratio1=ggg/rrr
+# Ratioof data
+plt.subplot(2,2,1)
+plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ratio1), vmin=0, vmax=2, cmap='seismic')
+plt.title('Relation DPR/RADOLAN')
+plt.colorbar()
+plt.subplot(2,2,2)
+plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ratio2), vmin=0, vmax=2, cmap='seismic')
+plt.colorbar()
+plt.title('Relation RADOLAN/DPR')
 
+plt.subplot(2,3,4)
+#GGG = ggg.copy()
+#GGG[np.where(ratio1<1)]=np.nan
+plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ggg),
+                         cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
+plt.colorbar()
+plt.title('DPR')
+
+plt.subplot(2,3,5)
+plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
+                         cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
+plt.colorbar()
+plt.title('RADOLAN')
+
+plt.subplot(2,3,6)
+A, B = ratio1,ratio2
+from satlib import corcor
+maskr = ~np.isnan(A) & ~np.isnan(B)
+plt.scatter(A[maskr],B[maskr])
+plt.title(corcor(A[maskr],B[maskr]))
+#plt.colorbar()
+plt.show()
 '''
     GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
     RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))

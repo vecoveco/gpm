@@ -753,3 +753,36 @@ def radolan30(year, m, d, ht, mt, timedelta=30, r_pro='rx'):
 def corcor(A,B):
     mask = ~np.isnan(A) & ~np.isnan(B)
     return str(np.corrcoef(A[mask],B[mask])[0,1])
+
+
+def ipoli_radi(gr_grid, gr_data,sr_grid,radius):
+    """
+
+    Parameters
+    ----------
+    gr_grid ::: grid of the Ground Radar
+    gr_data ::: data of the Ground Radar
+    sr_grid ::: grid oft the Spaceborn Radar
+    radius  ::: radius of the dpr foot prints
+
+
+    Returns
+    -------
+    gs_grid ::: Interpolated Groundradar Data on Spaceborne Grid
+
+    """
+
+    gr_ipoli_data = np.zeros((sr_grid.shape[0]))
+
+    for i in range(sr_grid.shape[0]):
+
+        x0, y0 = sr_grid[i,0], sr_grid[i,1]  ###########x y richtig?
+
+        rr = np.sqrt((gr_grid[:,0] - x0)**2 + (gr_grid[:,1] - y0)**2)
+
+        gr_ipoli_data[i] = np.nanmean(gr_data[rr < radius])
+        #gr_ipoli_data[i] = np.nanmax(gr_data[rr < radius])
+
+    return gr_ipoli_data
+
+

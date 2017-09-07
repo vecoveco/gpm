@@ -14,12 +14,11 @@ from osgeo import osr
 
     filename = wrl.util.get_wradlib_data_file('geo/Europe_2_02.2017075.aqua.ndvi.250m.tif')
     # pixel_spacing is in output units (lonlat)
-    rastercoords, rastervalues = wrl.io.read_raster_data(filename,
-                                                         spacing=0.005)
+    rastercoords, rastervalues = wrl.io.read_raster_data(filename,spacing=0.005)
     # specify kwargs for plotting, using terrain colormap and LogNorm
-    dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
-                        rastervalues, cmap=plt.cm.terrain, norm=LogNorm(),
-                        vmin=1, vmax=3000)
+dem = ax.pcolormesh(rastercoords[..., 0], rastercoords[..., 1],
+                    rastervalues, cmap=plt.cm.terrain, norm=LogNorm(),
+                    vmin=1, vmax=3000)
     # make some space on the right for colorbar axis
     div1 = make_axes_locatable(ax)
     cax1 = div1.append_axes("right", size="5%", pad=0.1)
@@ -31,7 +30,7 @@ from osgeo import osr
 '''
 a = ['20160904','20160917','20160805','20140629','20140921','20141016',
      '20150128','20150427', '20150227','20150402'][::-1]
-xx = range(len(a))
+xx = range(2)
 
 fig = plt.figure(figsize=(20,20))
 ax = fig.add_subplot(121, aspect='equal')
@@ -104,3 +103,5 @@ plt.show()
 #plt.xlabel('Terra Hights in m')
 #plt.ylabel('Aqua Hights in m')
 #plt.show()
+
+

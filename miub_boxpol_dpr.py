@@ -37,13 +37,13 @@ bbx, bby = Pos['gkx_ppi'], Pos['gky_ppi']
 # ---------------
 
 # Hohe von DPR
-TH = 18 #Threshold um Nullen fuer Niederschlag raus zu filtern
+TH = 15 #Threshold um Nullen fuer Niederschlag raus zu filtern
 
 ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ipol.OrdinaryKriging]
 offset = 2
 
 
-#ZP = '20141007023744' ; pfadnr=0# 0.47
+ZP = '20141007023744' ; pfadnr=0# 0.47
 #ZP = '20140826220500'; pfadnr=1 # 0.82
 #ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
 #ZP = '20141008094500'; pfadnr=1 # 0.679  #!!!!!!!!!!!!!!NICE
@@ -52,7 +52,7 @@ offset = 2
 #ZP = '20160209103500'; pfadnr=1 # 0.23
 #ZP = '20151216024501'; pfadnr=0#0.589
 #ZP = '20151216023500' ; pfadnr=0# 0.651
-ZP = '20160209103000'; pfadnr=1 ###PFAD=1
+#ZP = '20160209103000'; pfadnr=1 ###PFAD=1
 
 
 year = ZP[0:4]
@@ -75,11 +75,18 @@ deg_scan =  ["/ppi_1p5deg/","/ppi_2p4deg/","/ppi_3p4deg/",
 
 
 try:
-    ppi_datapath=glob.glob('/automount/radar-archiv/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + deg_scan+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",*.mvol")
+    ppi_datapath=glob.glob('/automount/radar-archiv/scans/' + year+ "/" +
+                           year +"-"+ m + "/" + year+ "-" + m +"-"+ d +
+                           deg_scan+ year + "-" + m +"-"+ d + "--" +ht +
+                           ":"+mt+":"+st+",*.mvol")
     print ppi_datapath
     ppi_datapath = ppi_datapath[0]
+
 except:
-    ppi_datapath=glob.glob('/automount/radar/scans/' + year+ "/" + year +"-"+ m + "/" + year+ "-" + m +"-"+ d + deg_scan+ year + "-" + m +"-"+ d + "--" +ht +":"+mt+":"+st+",*.mvol")
+    ppi_datapath=glob.glob('/automount/radar/scans/' + year+ "/" +
+                           year +"-"+ m + "/" + year+ "-" + m +"-"+
+                           d + deg_scan+ year + "-" + m +"-"+ d +
+                           "--" +ht +":"+mt+":"+st+",*.mvol")
     print ppi_datapath
     ppi_datapath = ppi_datapath[0]
 
@@ -102,6 +109,7 @@ rho = data['SCAN0']['RHOHV']['data']
 R = ZH0
 R[151:165]=np.nan
 
+
 print ("________ATTCORR______")
 pia_harrison = wrl.atten.correctAttenuationHB(
     R,
@@ -120,17 +128,22 @@ R[rho<= rho_th] = np.nan################WARUM GEHT DAS NICHT ?
 print ("________ofset______")
 print ("________beambl.______")
 
-#R = (R0 + R1)/2.
+
+### Threshold for DPR sensitivity
+R[R<TH]=np.nan
 
 # DPR Einlesen
 # ------------
 gpmku = h5py.File(pfad_radar, 'r')
 gpmku_HS = gpmku['NS']['SLV']
-dpr_lat = np.array(gpmku['NS']['Latitude'])			#(7934, 24)
-dpr_lon = np.array(gpmku['NS']['Longitude'])			#(7934, 24)
+dpr_lat = np.array(gpmku['NS']['Latitude'])
+dpr_lon = np.array(gpmku['NS']['Longitude'])
 dpr_pp = np.array(gpmku_HS['zFactorCorrectedNearSurface'])
 dpr_pp[dpr_pp < 0] = np.nan
 
+# Cut the Swath
+from pcc import cut_the_swath
+dpr_lon, dpr_lat, dpr_pp = cut_the_swath(dpr_lon,dpr_lat,dpr_pp, eu=2)
 
 # Koordinaten Projektion
 # ------------------
@@ -139,8 +152,7 @@ proj_stereo = wrl.georef.create_osr("dwd-radolan")
 proj_wgs = osr.SpatialReference()
 proj_wgs.ImportFromEPSG(4326)
 
-#from pcc import boxpol_pos
-#bonn_pos = boxpol_pos()
+
 
 dpr_lon, dpr_lat = wradlib.georef.reproject(dpr_lon, dpr_lat, projection_target=proj_stereo , projection_source=proj_wgs)
 blon, blat = wradlib.georef.reproject(blon0, blat0, projection_target=proj_stereo , projection_source=proj_wgs)
@@ -173,7 +185,7 @@ grid_xy = np.vstack((dpr_lon.ravel(), dpr_lat.ravel())).transpose()
 
 xy=np.concatenate([lon.ravel()[:,None],lat.ravel()[:,None]], axis=1)
 
-gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([lon.mean(), lat.mean()]), R.ravel(), ipoli[0],nnearest=80,p=2)
+gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([lon.mean(), lat.mean()]), R.ravel(), ipoli[0],nnearest=40,p=2)
 gridded = np.ma.masked_invalid(gridded).reshape(dpr_lon.shape)
 gridded[np.where(rr > radius)]=np.nan
 
@@ -275,12 +287,127 @@ plt.title('r:'+str(round(r_value,3))+'  +  '+str(round(std_err,3)))
 plt.colorbar()
 plt.grid()
 
-plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
+#plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
 plt.show()
 
 
 # Plot
 # ----
+from satlib import ipoli_radi
+
+new = ipoli_radi(xy,R.ravel(),grid_xy,10)
+new = new.reshape(dpr_lon.shape)
+
+lon0, lat0, radius = blon, blat, 100
+rr = np.sqrt((dpr_lat - lat0)**2 + (dpr_lon - lon0)**2)
+
+new[np.where(rr >= radius)] = np.nan
 
 
+
+
+
+
+
+###################
+from satlib import corcor
+fig = plt.figure(figsize=(14,12))
+fig.suptitle('BoXPol vs DPR '+ZP+' Rho_th: '+str(rho_th))
+ax1 = fig.add_subplot(221, aspect='auto')
+plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(pp),vmin=0, vmax=40, cmap=my_cmap())
+
+plt.colorbar()
+plot_borders(ax1)
+plot_radar(blon0, blat0, ax1, reproject=True, cband=False,col='black')
+plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
+plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
+plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
+
+plt.xlim(-350,-100)
+plt.ylim(-4350, -4100)
+plt.title('GPM - DPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
+plt.grid()
+
+ax2 = fig.add_subplot(222, aspect='auto')
+plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(gridded),vmin=0, vmax=40, cmap=my_cmap())
+
+plt.colorbar()
+plot_borders(ax2)
+plot_radar(blon0, blat0, ax2, reproject=True, cband=False,col='black')
+plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
+plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
+plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
+
+plt.xlim(-350,-100)
+plt.ylim(-4350, -4100)
+plt.title('BoXPol - onDPR- IDW Cor:' + corcor(gridded,pp))
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
+plt.grid()
+
+ax3 = fig.add_subplot(223, aspect='auto')
+plt.pcolormesh(lon, lat,R,vmin=0, vmax=40, cmap=my_cmap())
+plt.colorbar()
+plot_borders(ax3)
+plot_radar(blon0, blat0, ax3, reproject=True, cband=False,col='black')
+plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
+plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
+plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
+
+plt.xlim(-350,-100)
+plt.ylim(-4350, -4100)
+plt.title('BoXPol - DPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
+plt.grid()
+
+ax4 = fig.add_subplot(224, aspect='auto')
+plt.pcolormesh(dpr_lon, dpr_lat,new,vmin=0, vmax=40, cmap=my_cmap())
+
+plt.colorbar()
+plot_borders(ax4)
+plot_radar(blon0, blat0, ax4, reproject=True, cband=False,col='black')
+plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
+plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
+plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
+
+plt.xlim(-350,-100)
+plt.ylim(-4350, -4100)
+plt.title('BoxPol - DPR radius - Cor: '+ corcor(new,pp))
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
+plt.grid()
+
+
+plt.show()
 

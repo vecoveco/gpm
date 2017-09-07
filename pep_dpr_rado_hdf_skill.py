@@ -15,6 +15,9 @@ import wradlib as wrl
 from osgeo import osr
 from pcc import get_time_of_gpm
 from pcc import cut_the_swath
+from satlib import read_rado
+from wradlib.trafo import idecibel
+from wradlib.trafo import decibel
 
 
 from satlib import writeskill2hdf as w2h
@@ -148,6 +151,13 @@ for iii in scc:
                 gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
                 grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
+                ####################################### Neu
+                #rwdata2[rwdata2 <= 15] = -9999
+
+
+                rwdata2 = idecibel(rwdata2)
+
+
 
                 ############################################## INTERLOLATION RY
 
@@ -159,7 +169,7 @@ for iii in scc:
 
                 #mask = ~np.isnan(rwdata)
 
-                result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+                result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=8)
 
                 result = np.ma.masked_invalid(result)
 
@@ -169,16 +179,19 @@ for iii in scc:
 
                 #mask2 = ~np.isnan(rwdata2)
 
-                result2 = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata2.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+                result2 = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata2.reshape(900*900,1), wrl.ipol.Idw, nnearest=8)
 
                 result2 = np.ma.masked_invalid(result2)
 
                 rrr2 = result2.reshape(gpm_x.shape)
 
+                rrr2 = decibel(rrr2)
+                rwdata2 = decibel(rwdata2)
+
 
                 ## Interpolation of the binary Grid
 
-                res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+                res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=25)
                 res_bin = res_bin.reshape(gpm_x.shape)
 
                 res_bin[res_bin != 0] = 1  # Randkorrektur
@@ -215,7 +228,7 @@ for iii in scc:
 
                 #name = '/automount/ags/velibor/gpmdata/dumpdata/gpm_dpr_rado_all/' \
                 #       'dprrado_'+sc+'/dprrado_'+ sc + str(gpm_zeit)
-                name = '/automount/ags/velibor/gpmdata/dumpdata/gpm_dpr_rado_all/' \
+                name = '/automount/ags/velibor/gpmdata/dumpdata/gpm_dpr_rado_all_int25/' \
                        'dprrado_'+sc+'/dprrado_'+ sc + str(gpm_zeit)
 
                 w2h(name,gpm_x, gpm_y, ggg_pp, ggg_bbh, ggg_bbw, ggg_typ,
