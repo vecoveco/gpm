@@ -29,8 +29,8 @@ from pcc import plot_borders
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2016,6,01,00,00,0,
-          2016,6,29,23,55,0,
+zeit = zt(2017,7,1,00,00,0,
+          2017,7,31,23,55,0,
           steps=5)
 #zeit = zt(2014,10,07,02,35,0, 2014,10,07,02,40,0, steps=5)
 
@@ -88,7 +88,7 @@ for ij in range(len(zeit)):
     fig = plt.figure(figsize=(16,10))
 
     ax1 = fig.add_subplot(121, aspect='equal')
-    plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=40, zorder=2)
+    plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     cb = plt.colorbar(shrink=0.5)
     cb.set_label("Rainrate (mm/h)",fontsize=ff)
@@ -131,7 +131,7 @@ for ij in range(len(zeit)):
     plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
 
     ax2 = fig.add_subplot(122, aspect='equal')
-    plt.pcolormesh(x, y, ZZ,vmin=0,vmax=70, cmap=cmap2, zorder=2)
+    plt.pcolormesh(x, y, ZZ,vmin=0,vmax=50, cmap=cmap2, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     cb = plt.colorbar(shrink=0.5, extend='both')
     cb.set_label("Reflectivity (dBZ)",fontsize=ff)
@@ -171,7 +171,9 @@ for ij in range(len(zeit)):
     #               ax2, reproject=True, cband=True, col='red')
 
 
-    plt.savefig('/automount/ags/velibor/plot/radolan/RealPEP/lauf2/r_'+ radolan_zeit_sav+ '.png')
+    #plt.savefig('/automount/ags/velibor/plot/radolan/RealPEP/lauf2/r_'+ radolan_zeit_sav+ '.png')
+    plt.savefig('/automount/ags/velibor/plot/radolan/1-31_07_2017/r_'+ radolan_zeit_sav+ '.png')
+
     #plt.show()
     plt.close()
 

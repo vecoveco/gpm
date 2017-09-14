@@ -161,6 +161,13 @@ proj_wgs.ImportFromEPSG(4326)
 dpr_lon, dpr_lat = wradlib.georef.reproject(dpr_lon, dpr_lat, projection_target=proj_stereo , projection_source=proj_wgs)
 blon, blat = wradlib.georef.reproject(blon0, blat0, projection_target=proj_stereo , projection_source=proj_wgs)
 
+radar_location = (lon_ppi, lat_ppi, alt_ppi)
+elevation = 1.5
+azimuths = az
+ranges = r
+polargrid = np.meshgrid(ranges, azimuths)
+lon, lat, alt = wradlib.georef.polar2lonlatalt_n(polargrid[0], polargrid[1], elevation, radar_location)
+lon, lat = wradlib.georef.reproject(lon, lat, projection_target=proj_stereo , projection_source=proj_wgs)
 
 # Dpr zuschneiden
 #-----------------
@@ -173,35 +180,14 @@ pp = dpr_pp.copy()
 
 pp[np.where(rr > radius)] = np.nan
 
-from wradlib.trafo import idecibel
-from wradlib.trafo import decibel
-R = idecibel(R)
-
-radar_location = (lon_ppi, lat_ppi, alt_ppi)
-elevation = 1.5
-azimuths = az
-ranges = r
-polargrid = np.meshgrid(ranges, azimuths)
-lon, lat, alt = wradlib.georef.polar2lonlatalt_n(polargrid[0], polargrid[1], elevation, radar_location)
-lon, lat = wradlib.georef.reproject(lon, lat, projection_target=proj_stereo , projection_source=proj_wgs)
-
-grid_xy = np.vstack((dpr_lon.ravel(), dpr_lat.ravel())).transpose()
-
-xy=np.concatenate([lon.ravel()[:,None],lat.ravel()[:,None]], axis=1)
-
-gridded = wradlib.comp.togrid(xy, grid_xy, ranges[-1], np.array([lon.mean(), lat.mean()]), R.ravel(), ipoli[0],nnearest=40,p=2)
-gridded = np.ma.masked_invalid(gridded).reshape(dpr_lon.shape)
-gridded[np.where(rr > radius)]=np.nan
-
-R = decibel(R)
-gridded = decibel(gridded)
 
 
-fig = plt.figure(figsize=(14,12))
+cc = 0.3
+fig = plt.figure(figsize=(16,10))
 fig.suptitle('BoXPol vs DPR '+ZP+' Rho_th: '+str(rho_th))
 
 ###################
-ax1 = fig.add_subplot(221, aspect='auto')
+ax1 = fig.add_subplot(231, aspect='auto')
 plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(pp),vmin=0, vmax=40, cmap=my_cmap())
 
 plt.colorbar()
@@ -225,104 +211,12 @@ plt.tick_params(
     labelleft='off')
 plt.grid()
 
-ax2 = fig.add_subplot(222, aspect='auto')
-plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(gridded),vmin=0, vmax=40, cmap=my_cmap())
+ax2 = fig.add_subplot(232, aspect='auto')
+plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(pp),vmin=0, vmax=40, cmap=my_cmap())
 
 plt.colorbar()
 plot_borders(ax2)
 plot_radar(blon0, blat0, ax2, reproject=True, cband=False,col='black')
-plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
-plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
-plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
-
-plt.xlim(-350,-100)
-plt.ylim(-4350, -4100)
-plt.title('BoXPol - onDPR')
-plt.tick_params(
-    axis='both',
-    which='both',
-    bottom='off',
-    top='off',
-    labelbottom='off',
-    right='off',
-    left='off',
-    labelleft='off')
-plt.grid()
-
-ax3 = fig.add_subplot(223, aspect='auto')
-plt.pcolormesh(lon, lat,R,vmin=0, vmax=40, cmap=my_cmap())
-plt.colorbar()
-plot_borders(ax3)
-plot_radar(blon0, blat0, ax3, reproject=True, cband=False,col='black')
-plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
-plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
-plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
-
-plt.xlim(-350,-100)
-plt.ylim(-4350, -4100)
-plt.title('BoXPol - DPR')
-plt.tick_params(
-    axis='both',
-    which='both',
-    bottom='off',
-    top='off',
-    labelbottom='off',
-    right='off',
-    left='off',
-    labelleft='off')
-plt.grid()
-
-ax4 = fig.add_subplot(224, aspect='auto')
-A, B = gridded.copy(), pp.copy()
-tt = np.nanmax([np.nanmin(A),np.nanmin(B)])
-
-print ('The Threshold is: ', str(tt))
-
-A[A<=tt]=np.nan
-B[B<=tt]=np.nan
-maske = ~np.isnan(A) & ~np.isnan(B)
-
-slope, intercept, r_value, p_value, std_err = stats.linregress(A[maske], B[maske])
-line = slope * A +intercept
-
-plt.scatter(A[maske],B[maske], color='black')
-plt.hist2d(A[maske],B[maske], bins=10, cmap='PuBu')
-plt.title('r:'+str(round(r_value,3))+'  +  '+str(round(std_err,3)))
-plt.colorbar()
-plt.grid()
-
-#plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
-plt.show()
-
-
-# Plot
-# ----
-from satlib import ipoli_radi
-
-new = ipoli_radi(xy,R.ravel(),grid_xy,10)
-new = new.reshape(dpr_lon.shape)
-
-lon0, lat0, radius = blon, blat, 100
-rr = np.sqrt((dpr_lat - lat0)**2 + (dpr_lon - lon0)**2)
-
-new[np.where(rr >= radius)] = np.nan
-
-
-
-
-
-
-
-###################
-from satlib import corcor
-fig = plt.figure(figsize=(14,12))
-fig.suptitle('BoXPol vs DPR '+ZP+' Rho_th: '+str(rho_th))
-ax1 = fig.add_subplot(221, aspect='auto')
-plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(pp),vmin=0, vmax=40, cmap=my_cmap())
-
-plt.colorbar()
-plot_borders(ax1)
-plot_radar(blon0, blat0, ax1, reproject=True, cband=False,col='black')
 plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
 plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
 plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
@@ -341,32 +235,9 @@ plt.tick_params(
     labelleft='off')
 plt.grid()
 
-ax2 = fig.add_subplot(222, aspect='auto')
-plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(gridded),vmin=0, vmax=40, cmap=my_cmap())
+ax3 = fig.add_subplot(233, aspect='auto')
+plt.pcolormesh(dpr_lon, dpr_lat,np.ma.masked_invalid(pp),vmin=0, vmax=40, cmap=my_cmap())
 
-plt.colorbar()
-plot_borders(ax2)
-plot_radar(blon0, blat0, ax2, reproject=True, cband=False,col='black')
-plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
-plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
-plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
-
-plt.xlim(-350,-100)
-plt.ylim(-4350, -4100)
-plt.title('BoXPol - onDPR- IDW Cor:' + corcor(gridded,pp))
-plt.tick_params(
-    axis='both',
-    which='both',
-    bottom='off',
-    top='off',
-    labelbottom='off',
-    right='off',
-    left='off',
-    labelleft='off')
-plt.grid()
-
-ax3 = fig.add_subplot(223, aspect='auto')
-plt.pcolormesh(lon, lat,R,vmin=0, vmax=40, cmap=my_cmap())
 plt.colorbar()
 plot_borders(ax3)
 plot_radar(blon0, blat0, ax3, reproject=True, cband=False,col='black')
@@ -376,7 +247,7 @@ plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='bla
 
 plt.xlim(-350,-100)
 plt.ylim(-4350, -4100)
-plt.title('BoXPol - DPR')
+plt.title('GPM - DPR')
 plt.tick_params(
     axis='both',
     which='both',
@@ -388,9 +259,9 @@ plt.tick_params(
     labelleft='off')
 plt.grid()
 
-ax4 = fig.add_subplot(224, aspect='auto')
-plt.pcolormesh(dpr_lon, dpr_lat,new,vmin=0, vmax=40, cmap=my_cmap())
 
+ax4 = fig.add_subplot(234, aspect='equal')
+plt.pcolormesh(lon, lat,R,vmin=0, vmax=40, cmap=my_cmap())
 plt.colorbar()
 plot_borders(ax4)
 plot_radar(blon0, blat0, ax4, reproject=True, cband=False,col='black')
@@ -400,7 +271,30 @@ plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='bla
 
 plt.xlim(-350,-100)
 plt.ylim(-4350, -4100)
-plt.title('BoxPol - DPR radius - Cor: '+ corcor(new,pp))
+plt.title('BoXPol - DPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
+plt.grid()
+
+ax5 = fig.add_subplot(235, aspect='equal')
+plt.pcolormesh(lon, lat,R,vmin=0, vmax=40, cmap=my_cmap())
+plt.colorbar()
+plot_borders(ax5)
+plot_radar(blon0, blat0, ax5, reproject=True, cband=False,col='black')
+plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
+plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
+plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
+
+plt.xlim(-350,-100)
+plt.ylim(-4350, -4100)
+plt.title('BoXPol - DPR')
 plt.tick_params(
     axis='both',
     which='both',
@@ -413,13 +307,30 @@ plt.tick_params(
 plt.grid()
 
 
-plt.show()
+ax6 = fig.add_subplot(236, aspect='equal')
+plt.pcolormesh(lon, lat,R,vmin=0, vmax=40, cmap=my_cmap())
+plt.colorbar()
+plot_borders(ax6)
+plot_radar(blon0, blat0, ax6, reproject=True, cband=False,col='black')
+plt.plot(dpr_lon[:,0],dpr_lat[:,0], color='black',lw=1)
+plt.plot(dpr_lon[:,-1],dpr_lat[:,-1], color='black',lw=1)
+plt.plot(dpr_lon[:,dpr_lon.shape[1]/2],dpr_lat[:,dpr_lon.shape[1]/2], color='black',lw=1, ls='--')
 
-
-plt.scatter(new,gridded, color='blue', alpha=0.5, label='Radius vs IDW: ' + corcor(new,gridded))
-plt.scatter(pp,gridded, color='green', alpha=0.5, label='DPR vs IDW: ' + corcor(pp,gridded))
-plt.scatter(pp,new, color='red', alpha=0.5, label='DPR vs Radius: ' + corcor(pp,new))
-plt.legend()
+plt.xlim(-350,-100)
+plt.ylim(-4350, -4100)
+plt.title('BoXPol - DPR')
+plt.tick_params(
+    axis='both',
+    which='both',
+    bottom='off',
+    top='off',
+    labelbottom='off',
+    right='off',
+    left='off',
+    labelleft='off')
 plt.grid()
+
+#plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
 plt.show()
+
 
