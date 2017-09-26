@@ -43,9 +43,9 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 offset = 2
 
 
-ZP = '20141007023744' ; pfadnr=0# 0.47
+#ZP = '20141007023744' ; pfadnr=0# 0.47
 #ZP = '20140826220500'; pfadnr=1 # 0.82
-#ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
+ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
 #ZP = '20141008094500'; pfadnr=1 # 0.679  #!!!!!!!!!!!!!!NICE
 #ZP = '20150128171500'; pfadnr=0 #0.28
 #ZP = '20150128172208'; pfadnr=0#0.321
@@ -192,7 +192,7 @@ rwdata[rwdata<TH]=-9999
 # -----------------------------------------------------------------------------
 
 from pcc import cut_the_swath
-dpr_lon, dpr_lat, dpr_pp = cut_the_swath(dpr_lon,dpr_lat,dpr_pp, eu=2)
+dpr_lon, dpr_lat, dpr_pp = cut_the_swath(dpr_lon,dpr_lat,dpr_pp, eu=0)
 
 
 ######################################################## Koordinaten Projektion

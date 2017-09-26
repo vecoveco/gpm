@@ -319,6 +319,32 @@ def get_time_of_gpm(gpm_lon, gpm_lat, gpm_time):
     gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y%m%d%H%M%S")
     return gpm_dt
 
+
+def get_time_of_gpm_over_boxpol(gpm_lon, gpm_lat, gpm_time):
+    """
+    Funciton:
+        Returns Time where GPM is over the Mid of RADOLAN Grid
+
+    Input:
+        gpm_lon ::: GPM Longitude
+        gpm_lat ::: GPM Latitude
+        gpm_time :: GPM Times
+
+    Output:
+        gpm_dt ::: GPM Time for Radolanregion
+
+    """
+    #Todo: Verbessern
+    mitte = gpm_lon.shape[1]/2 # midel swath
+    ii = np.where(((gpm_lon[:,mitte]<8) & (gpm_lon[:,mitte]>6)) & ((gpm_lat[:,mitte]<51) & (gpm_lat[:,mitte] > 50)))
+    gpm_year = int(np.nanmedian(np.array(gpm_time['Year'])[ii]))
+    gpm_month = int(np.nanmedian(np.array(gpm_time['Month'])[ii]))
+    gpm_day = int(np.nanmedian(np.array(gpm_time['DayOfMonth'])[ii]))
+    gpm_hour = int(np.nanmedian(np.array(gpm_time['Hour'])[ii]))
+    gpm_min = int(np.nanmedian(np.array(gpm_time['Minute'])[ii]))
+    gpm_sek = int(np.nanmedian(np.array(gpm_time['Second'])[ii]))
+    gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y%m%d%H%M%S")
+    return gpm_dt
 '''
 x1,y1,z1 = read_rado("201410070235")
 x2,y2,z2 = read_rado("201410070240")

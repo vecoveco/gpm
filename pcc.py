@@ -505,7 +505,7 @@ def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
     # plot radar location and information text
     print np.unique(polygons)
     ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
-    #ax.text(x_loc, y_loc, 'Bonn', color='k', fontsize=20)
+    #ax.text(x_loc, y_loc, 'BoXPol', color='k', fontsize=10)
 
 
 def plot_radar_boxpol(bx,by, ax):
