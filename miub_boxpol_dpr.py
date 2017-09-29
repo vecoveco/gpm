@@ -123,7 +123,7 @@ R = R + pia_harrison
 
 print ("________CLUTTER______")
 rho_th  = 0.85
-R[rho<= rho_th] = np.nan################WARUM GEHT DAS NICHT ?
+R[rho<= rho_th] = np.nan ################WARUM GEHT DAS NICHT ?
 
 print ("________ofset______")
 #R = R + 2
@@ -299,7 +299,7 @@ plt.show()
 # ----
 from satlib import ipoli_radi
 
-new = ipoli_radi(xy,R.ravel(),grid_xy,10)
+new = ipoli_radi(xy,R.ravel(),grid_xy,2.5)
 new = new.reshape(dpr_lon.shape)
 
 lon0, lat0, radius = blon, blat, 100
