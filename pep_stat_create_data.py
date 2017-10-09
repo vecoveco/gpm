@@ -15,14 +15,14 @@ para = ['NS', 'HS','MS']
 
 
 #################################################################DEM
-dem=np.load("/automount/ftp/velibor/dem.npy")
-dem_x, dem_y,dem_v = dem[0,:,:],dem[1,:,:],dem[2,:,:]
+#dem=np.load("/automount/ftp/velibor/dem.npy")
+#dem_x, dem_y,dem_v = dem[0,:,:],dem[1,:,:],dem[2,:,:]
 
 proj_stereo = wrl.georef.create_osr("dwd-radolan")
 proj_wgs = osr.SpatialReference()
 proj_wgs.ImportFromEPSG(4326)
 
-dx, dy = wradlib.georef.reproject(dem_x, dem_y, projection_target=proj_stereo , projection_source=proj_wgs)
+#dx, dy = wradlib.georef.reproject(dem_x, dem_y, projection_target=proj_stereo , projection_source=proj_wgs)
 
 # Threshold ATBD GPM 2016
 thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
