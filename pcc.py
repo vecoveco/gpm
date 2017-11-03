@@ -644,6 +644,12 @@ def get_my_cmap():
     return my_cmap
 
 
+def get_my_cmap2():
+    import matplotlib.cm as cm
+    my_cmap = cm.get_cmap('jet',40)
+    my_cmap.set_under('white')
+    my_cmap.set_over('darkred')
+    return my_cmap
 
 def pcc_plot_cg_rhi(data, r=None, th=None, th_res=None, autoext=True, refrac=True,
                 rf=1., fig=None, subplot=111, **kwargs):

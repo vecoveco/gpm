@@ -272,6 +272,7 @@ def ipol_rad2gpm(radolan_x, radolan_y, gpm_x, gpm_y, radolan_data):
 !!!WORK IN PROGRESS!!!
 
 """
+# TODO:
 
 def read_rado_pm5(z, z2):
 
@@ -291,6 +292,31 @@ def read_Tb():
 def read_IMERG():
     pass
     return 'unfertig'
+
+def read_BoXPol():
+    pass
+    return 'unfertig'
+
+def read_JuXPol():
+    pass
+    return 'unfertig'
+
+def read_DWD():
+    pass
+    return 'unfertig'
+
+def make_CFAD():
+    pass
+    return 'unfertig'
+
+def make_QVP():
+    pass
+    return 'unfertig'
+
+def make_CVP():
+    pass
+    return 'unfertig'
+
 
 
 def get_time_of_gpm(gpm_lon, gpm_lat, gpm_time):
@@ -812,3 +838,40 @@ def ipoli_radi(gr_grid, gr_data,sr_grid,radius):
     return gr_ipoli_data
 
 
+'''
+import matplotlib as mpl
+#plt.hist2d(np.log(A[maske_p]),np.log(B[maske_p]), norm=mpl.colors.LogNorm())
+plt.subplot(2,1,1)
+plt.hist2d(np.log(A[maske_p]),np.log(B[maske_p]), norm=mpl.colors.LogNorm(),bins=40)
+#plt.colorbar()
+plt.xlim(-3,6)
+plt.ylim(-3,6)
+plt.subplot(2,1,2)
+plt.scatter(np.log(A[maske_p]),np.log(B[maske_p]), norm=mpl.colors.LogNorm())
+plt.xlim(-3,6)
+plt.ylim(-3,6)
+plt.show()
+
+
+#plt.hist2d(np.log(A[maske_p]),np.log(B[maske_p]), norm=mpl.colors.LogNorm())
+plt.subplot(2,1,1)
+plt.hist2d(A[maske_p],B[maske_p],bins=40,vmin=0, vmax = 10)
+#plt.colorbar()
+#plt.xlim(-3,6)
+#plt.ylim(-3,6)
+plt.subplot(2,1,2)
+plt.scatter(A[maske_p],B[maske_p])
+#plt.xlim(-3,6)
+#plt.ylim(-3,6)
+plt.show()
+
+
+fig =plt.figure(figsize=(6,14))
+ax1 = fig.add_subplot(2, 1, 1)
+ax1.set_yscale('log')
+ax1.set_xscale('log')
+ax1.hist2d(A[maske_p],B[maske_p],bins=bin)
+plt.show()
+
+
+ax1.hist2d(A[maske_p],B[maske_p], bins=bin)'''

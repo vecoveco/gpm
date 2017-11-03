@@ -43,9 +43,9 @@ ipoli = [wradlib.ipol.Idw, wradlib.ipol.Linear, wradlib.ipol.Nearest, wradlib.ip
 offset = 2
 
 
-ZP = '20141007023744' ; pfadnr=0# 0.47
+#ZP = '20141007023744' ; pfadnr=0# 0.47
 #ZP = '20140826220500'; pfadnr=1 # 0.82
-#ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
+ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
 #ZP = '20141008094500'; pfadnr=1 # 0.679  #!!!!!!!!!!!!!!NICE
 #ZP = '20150128171500'; pfadnr=0 #0.28
 #ZP = '20150128172208'; pfadnr=0#0.321
@@ -64,6 +64,7 @@ st = ZP[12:14]
 
 
 pfad_radar = glob.glob('/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118.' + year + m + d + '*.HDF5')
+
 print pfad_radar
 pfad_radar = pfad_radar[pfadnr]
 #pfad_radar_Ku = pfad_radar[0]
@@ -73,7 +74,8 @@ deg_scan =  ["/ppi_1p5deg/","/ppi_2p4deg/","/ppi_3p4deg/",
              "/n_ppi_082deg/","/n_ppi_110deg/","/n_ppi_140deg/",
              "/n_ppi_180deg/","/n_ppi_280deg/","/n_vertical_scan/"][0]
 
-
+#pfad_radar = glob.glob('/automount/radar-archiv/scans_juelich/2014/2014-10/2014-10-08/rainscanner.wuestebach/2014100809390000dBZ.azi')
+#pfad_radar = glob.glob('/automount/radar-archiv/scans_juelich/2014/2014-10/2014-10-08/DWD_Vol_2/2014-10-08--09:40:00,00.mvol')
 try:
     ppi_datapath=glob.glob('/automount/radar-archiv/scans/' + year+ "/" +
                            year +"-"+ m + "/" + year+ "-" + m +"-"+ d +
@@ -116,6 +118,7 @@ pia_harrison = wrl.atten.correctAttenuationHB(
     coefficients = dict(a=4.57e-5, b=0.731, l=1.0),
     mode="warn",
     thrs=59.)
+
 pia_harrison[pia_harrison > 4.8] = 4.8
 
 print ("________ATTCORR2______")

@@ -5,7 +5,7 @@ import glob
 from scipy import stats, linspace
 import wradlib as wrl
 from osgeo import osr
-
+from pcc import get_miub_cmap
 
 import matplotlib.pyplot as plt
 
@@ -71,7 +71,12 @@ corr,eror,bias = corcorcor(A,B)
 corr2,eror2,bias2 = corcorcor(C,D)
 
 ff, ff2 =15, 20
+bin = 4
+import matplotlib as mpl
 
+
+
+'''
 fig =plt.figure(figsize=(6,14))
 ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_yscale('log')
@@ -86,8 +91,8 @@ plt.ylim(0,300)
 
 plt.xlabel('DPR Rainrate in mm/h',fontsize=ff)
 plt.ylabel('Radolan Rainrate in mm/h',fontsize=ff)
-plt.title(para[pp] + ' Rainrates: \n'
-          'RADOLAN and DPR ',fontsize=ff2)# + band[pp]+ ' [' +freq[pp]+ ']')
+#plt.title(para[pp] + ' Rainrates: \n'
+#          'RADOLAN and DPR ',fontsize=ff2)# + band[pp]+ ' [' +freq[pp]+ ']')
 plt.xticks(fontsize=ff)
 plt.yticks(fontsize=ff)
 plt.grid()
@@ -102,10 +107,10 @@ plt.legend(loc='upper left', scatterpoints= 1, fontsize=ff)
 plt.xlim(15,70)
 plt.ylim(15,70)
 
-plt.xlabel('DPR Reflectivity in dbz',fontsize=ff)
-plt.ylabel('Radolan Reflectivity in dbz',fontsize=ff)
-plt.title(para[pp] + ' Reflectivities: \n'
-          'RADOLAN and DPR ',fontsize=ff2)# + band[pp]+ ' [' +freq[pp]+ ']')
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
+#plt.title(para[pp] + ' Reflectivities: \n'
+          #'RADOLAN and DPR ',fontsize=ff2)# + band[pp]+ ' [' +freq[pp]+ ']')
 plt.grid()
 plt.xticks(fontsize=ff)
 plt.yticks(fontsize=ff)
@@ -116,15 +121,75 @@ fig.subplots_adjust(bottom=0.05, top=0.95,hspace=0.3, left=0.15)
 plt.show()
 
 
-'''
-plt.figure(figsize=(14,6))
-plt.subplot(1,3,1)
-plt.scatter(ns_z_dpr[ns_p_rad == 2],ns_z_rad[ns_p_rad == 2],
-            label='liquid: '+ corcor(ns_z_dpr[ns_p_rad == 2],ns_z_rad[ns_p_rad == 2]))
-plt.scatter(ns_z_dpr[ns_p_rad == 0],ns_z_rad[ns_p_rad == 0],
-            label='solid: '+ corcor(ns_z_dpr[ns_p_rad == 0],ns_z_rad[ns_p_rad == 0]),color='black')
-plt.legend()
-plt.xlabel('dpr reflectivity in dbz')
-plt.ylabel('radolan reflectivity in dbz')
-plt.title('NS')
-plt.grid()'''
+
+
+from pcc import get_my_cmap2
+
+fig =plt.figure(figsize=(10,10))
+
+plt.hist2d(C[maske_z],D[maske_z], bins=60, cmap=get_my_cmap2(),vmin=0.1)
+cbar = plt.colorbar()
+cbar.set_label('number of samples')
+
+plt.title('Corr: ' + str(round(corr2,3)) + r'$\pm$'+  str(round(eror2,3))+
+            '\nBias: '+ str(round(bias2,3)))
+plt.xlim(15,70)
+plt.ylim(15,70)
+
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
+
+plt.grid()
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.show()'''
+
+from pcc import get_my_cmap2
+
+xbins = 10**np.arange(-1, 2.08, 0.08)
+ybins = 10**np.arange(-1, 2.08, 0.08)
+
+counts, _, _ = np.histogram2d(A[maske_p],B[maske_p], bins=(xbins, ybins))
+
+fig, ax = plt.subplots(figsize=(10,10))
+plt.pcolormesh(xbins, ybins, counts.T, cmap=get_my_cmap2(),vmin=0.1)
+cb = plt.colorbar()
+cb.set_label('number of samples', fontsize=ff)
+
+ax.set_xscale('log')
+ax.set_yscale('log')
+plt.xlabel('DPR Rainrate in mm/h',fontsize=ff)
+plt.ylabel('Radolan Rainrate in mm/h',fontsize=ff)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.title('Corr: ' + str(round(corr,3)) + r'$\pm$'+  str(round(eror,3))+
+            '\nBias: '+ str(round(bias,3)), fontsize=20)
+
+plt.grid()
+plt.show()
+
+
+
+from pcc import get_my_cmap2
+
+fig =plt.figure(figsize=(10,10))
+
+plt.hist2d(C[maske_z],D[maske_z], bins=60, cmap=get_my_cmap2(),vmin=0.1)
+cbar = plt.colorbar()
+cbar.set_label('number of samples', fontsize=ff)
+
+plt.title('Corr: ' + str(round(corr2,3)) + r'$\pm$'+  str(round(eror2,3))+
+            '\nBias: '+ str(round(bias2,3)), fontsize=20)
+plt.xlim(15,70)
+plt.ylim(15,70)
+
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
+
+plt.grid()
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.show()

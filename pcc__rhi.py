@@ -19,8 +19,8 @@ import h5py
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2017,3,07,02,45,44,
-          2017,3,07,02,55,0,
+zeit = zt(2016,1,7,12,40,00,
+          2016,1,7,12,45,00,
           steps=5)
 
 

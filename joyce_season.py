@@ -20,7 +20,7 @@ thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
 
 
 '''
-for ip in range(3):
+for ip in range(1):
 
     pp = ip
 
@@ -42,12 +42,14 @@ for ip in range(3):
 
         print ii,' von ', len(pfad_gpm)
 
-        #if (pfad_gpm[ii][84:86] == '06') or (pfad_gpm[ii][84:86] == '07') or (pfad_gpm[ii][84:86] == '08'):
-        if (pfad_gpm[ii][84:86] == '12') or (pfad_gpm[ii][84:86] == '01') or (pfad_gpm[ii][84:86] == '02'):
+        if (pfad_gpm[ii][84:86] == '06') or (pfad_gpm[ii][84:86] == '07') or (pfad_gpm[ii][84:86] == '08'):
+        #if (pfad_gpm[ii][84:86] == '12') or (pfad_gpm[ii][84:86] == '01') or (pfad_gpm[ii][84:86] == '02'):
             print pfad_gpm[ii][84:86]
 
             R = h5py.File(pfad_gpm[ii], 'r')
             s1, s2 = 0, 48
+            #s1, s2 = 20, 28
+
             x = np.array(R['x'])[:,s1:s2]
             y = np.array(R['y'])[:,s1:s2]
             sat_bbh = np.array(R['sat_bbh'])[:,s1:s2]
@@ -91,7 +93,7 @@ for ip in range(3):
         else:
             print 'nicht in season ', pfad_gpm[ii][84:86]
 
-    np.save('/automount/ags/velibor/gpmdata/dumpdata/npy/WS_'+str(para[pp]),
+    np.save('/automount/ags/velibor/gpmdata/dumpdata/npy/SS_'+str(para[pp]),
             (gx,gy,g_bbh, g_bbw, g_top, g_type, g_phase, g_p2d,
              g_z2d, g_ry, g_rx))
 
@@ -100,7 +102,7 @@ for ip in range(3):
 
 def corcorcor(A,B):
     mask = ~np.isnan(A) & ~np.isnan(B)
-    diffi = A[mask]-B[mask]
+    diffi = A[mask]- B[mask]
     bias = np.nansum(diffi)/len(diffi)
     slope, intercept, r_value, p_value, std_err = stats.linregress(A[mask], B[mask])
     line = slope * A +intercept
@@ -110,8 +112,8 @@ def corcorcor(A,B):
 para = ['NS', 'HS','MS']
 freq = ['13.6 GHz','35.5 GHz','35.5 GHz']
 band = ['Ku','Ka','Ka']
-pp = 2
-data = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/WS_'+str(para[pp])+'.npy')
+pp = 0
+data = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/SS_'+str(para[pp])+'.npy')
 #data = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/WS_'+str(para[pp])+'.npy')
 
 #gx = data[0,:]
@@ -154,15 +156,15 @@ corr,eror,bias = corcorcor(A,B)
 corr2,eror2,bias2 = corcorcor(C,D)
 
 ff, ff2 = 15, 20
-
+'''
 fig =plt.figure(figsize=(6,14))
 ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_yscale('log')
 ax1.set_xscale('log')
 ax1.scatter(A,B,color='blue',alpha=0.3, label='Corr: ' + str(round(corr,3)) + r'$\pm$'+  str(round(eror,3))+
             '\nBias: '+ str(round(bias,3)))
-#plt.hist2d(g_p2d[maske_p],g_ry[maske_p],bins=99, cmap='jet')
-#plt.colorbar()
+#ax1.hist2d(A[maske_p],B[maske_p], cmap='jet',vmin=0.5,vmax=100 )
+#ax1.colorbar()
 plt.legend(loc= 'upper left', scatterpoints= 1, fontsize=ff)
 plt.xlim(0,300)
 plt.ylim(0,300)
@@ -185,8 +187,8 @@ plt.legend(loc='upper left', scatterpoints= 1, fontsize=ff)
 plt.xlim(15,70)
 plt.ylim(15,70)
 
-plt.xlabel('DPR Reflectivity in dbz',fontsize=ff)
-plt.ylabel('Radolan Reflectivity in dbz',fontsize=ff)
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
 plt.title(para[pp] + ' Reflectivities: \n'
           'RADOLAN and DPR ',fontsize=ff2)# + band[pp]+ ' [' +freq[pp]+ ']')
 plt.grid()
@@ -198,4 +200,152 @@ fig.subplots_adjust(bottom=0.05, top=0.95,hspace=0.3, left=0.15)
 #plt.tight_layout()
 plt.show()
 
+
+from pcc import get_my_cmap2
+
+fig =plt.figure(figsize=(10,10))
+
+plt.hist2d(C[maske_z],D[maske_z], bins=60, cmap=get_my_cmap2(),vmin=0.1)
+cbar = plt.colorbar()
+cbar.set_label('number of samples')
+
+plt.title('Corr: ' + str(round(corr2,3)) + r'$\pm$'+  str(round(eror2,3))+
+            '\nBias: '+ str(round(bias2,3)))
+plt.xlim(15,70)
+plt.ylim(15,70)
+
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
+
+plt.grid()
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.show()
+
+
+
+fig =plt.figure(figsize=(10,10))
+
+ax2 = fig.add_subplot(2, 1, 1)
+ax2.set_yscale('log')
+ax2.set_xscale('log')
+ax2.hist2d(A[maske_p],B[maske_p], bins=np.logspace(-1,1,100), cmap=get_my_cmap2(),vmin=0.1)
+#cbar = plt.colorbar()
+#cbar.set_label('number of samples')
+#ax1.set_yscale('log')
+#ax1.set_xscale('log')
+
+plt.title('Corr: ' + str(round(corr,3)) + r'$\pm$'+  str(round(eror,3))+
+            '\nBias: '+ str(round(bias,3)))
+#plt.xlim(15,70)
+#plt.ylim(15,70)
+
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
+
+plt.grid('log')
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+
+
+
+ax1 = fig.add_subplot(2, 1, 2)
+ax1.set_yscale('log')
+ax1.set_xscale('log')
+ax1.scatter(A,B,color='blue',alpha=0.3, label='Corr: ' + str(round(corr,3)) + r'$\pm$'+  str(round(eror,3))+
+            '\nBias: '+ str(round(bias,3)))
+#ax1.hist2d(A[maske_p],B[maske_p], cmap='jet',vmin=0.5,vmax=100 )
+#ax1.colorbar()
+plt.legend(loc= 'upper left', scatterpoints= 1, fontsize=ff)
+#plt.xlim(0,300)
+#plt.ylim(0,300)
+
+plt.xlabel('DPR Rainrate in mm/h',fontsize=ff)
+plt.ylabel('Radolan Rainrate in mm/h',fontsize=ff)
+plt.title(para[pp] + ' Rainrates: \n'
+          'RADOLAN and DPR ',fontsize=ff2)# + band[pp]+ ' [' +freq[pp]+ ']')
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+plt.grid()
+plt.show()
+'''
+
+'''
+from pcc import get_my_cmap2
+
+
+xbins = 10**np.arange(-1, 2.08, 0.08)
+ybins = 10**np.arange(-1, 2.08, 0.08)
+
+
+counts, _, _ = np.histogram2d(A[maske_p],B[maske_p], bins=(xbins, ybins))
+
+fig, ax = plt.subplots()
+plt.pcolormesh(xbins, ybins, counts.T, cmap=get_my_cmap2(),vmin=0.1)
+cb = plt.colorbar()
+cb.set_label('number of samples')
+
+ax.set_xscale('log')
+ax.set_yscale('log')
+plt.xlabel('DPR Rainrate in mm/h',fontsize=ff)
+plt.ylabel('Radolan Rainrate in mm/h',fontsize=ff)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.title('Corr: ' + str(round(corr,3)) + r'$\pm$'+  str(round(eror,3))+
+            '\nBias: '+ str(round(bias,3)), fontsize=20)
+
+plt.grid()
+plt.show()'''
+
+from pcc import get_my_cmap2
+
+xbins = 10**np.arange(-1, 2.08, 0.08)
+ybins = 10**np.arange(-1, 2.08, 0.08)
+
+counts, _, _ = np.histogram2d(A[maske_p],B[maske_p], bins=(xbins, ybins))
+
+fig, ax = plt.subplots(figsize=(10,10))
+plt.pcolormesh(xbins, ybins, counts.T, cmap=get_my_cmap2(),vmin=0.1)
+cb = plt.colorbar()
+cb.set_label('number of samples', fontsize=ff)
+
+ax.set_xscale('log')
+ax.set_yscale('log')
+plt.xlabel('DPR Rainrate in mm/h',fontsize=ff)
+plt.ylabel('Radolan Rainrate in mm/h',fontsize=ff)
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.title('Corr: ' + str(round(corr,3)) + r'$\pm$'+  str(round(eror,3))+
+            '\nBias: '+ str(round(bias,3)), fontsize=20)
+
+plt.grid()
+plt.show()
+
+
+
+from pcc import get_my_cmap2
+
+fig =plt.figure(figsize=(10,10))
+
+plt.hist2d(C[maske_z],D[maske_z], bins=60, cmap=get_my_cmap2(),vmin=0.1)
+cbar = plt.colorbar()
+cbar.set_label('number of samples', fontsize=ff)
+
+plt.title('Corr: ' + str(round(corr2,3)) + r'$\pm$'+  str(round(eror2,3))+
+            '\nBias: '+ str(round(bias2,3)), fontsize=20)
+plt.xlim(15,70)
+plt.ylim(15,70)
+
+plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff)
+plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff)
+
+plt.grid()
+plt.xticks(fontsize=ff)
+plt.yticks(fontsize=ff)
+
+plt.show()
 
