@@ -19,8 +19,8 @@ import h5py
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2016,1,7,12,40,00,
-          2016,1,7,12,45,00,
+zeit = zt(2015,12,16,02,45,00,
+          2015,12,16,02,50,00,
           steps=5)
 
 
@@ -46,7 +46,7 @@ for ij in range(len(zeit)):
     iii = 0
     pfad = ('/automount/'+sc+'/scans/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
             str(year)+'-'+str(m)+'-'+str(d)+'/n_rhi_lacros/'+str(year)+'-'+str(m)+'-'+
-            str(d)+'--'+str(ht)+':'+str(mt)+':00,00.mvol')
+            str(d)+'--'+str(ht)+':'+str(mt)+':01,00.mvol')
 
     #Todo: die an der Uhrzeit am nachliegensten Uhrzeit nehmen
 

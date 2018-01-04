@@ -43,14 +43,14 @@ offset = 2
 
 #ZP = '20141007023744' ; pfadnr=0# 0.47
 #ZP = '20140826220500'; pfadnr=1 # 0.82
-ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
+#ZP = '20141008094000'; pfadnr=1 # 0.82   #!!!!!!!!!!!!!!NICE
 #ZP = '20141008094500'; pfadnr=1 # 0.679  #!!!!!!!!!!!!!!NICE
 #ZP = '20150128171500'; pfadnr=0 #0.28
 #ZP = '20150128172208'; pfadnr=0#0.321
 #ZP = '20160209103500'; pfadnr=1 # 0.23
 #ZP = '20151216024501'; pfadnr=0#0.589
 #ZP = '20151216023500' ; pfadnr=0# 0.651
-#ZP = '20160209103000'; pfadnr=1 ###PFAD=1
+ZP = '20160209103000'; pfadnr=1 ###PFAD=1
 
 
 year = ZP[0:4]
@@ -195,7 +195,8 @@ dpr_lonhs, dpr_laths = wradlib.georef.reproject(dpr_lonhs, dpr_laths, projection
 blon, blat = wradlib.georef.reproject(blon0, blat0, projection_target=proj_stereo , projection_source=proj_wgs)
 
 radar_location = (lon_ppi, lat_ppi, alt_ppi)
-elevation = 1.5
+elevation = attrs['SCAN0']['el']
+
 azimuths = az
 ranges = r
 polargrid = np.meshgrid(ranges, azimuths)
@@ -402,7 +403,8 @@ plt.tick_params(
 plt.grid()
 
 plt.tight_layout()
-#plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
+plt.savefig('/automount/ags/velibor/plot/miub/boxdpr_'+ZP)
+plt.close()
 plt.show()
 
 

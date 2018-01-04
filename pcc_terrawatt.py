@@ -280,7 +280,7 @@ ax2 = fig.add_subplot(224, aspect='equal')
 
 A = rrr
 B = np.ma.masked_invalid(gprof_pp_b)
-A[A<TH_rain] = np.nan
+A[A<0.1] = np.nan
 #B[B<TH_rain] = np.nan
 
 ref = rrr
@@ -315,9 +315,9 @@ plt.title(" .")
 
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+plt.show()'''
 ###############################################################################
-
+'''
 
 cut = 15
 #dpr3[dpr3 < 0]=np.nan
@@ -377,10 +377,10 @@ plt.grid()
 plt.show()
 
 
+'''
 
 
-
-
+'''
 
 cut = 35
 #dpr3[dpr3 < 0]=np.nan
@@ -438,6 +438,7 @@ plot_borders(ax22)
 plt.grid()
 plt.tight_layout()
 plt.show()
+'''
 '''
 
 
@@ -550,4 +551,4 @@ plt.title('GPM DPR Vertical Phase Distribution')
 
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+plt.show()'''

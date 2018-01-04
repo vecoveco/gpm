@@ -234,6 +234,7 @@ pp2 = rwdata.copy()
 pp2[np.where(rr2 > radius)] = np.nan
 
 
+
 ################################################# RADOLAN interpolieren auf DPR
 #------------------------------------------------------------------------------
 gk3 = wradlib.georef.epsg_to_osr(31467)
@@ -295,7 +296,7 @@ new_g = gridded.copy()
 gridded[gridded<15]=np.nan
 rrr[rrr<15]=np.nan
 rwdata[rwdata<15]=np.nan
-
+pp2[pp2<15]=np.nan
 
 ########################################################################## PLOT
 # -----------------------------------------------------------------------------
@@ -416,14 +417,14 @@ plt.hist(rrr[m2],  bins=bb,alpha=aa, label='RADOLAN',facecolor="None",
          edgecolor='green', linewidth=ll, normed=1)
 
 mr = ~np.isnan(rwdata)
-plt.hist(rwdata[mr],  bins=bb,alpha=aa, label='RADOLAN',facecolor="None",
-         edgecolor='green', linewidth=ll, normed=1,linestyle='dashed')
+#plt.hist(rwdata[mr],  bins=bb,alpha=aa, label='RADOLAN',facecolor="None",
+#         edgecolor='green', linewidth=ll, normed=1,linestyle='dashed')
 
 plt.hist(gridded[m3],  bins=bb,alpha=aa, label='Boxpol',facecolor="None",
          edgecolor='red', linewidth=ll, normed=1)
 mR = ~np.isnan(R)
-plt.hist(R[mR],  bins=bb,alpha=aa, label='Boxpol',facecolor="None",
-         edgecolor='red', linewidth=ll,linestyle='dashed', normed=1)
+#plt.hist(R[mR],  bins=bb,alpha=aa, label='Boxpol',facecolor="None",
+#         edgecolor='red', linewidth=ll,linestyle='dashed', normed=1)
 plt.legend()
 plt.grid()
 plt.show()

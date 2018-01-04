@@ -107,6 +107,8 @@ lon_ppi = attrs['VOL']['Longitude']
 lat_ppi = attrs['VOL']['Latitude']
 alt_ppi = attrs['VOL']['Height']
 rho = data['SCAN0']['RHOHV']['data']
+zdr = data['SCAN0']['ZDR']['data']
+
 
 R = ZH0
 R[151:165]=np.nan

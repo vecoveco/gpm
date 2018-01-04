@@ -23,7 +23,12 @@ overpass_zeiten = a[[0]].values
 for i in range(len(overpass_zeiten)-1):
 
     overpass_datum = overpass_zeiten[i][0][0:8]
-    dpr_overpass = '2A.GPM.DPR.V6-20160118.' +overpass_zeiten[i][0]
+
+    dpr_overpass = '2A.GPM.DPR.V7-20170308.' +overpass_zeiten[i][0][:-7]+'5A.HDF5'
+
+
+    print overpass_zeiten[i][0][:-7]+'5A.HDF5'
+
 
     print dpr_overpass
 
@@ -34,7 +39,7 @@ for i in range(len(overpass_zeiten)-1):
     meinftp.cwd(directory)
 
     # Mein Verzeichniss
-    directory_local = '/automount/ags/velibor/gpmdata/dpr/'
+    directory_local = '/automount/ags/velibor/gpmdata/dprV7/'
 
 
     #meinftp.retrlines('LIST')

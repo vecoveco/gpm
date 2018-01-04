@@ -29,8 +29,13 @@ from pcc import plot_borders
 
 from pcc import zeitschleife as zt
 
-zeit = zt(2017,7,1,00,00,0,
-          2017,7,31,23,55,0,
+# YYYY MM DD hh mm mili
+#zeit = zt(2017,10,25,23,35,0,
+#          2017,11,5,23,55,0,
+#          steps=5)
+#20170312054500
+zeit = zt(2017,04,01,00,00,0,
+          2017,05,31,23,55,0,
           steps=5)
 #zeit = zt(2014,10,07,02,35,0, 2014,10,07,02,40,0, steps=5)
 
@@ -85,12 +90,13 @@ for ij in range(len(zeit)):
     ########################################################################## PLOT
 
     ff = 15
-    fig = plt.figure(figsize=(16,10))
+    #fig = plt.figure(figsize=(16,10))
+    fig = plt.figure(figsize=(14,8))
 
     ax1 = fig.add_subplot(121, aspect='equal')
     plt.pcolormesh(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
     #plt.scatter(x, y, rwdata, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
-    cb = plt.colorbar(shrink=0.5)
+    cb = plt.colorbar(shrink=0.5, extend='both')
     cb.set_label("Rainrate (mm/h)",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
     plot_borders(ax1)
@@ -172,7 +178,7 @@ for ij in range(len(zeit)):
 
 
     #plt.savefig('/automount/ags/velibor/plot/radolan/RealPEP/lauf2/r_'+ radolan_zeit_sav+ '.png')
-    plt.savefig('/automount/ags/velibor/plot/radolan/1-31_07_2017/r_'+ radolan_zeit_sav+ '.png')
+    plt.savefig('/automount/ags/velibor/plot/radolan/20170401/r_'+ radolan_zeit_sav+ '.png')
 
     #plt.show()
     plt.close()

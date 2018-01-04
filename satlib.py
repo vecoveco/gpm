@@ -280,40 +280,53 @@ def read_rado_pm5(z, z2):
 
     return zzz
 
-def read_corra():
+def read_corra(pfad):
     pass
     return 'unfertig'
 
-def read_Tb():
+def read_Tb(pfad):
     pass
     return 'unfertig'
 
 
-def read_IMERG():
+def read_IMERG(pfad):
     pass
     return 'unfertig'
 
-def read_BoXPol():
+def read_BoXPol(pfad):
+    ppi=h5py.File(pfad,'r')
+    data, attrs = wradlib.io.read_GAMIC_hdf5(pfad)
+
+    ZH0 = data['SCAN0']['ZH']['data']
+    PHIDP = data['SCAN0']['PHIDP']['data']
+    r = attrs['SCAN0']['r']
+    az = attrs['SCAN0']['az']
+    lon_ppi = attrs['VOL']['Longitude']
+    lat_ppi = attrs['VOL']['Latitude']
+    alt_ppi = attrs['VOL']['Height']
+    rho = data['SCAN0']['RHOHV']['data']
+    zdr = data['SCAN0']['ZDR']['data']
+
+
+    return 'unfertig'
+
+def read_JuXPol(pfad):
     pass
     return 'unfertig'
 
-def read_JuXPol():
+def read_DWD(pfad):
     pass
     return 'unfertig'
 
-def read_DWD():
+def make_CFAD(pfad):
     pass
     return 'unfertig'
 
-def make_CFAD():
+def make_QVP(pfad):
     pass
     return 'unfertig'
 
-def make_QVP():
-    pass
-    return 'unfertig'
-
-def make_CVP():
+def make_CVP(pfad):
     pass
     return 'unfertig'
 

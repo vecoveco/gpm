@@ -27,7 +27,8 @@ from pcc import plot_borders
 from pcc import plot_radar
 
 
-dates ='20141007'
+#dates ='20141007'
+dates ='20151216'
 
 #def gpm_bb(dates, pn=0):
 zt=dates
@@ -73,7 +74,7 @@ bonnlon, bonnlat = wradlib.georef.reproject(bonnlon, bonnlat, projection_target=
 print '-------->', bonnlon, bonnlat
 
 
-lon0, lat0, radius = bonnlon, bonnlat, 100
+lon0, lat0, radius = bonnlon, bonnlat, 10
 r = np.sqrt((dpr_lat - lat0)**2 + (dpr_lon - lon0)**2)
 position = r < radius
 
