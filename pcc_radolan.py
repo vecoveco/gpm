@@ -34,8 +34,8 @@ from pcc import zeitschleife as zt
 #          2017,11,5,23,55,0,
 #          steps=5)
 #20170312054500
-zeit = zt(2017,04,01,00,00,0,
-          2017,05,31,23,55,0,
+zeit = zt(2017,01,01,00,00,0,
+          2017,01,31,23,55,0,
           steps=5)
 #zeit = zt(2014,10,07,02,35,0, 2014,10,07,02,40,0, steps=5)
 
@@ -178,7 +178,7 @@ for ij in range(len(zeit)):
 
 
     #plt.savefig('/automount/ags/velibor/plot/radolan/RealPEP/lauf2/r_'+ radolan_zeit_sav+ '.png')
-    plt.savefig('/automount/ags/velibor/plot/radolan/20170401/r_'+ radolan_zeit_sav+ '.png')
+    plt.savefig('/automount/ags/velibor/plot/radolan/egon201701/r_'+ radolan_zeit_sav+ '.png')
 
     #plt.show()
     plt.close()
