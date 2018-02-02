@@ -503,7 +503,7 @@ def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
     ax.add_collection(polycoll, autolim=True)
 
     # plot radar location and information text
-    print np.unique(polygons)
+    #print np.unique(polygons)
     ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
     #ax.text(x_loc, y_loc, 'BoXPol', color='k', fontsize=10)
 

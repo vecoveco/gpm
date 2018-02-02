@@ -10,16 +10,8 @@ Reflektivitaeten dargestellt!
 
 
 import numpy as np
-import matplotlib.pyplot as plt
 import wradlib
-import wradlib as wrl
-import pandas as pd
-import datetime as dt
-import pcc as pcc
 
-from pcc import boxpol_pos
-from pcc import plot_radar
-import h5py
 
 
 
@@ -28,14 +20,10 @@ import h5py
 from pcc import zeitschleife as zt
 
 # YYYY MM DD hh mm mili
-#zeit = zt(2017,10,25,23,35,0,
-#          2017,11,5,23,55,0,
-#          steps=5)
-#20170312054500
 zeit = zt(2017,05,02,18,50,0,
-          2017,05,02,19,55,0,
+          2017,05,04,23,55,0,
           steps=5)
-#zeit = zt(2014,10,07,02,35,0, 2014,10,07,02,40,0, steps=5)
+
 r_data = np.zeros((len(zeit),13))
 
 
@@ -74,8 +62,6 @@ for ij in range(len(zeit)):
     radolan_zeit_sav = rwattrs['datetime'].strftime("%Y%m%d-%H%M%S")
 
     radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
-    x = radolan_grid_xy[:,:,0]
-    y = radolan_grid_xy[:,:,1]
 
     r_data[ij,0]= int(ZP)
     r_data[ij,1]= np.nanmean(rwdata[rwdata>0])

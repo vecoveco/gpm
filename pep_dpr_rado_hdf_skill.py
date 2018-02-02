@@ -27,7 +27,7 @@ from satlib import writeskill2hdf as w2h
 TH_ref = 0.1
 scc = ['NS', 'HS', 'MS']
 
-pfad = ('/automount/ags/velibor/gpmdata/dpr/*.HDF5')
+pfad = ('/automount/ags/velibor/gpmdata/dprV7/*.HDF5')
 pfad_gpm = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
@@ -234,7 +234,7 @@ for iii in scc:
                 w2h(name,gpm_x, gpm_y, ggg_pp, ggg_bbh, ggg_bbw, ggg_typ,
                     ggg_phase,ggg_pp,ggg_z,ggg_top, rrr, rrr2)
 
-                print '/automount/ags/velibor/gpmdata/dumpdata/SKILL_'+sc+ str(gpm_zeit)
+                print '/automount/ags/velibor/gpmdata/dumpdataV7/SKILL_'+sc+ str(gpm_zeit)
 
 
                 del(gprof_lat,

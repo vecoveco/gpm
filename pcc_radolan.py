@@ -34,7 +34,7 @@ blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 t1 = clock()
 
 zeit = zt(2014,01,01,00,00,0,
-          2014,01,01,01,00,0,
+          2014,01,01,10,00,0,
           steps=5)
 
 RADOLAN = []
@@ -149,7 +149,7 @@ for ij in range(len(zeit)):
         #alles daten auf nan
 
     # PLOT an/aus
-    #'''
+    '''
     ##################################################################### PLOT
     if ploty != 0:
 
@@ -221,7 +221,7 @@ for ij in range(len(zeit)):
     else:
         print ('kein Plot!')
         pass
-    #'''
+    '''
 
     # Auswahl bestimmter Grid Parameter
     zgrids_me = ZZ[np.where(ZZ>=-32.5)].shape[0]

@@ -44,7 +44,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20150128'])
+zz = np.array(['20160917'])
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -59,7 +59,8 @@ for i in range(len(zz)):
     #pfad_gpm = glob.glob(pfad2)
     #pfad_gpm_g = pfad_gpm[0]
 
-    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118."+str(year)+str(m)+str(d)+"*.HDF5")[0]
+    #pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118."+str(year)+str(m)+str(d)+"*.HDF5")[0]
+    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dprV7/2A.GPM.DPR.V7-20170308."+str(year)+str(m)+str(d)+"*.HDF5")[0]
 
     print pfad_gpm_g
 
@@ -69,9 +70,9 @@ for i in range(len(zz)):
 
     gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
     #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
-    #g_1 = np.array(gpmdpr['NS']['VER']['sigmaZeroNPCorrected'])
-    #g_2 = np.array(gpmdpr['NS']['PRE']['zFactorMeasured'])
-    #g_3 = np.array(gpmdpr['NS']['PRE']['binRealSurface'])
+    g_1 = np.array(gpmdpr['NS']['FLG']['qualityFlag'])
+    g_2 = np.array(gpmdpr['NS']['FLG']['qualityData'])
+    g_3 = np.array(gpmdpr['NS']['SLV']['qualitySLV'])
 
     gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
@@ -373,72 +374,4 @@ for i in range(len(zz)):
 
     #from satlib import validation_plot
     #validation_plot(ggg,rrr,15)
-
-
-ratio2=ggg-rrr
-ratio1=ggg/rrr
-# Ratioof data
-plt.subplot(2,2,1)
-plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ratio1), vmin=0, vmax=2, cmap='seismic')
-plt.title('Relation DPR/RADOLAN')
-plt.colorbar()
-plt.subplot(2,2,2)
-plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ratio2), vmin=0, vmax=2, cmap='seismic')
-plt.colorbar()
-plt.title('Relation RADOLAN/DPR')
-
-plt.subplot(2,3,4)
-#GGG = ggg.copy()
-#GGG[np.where(ratio1<1)]=np.nan
-plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ggg),
-                         cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
-plt.colorbar()
-plt.title('DPR')
-
-plt.subplot(2,3,5)
-plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
-                         cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
-plt.colorbar()
-plt.title('RADOLAN')
-
-plt.subplot(2,3,6)
-A, B = ratio1,ratio2
-from satlib import corcor
-maskr = ~np.isnan(A) & ~np.isnan(B)
-plt.scatter(A[maskr],B[maskr])
-plt.title(corcor(A[maskr],B[maskr]))
-#plt.colorbar()
-plt.show()
-'''
-    GGG.append(ggg.reshape(ggg.shape[0]*ggg.shape[1]))
-    RRR.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
-
-
-G_all = np.concatenate(GGG,axis=0)
-R_all = np.concatenate(RRR,axis=0)
-from pcc import plot_scatter
-
-
-fig = plt.figure(figsize=(12,12))
-ax11 = fig.add_subplot(111, aspect='equal')
-plot_scatter(G_all, R_all)
-import matplotlib as mpl
-mean = [ np.nanmean(G_all),np.nanmean(R_all)]
-width = np.nanstd(G_all)
-height = np.nanstd(R_all)
-angle = 0
-ell = mpl.patches.Ellipse(xy=mean, width=width, height=height,
-                          angle=180+angle, color='blue', alpha=0.8,
-                          fill=False, ls='--', label='Std')
-ax11.add_patch(ell)
-plt.xlabel(('GPM DPR (dBZ)'))
-plt.ylabel(('RADOLAN (dBZ)'))
-plt.grid()
-plt.savefig('/home/velibor/shkgpm/plot/all_gpm_dpr_v2_radolan_'+ZP + '.png' )
-#plt.show()
-plt.close()
-'''
-
-
-
 
