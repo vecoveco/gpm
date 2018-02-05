@@ -1281,3 +1281,70 @@ def ex_radolan_radarloc():
 
     pl.tight_layout()
     pl.show()
+
+
+
+def pandas_plot_radolan(csv_pfad):
+
+    """Datrstellung der CSV RADolan Auswertung"""
+
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    dfr = pd.read_csv(csv_pfad)
+    dfrr = dfr.set_index(pd.DatetimeIndex(dfr[u'Unnamed: 0']))
+    dfrr = dfrr.drop([u'Unnamed: 0'],axis=1)
+
+    anteil_gemessen = (dfrr[u'zgrids_me']/(900*900))*100
+    anteil_stratiform = (dfrr[u'zgrids_st']/dfrr[u'zgrids_me'])*100
+    anteil_convective = (dfrr[u'zgrids_co']/dfrr[u'zgrids_me'])*100
+    anteil_RR0 = (dfrr[u'rgrids_>0']/dfrr[u'zgrids_me'])*100
+    anteil_RR01 = (dfrr[u'rgrids_0-1']/dfrr[u'zgrids_me'])*100
+    anteil_RR15 = (dfrr[u'rgrids_1-5']/dfrr[u'zgrids_me'])*100
+    anteil_RR510 = (dfrr[u'rgrids_5-10']/dfrr[u'zgrids_me'])*100
+    anteil_RR10 = (dfrr[u'rgrids_>10']/dfrr[u'zgrids_me'])*100
+
+    plt.figure(figsize=(18,18))
+    plt.subplot(3,3,1)
+    anteil_gemessen.plot()
+    plt.grid()
+    plt.title('Anteil des wirklich gemessenen RADOLAN Grid')
+
+    plt.subplot(3,3,2)
+    anteil_convective.plot()
+    plt.grid()
+    plt.title('Anteil convective')
+    plt.subplot(3,3,3)
+    anteil_stratiform.plot()
+    plt.grid()
+    plt.title('Anteil Stratiform')
+
+    plt.subplot(3,3,4)
+    anteil_RR0.plot()
+    plt.grid()
+    plt.title('Anteil RR > 0 mm/h')
+
+    plt.subplot(3,3,5)
+    anteil_RR01.plot()
+    plt.grid()
+    plt.title('Anteil RR 0-1 mm/h')
+
+    plt.subplot(3,3,6)
+    anteil_RR15.plot()
+    plt.grid()
+    plt.title('Anteil RR 1-5 mm/h')
+
+    plt.subplot(3,3,7)
+    anteil_RR510.plot()
+    plt.grid()
+    plt.title('Anteil RR 5-10 mm/h')
+
+    plt.subplot(3,3,8)
+    anteil_RR10.plot()
+    plt.grid()
+    plt.title('Anteil RR > 10 mm/h')
+
+    plt.tight_layout()
+    plt.show()
+
+
+
