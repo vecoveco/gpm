@@ -33,8 +33,8 @@ import os
 
 t1 = clock()
 
-zeit = zt(2015,06,05,8,00,0,
-          2015,06,15,8,10,0,
+zeit = zt(2016,01,01,0,00,0,
+          2016,12,31,23,55,0,
           steps=5)
 
 RADOLAN = []
@@ -138,13 +138,13 @@ for ij in range(len(zeit)):
     if ((RX==1) & (RY==1)):
         ploty = 1
 
-    if ((RX==1) & (RY==0)):
+    elif ((RX==1) & (RY==0)):
         # Wenn kein RY vorhanden MP
         # Marshall and Palmer 1948
         RR = wradlib.zr.z2r(wradlib.trafo.idecibel(rwdata), a=200., b=1.6)
         ploty = 1
 
-    if ((RX==0) & (RY==1)):
+    elif ((RX==0) & (RY==1)):
         # Wenn kein RY vorhanden MP
         # Marshall and Palmer 1948
         ZZ = wradlib.zr.r2z(wradlib.trafo.idecibel(rydata), a=200., b=1.6)
@@ -259,7 +259,7 @@ for ij in range(len(zeit)):
 
     # In die erstellte CSV schreiben
     df_new.to_csv(csv_name, mode='a', header=False)
-
+'''
     del(ZZ,RR,RX,RY,zgrids_me, zgrids_st, zgrids_co,rgrids_0,
         rgrids_01,rgrids_15, rgrids_510, rgrids_10,rsum, radolan_array,
         time_index,ploty)
@@ -269,7 +269,7 @@ for ij in range(len(zeit)):
     except NameError:
         pass
 
-
+'''
 
 
 # Berechnung der Laufzeit
