@@ -82,4 +82,5 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
     plt.show()
 
 
-plot_mrr1(t_start='2014-10-06 18:00', time_delta=24*60)
+#plot_mrr1(t_start='2014-07-29 22:00', time_delta=60)
+plot_mrr1(t_start='2016-02-09 10:00', time_delta=60)

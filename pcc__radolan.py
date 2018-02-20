@@ -152,8 +152,6 @@ for ij in range(len(zeit)):
         #alles daten auf nan
 
     ##################################################################### PLOT
-    print (ploty, RX, RY, ploty != 0)
-
 
     if ploty != 0:
 
