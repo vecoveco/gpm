@@ -4,11 +4,24 @@ Reading MRR Data
 
 """
 
-def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
-    """
-    Creat by Jo. Beer
+import wradlib
+def get_miub_cmap():
+    import matplotlib.colors as col
+    startcolor = 'white'  # a dark olive
+    color1 = '#8ec7ff'#'cyan'    # a bright yellow
+    color2 = 'dodgerblue'
+    color3 = 'lime'
+    color4 = 'yellow'
+    color5 = 'darkorange'
+    color6 = 'red'
+    color7 = 'purple'
+    #color6 = 'grey'
+    endcolor = 'darkmagenta'    # medium dark red
+    colors = [startcolor, color1, color2, color3, color4, color5, color6, endcolor]
+    return col.LinearSegmentedColormap.from_list('miub1',colors)
 
-    """
+def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
+
 
     import numpy as np
     import pymysql as mysql
@@ -16,8 +29,8 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
     from datetime import datetime
     import matplotlib
     import matplotlib.pyplot as plt
-    from pcc import get_miub_cmap
-    my_cmap2 = get_miub_cmap()
+    #from pcc import get_miub_cmap
+    #my_cmap2 = get_miub_cmap()
 
 
     # Bonn 40
@@ -65,7 +78,7 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
 
 
             plt.subplot(3,1,iii+1)
-            plt.pcolormesh(x,y,z.T,vmin=-10,vmax=35, cmap=my_cmap2)
+            plt.pcolormesh(x,y,z.T,vmin=0,vmax=30, cmap=get_miub_cmap())
             # Idee zeige BB
             #plt.plot(x,y[np.argmax(z.T,axis=0)],lw=1.5,color='grey')
 
@@ -82,5 +95,5 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
     plt.show()
 
 
-#plot_mrr1(t_start='2014-07-29 22:00', time_delta=60)
-plot_mrr1(t_start='2016-02-09 10:00', time_delta=60)
+plot_mrr1(t_start='2014-07-29 00:00', time_delta=60*24)
+#plot_mrr1(t_start='2016-10-01 17:30', time_delta=60)

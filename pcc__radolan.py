@@ -4,7 +4,7 @@ Das Program dient der Veranschaulichung der 5 Minutigen RX Radolan Daten!
 Es werden durch den Zeitstempel Deutschlandweite Niederschlags und
 Reflektivitaeten dargestellt!
 
-Made by Velibor Pejcic
+Made by V. Pejcic
 
 
 """
@@ -33,8 +33,8 @@ import os
 
 t1 = clock()
 
-zeit = zt(2017,03,18,1,20,0,
-          2017,03,18,1,25,0,
+zeit = zt(2009,05,25,19,50,0,
+          2009,05,28,20,05,0,
           steps=5)
 
 
@@ -212,9 +212,9 @@ for ij in range(len(zeit)):
 
         plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
 
-        #plt.savefig('/automount/ags/velibor/plot/radolan/test/r_'+ radolan_zeit_sav+ '.png')
-        #plt.close()
-        plt.show()
+        plt.savefig('/automount/ags/velibor/plot/radolan/convective/r_'+ radolan_zeit_sav+ '.png')
+        plt.close()
+        #plt.show()
         ##########################################################################
 
 
@@ -228,17 +228,7 @@ for ij in range(len(zeit)):
 
 
     del(ploty)
-        #Time Index Setzen
-        #time_index = pd.to_datetime(([ZP]), format='%Y%m%d%H%M%S')
 
-        # Benutzte Grid Parameter als Array speichern
-        #radolan_array = np.array([[RX,RY]])
-
-        # Pandas Dataframe erstellen
-        #df_new = pd.DataFrame(radolan_array, index=time_index, columns=att)
-
-        # In die erstellte CSV schreiben
-        #df_new.to_csv(csv_name, mode='a', header=False)
 
 
 
