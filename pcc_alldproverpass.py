@@ -41,18 +41,19 @@ from wradlib.trafo import idecibel, decibel
 # Ref.Threshold nach RADOLAN_Goudenhoofdt_2016
 TH_ref = 0.1
 
-pfad = ('/automount/ags/velibor/gpmdata/dpr/*.HDF5')
+#pfad = ('/automount/ags/velibor/gpmdata/dpr/*.HDF5')
+pfad = ('/automount/ags/velibor/data/gpm_2017_2018/2A.GPM.DPR.V7*.HDF5')
 pfad_gpm = sorted(glob.glob(pfad))
 
 print 'Es sind ', len(pfad_gpm), ' vorhanden!'
 
 import csv
 
-f = open('/home/velibor/shkgpm/texte/dpr_radolan_decibel_ref.csv','w')
-writer = csv.writer(f, dialect='excel')
-writer.writerow(['time','r_value','std_err','r_value_s','N','H','M','F','C','HR','POD','FAR','BID','HSS','bias','RMSE','meanG','meanR','medG','medR'])
+#f = open('/home/velibor/shkgpm/texte/dpr_radolan_decibel_ref.csv','w')
+#writer = csv.writer(f, dialect='excel')
+#writer.writerow(['time','r_value','std_err','r_value_s','N','H','M','F','C','HR','POD','FAR','BID','HSS','bias','RMSE','meanG','meanR','medG','medR'])
 
-for i in range(290, len(pfad_gpm)):
+for i in range(0, len(pfad_gpm)):
     #ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
     #year, m, d = ZP[0:4], ZP[4:6], ZP[6:8]
@@ -329,12 +330,12 @@ for i in range(290, len(pfad_gpm)):
             plt.yticks(fontsize=ff)
             plt.grid(color='r')
 
-            writer.writerow([gpm_zeit,
-                    r_value, std_err,r_value_s,SS['N'],SS['H'],
-                    SS['M'],SS['F'],SS['C'],SS['HR'],SS['POD'],
-                    SS['FAR'],SS['BID'],SS['HSS'],SS['bias'],
-                    SS['RMSE'],np.nanmean(ggg),np.nanmean(rrr),
-                    np.nanmedian(ggg),np.nanmedian(rrr)])
+            #writer.writerow([gpm_zeit,
+            #        r_value, std_err,r_value_s,SS['N'],SS['H'],
+            #        SS['M'],SS['F'],SS['C'],SS['HR'],SS['POD'],
+            #        SS['FAR'],SS['BID'],SS['HSS'],SS['bias'],
+            #        SS['RMSE'],np.nanmean(ggg),np.nanmean(rrr),
+            #        np.nanmedian(ggg),np.nanmedian(rrr)])
 
 
             del(text, slope, intercept, r_value, p_value, std_err,maske,SS,t1)# width, height, ell, line)
@@ -350,9 +351,12 @@ for i in range(290, len(pfad_gpm)):
             from satlib import validation_plot
             validation_plot(ggg,rrr)
             plt.title('RADOLAN vs. DPR Reflectivity in dBZ: \n'+ radolan_zeit + ' UTC',fontsize=ff)
-            plt.savefig('/automount/ags/velibor/plot/alldprdeci/gpm_dpr_radolan_'+ str(gpm_zeit) + '_b.png' )
+            #plt.savefig('/automount/ags/velibor/plot/alldprdeci/gpm_dpr_radolan_'+ str(gpm_zeit) + '_b.png' )
+            plt.savefig('/automount/ags/velibor/data/gpm_2017_2018/gpm_dpr_radolan_'+ str(gpm_zeit) + '_b.png' )
+
             plt.close()
         except:
+            print ('Unknown Error')
             pass
 
 
@@ -365,10 +369,10 @@ for i in range(290, len(pfad_gpm)):
 
 
 
-from pcc import melde_dich
-melde_dich('Das Program pcc_alldproverpass_stats_rr.py ist fertig!')
+#from pcc import melde_dich
+#melde_dich('Das Program pcc_alldproverpass_stats_rr.py ist fertig!')
 
 
-f.close()
+#f.close()
 
 
