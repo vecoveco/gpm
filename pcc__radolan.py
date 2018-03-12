@@ -33,8 +33,8 @@ import os
 
 t1 = clock()
 
-zeit = zt(2009,05,25,19,50,0,
-          2009,05,28,20,05,0,
+zeit = zt(2018,03,12,03,55,0,
+          2018,03,12,04,00,0,
           steps=5)
 
 
@@ -62,7 +62,7 @@ for ij in range(len(zeit)):
     r_pro = 'rx'
 
     try:
-        pfad = ('/automount/radar/dwd/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
+        pfad = ('/automount/radar/dwd_new/'+ r_pro +'/'+str(year)+'/'+str(year)+'-'+str(m)+'/'+
                 str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+str(ye)+str(m)+
                 str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
         pfad_radolan = pfad[:-3]
@@ -212,9 +212,9 @@ for ij in range(len(zeit)):
 
         plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
 
-        plt.savefig('/automount/ags/velibor/plot/radolan/convective/r_'+ radolan_zeit_sav+ '.png')
-        plt.close()
-        #plt.show()
+        #plt.savefig('/automount/ags/velibor/plot/radolan/convective/r_'+ radolan_zeit_sav+ '.png')
+        #plt.close()
+        plt.show()
         ##########################################################################
 
 
