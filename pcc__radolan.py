@@ -15,7 +15,7 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 import wradlib
-import pandas as pd
+
 import pcc as pcc
 from pcc import boxpol_pos
 from pcc import plot_radar
