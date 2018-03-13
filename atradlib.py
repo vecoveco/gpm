@@ -22,7 +22,7 @@ Creat by V. Pejcic
 # Import Librarys
 import numpy as np
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 # Important Global Constants
@@ -404,7 +404,7 @@ def efficiencies(m,chi):
     """
     
     ## calc N
-    N=round(chi+4.*chi**(1./3.)+2,0)
+    N=np.round(chi+4.*chi**(1./3.)+2,0)
     #N=chi+4*chi**(1/3)+2
     
     ## initialize Mie coefficients
