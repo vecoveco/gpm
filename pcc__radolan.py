@@ -15,7 +15,7 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 import wradlib
-
+import pandas as pd
 import pcc as pcc
 from pcc import boxpol_pos
 from pcc import plot_radar
@@ -30,6 +30,8 @@ bonn_pos = boxpol_pos()
 bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
 blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 import os
+
+#kometar
 
 t1 = clock()
 
