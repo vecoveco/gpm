@@ -14,6 +14,11 @@ This is a self made Library for the Lecture :
 > Secon edition
 > Grant W. Petty
 
+#
+
+It is recommended to use python 3.
+
+#
 
 Creat by V. Pejcic
 
