@@ -236,7 +236,7 @@ def srtm(asw, alw, A, eps=None):
 
     """
     if eps == None:
-        Sm = S / 4.
+        Sm = solar / 4.
         Esurf = ((1. - (1. - asw) * A) * ((2. - asw) / (2. - alw)))
         Tsurf = (Sm / sigma * Esurf)**(1./4.)
         Eatmo = (((1. - A) * (1. - asw) * alw) + (1. + (1. - asw) * A) * asw)\
@@ -245,7 +245,7 @@ def srtm(asw, alw, A, eps=None):
         return Tatmo, Tsurf
     if eps != None:
         eps = eps
-        Sm = S / 4.
+        Sm = solar / 4.
         Esurf = ((A - 1.) * (1. - asw) * (1. + (1. - alw)) * (1. - eps)
                  + eps * (A * (1. - asw)**2)-1.) / (eps * (2. - alw))
         Tsurf = (-1. * Sm / sigma * Esurf)**(1. / 4.)
