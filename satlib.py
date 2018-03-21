@@ -852,6 +852,54 @@ def ipoli_radi(gr_grid, gr_data,sr_grid,radius):
     return gr_ipoli_data
 
 
+
+def ipoli_radi_stat(gr_grid, gr_data,sr_grid,radius):
+    """
+
+    Parameters
+    ----------
+    gr_grid ::: grid of the Ground Radar
+    gr_data ::: data of the Ground Radar
+    sr_grid ::: grid oft the Spaceborn Radar
+    radius  ::: radius of the dpr foot prints
+
+
+    Returns
+    -------
+    gs_grid ::: Interpolated Groundradar Data on Spaceborne Grid
+
+    """
+
+    gr_ipoli_data = np.zeros((sr_grid.shape[0]))
+    gr_ipoli_std = np.zeros((sr_grid.shape[0]))
+    gr_ipoli_max = np.zeros((sr_grid.shape[0]))
+    gr_ipoli_median = np.zeros((sr_grid.shape[0]))
+    gr_ipoli_min = np.zeros((sr_grid.shape[0]))
+
+
+    for i in range(sr_grid.shape[0]):
+
+        x0, y0 = sr_grid[i,0], sr_grid[i,1]  ###########x y richtig?
+
+        rr = np.sqrt((gr_grid[:,0] - x0)**2 + (gr_grid[:,1] - y0)**2)
+        ## Todo: hier fehlt die Wichtung
+        #print (gr_data[rr < radius])
+        # Check if data empty
+        if gr_data[rr < radius].size==0:
+            gr_ipoli_data[i] = np.nan
+            gr_ipoli_std[i] = np.nan
+            gr_ipoli_median[i] = np.nan
+            gr_ipoli_max[i] = np.nan
+            gr_ipoli_min[i] = np.nan
+        else:
+            gr_ipoli_data[i] = np.nanmean(gr_data[rr < radius])
+            gr_ipoli_std[i] = np.nanstd(gr_data[rr < radius])
+            gr_ipoli_median[i] = np.nanmedian(gr_data[rr < radius])
+            gr_ipoli_max[i] = np.nanmax(gr_data[rr < radius])
+            gr_ipoli_min[i] = np.count_nonzero(~np.isnan(gr_data[rr < radius]))
+        #gr_ipoli_data[i] = np.nanmax(gr_data[rr < radius])
+
+    return gr_ipoli_data,gr_ipoli_std, gr_ipoli_median, gr_ipoli_max, gr_ipoli_min
 '''
 import matplotlib as mpl
 #plt.hist2d(np.log(A[maske_p]),np.log(B[maske_p]), norm=mpl.colors.LogNorm())
