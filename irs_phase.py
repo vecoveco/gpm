@@ -90,7 +90,7 @@ z_corr,z_eror,z_bias = corcorcor(A,B)
 z_corr2,z_eror2,z_bias2 = corcorcor(C,D)
 
 
-ff, ff2 = 15, 20
+ff, ff2 = 20, 20
 
 '''
 fig =plt.figure(figsize=(6,14))

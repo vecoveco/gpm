@@ -10,15 +10,9 @@ from osgeo import osr
 import matplotlib.pyplot as plt
 from pcc import get_my_cmap2
 
-
-
-
-para = ['NS', 'HS','MS']
-
-
-
 # Threshold ATBD GPM 2016
-thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
+#thresh = [0.2, 0.5, 0.2, 12.0, 18.0, 12.0]
+thresh = [0.2, 0.5, 0.2, 15.0, 15.0, 15.0]
 
 
 
@@ -82,7 +76,7 @@ maske_z = ~np.isnan(C) & ~np.isnan(D)
 corr,eror,bias = corcorcor(A,B)
 corr2,eror2,bias2 = corcorcor(C,D)
 
-ff, ff2 = 15, 20
+ff, ff2 = 20, 20
 
 
 

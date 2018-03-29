@@ -91,7 +91,7 @@ z_corr,z_eror,z_bias = corcorcor(A,B)
 z_corr2,z_eror2,z_bias2 = corcorcor(C,D)
 
 
-ff, ff2 =15, 20
+ff, ff2 =20, 20
 
 
 
@@ -129,7 +129,7 @@ ax2 = fig.add_subplot(111, aspect='equal')
 
 plt.hist2d(C[maske_CD],D[maske_CD], bins=60, cmap=get_my_cmap2(),vmin=0.1)
 cbar = plt.colorbar(shrink=0.7)
-cbar.set_label('number of samples', fontsize=ff)
+cbar.set_label('number of samples', fontsize=ff2)
 cbar.ax.tick_params(labelsize=ff2)
 
 cx,cy = np.arange(0,80,1),np.arange(0,80,1)
@@ -141,8 +141,8 @@ plt.ylim(15,70)
 plt.xlabel('DPR Reflectivity in dBZ',fontsize=ff2)
 plt.ylabel('Radolan Reflectivity in dBZ',fontsize=ff2)
 
-plt.xticks(fontsize=ff)
-plt.yticks(fontsize=ff)
+plt.xticks(fontsize=ff2)
+plt.yticks(fontsize=ff2)
 
 plt.grid()
 #plt.savefig('/automount/ags/velibor/plot/IRS/NSconv_Ref.png')
