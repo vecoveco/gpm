@@ -899,7 +899,7 @@ def ipoli_radi_stat(gr_grid, gr_data,sr_grid,radius):
             gr_ipoli_min[i] = np.count_nonzero(~np.isnan(gr_data[rr < radius]))
         #gr_ipoli_data[i] = np.nanmax(gr_data[rr < radius])
 
-    return gr_ipoli_data,gr_ipoli_std, gr_ipoli_median, gr_ipoli_max, gr_ipoli_min
+    return gr_ipoli_data, gr_ipoli_std, gr_ipoli_median, gr_ipoli_max, gr_ipoli_min
 '''
 import matplotlib as mpl
 #plt.hist2d(np.log(A[maske_p]),np.log(B[maske_p]), norm=mpl.colors.LogNorm())
