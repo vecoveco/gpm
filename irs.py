@@ -30,13 +30,13 @@ freq = ['13.6 GHz','35.5 GHz','35.5 GHz']
 band = ['Ku','Ka','Ka']
 
 pp = 0
-dataS = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/SS_'+str(para[pp])+'.npy')
+#dataS = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/SS_'+str(para[pp])+'.npy')
 
-dataW = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/WS_'+str(para[pp])+'.npy')
+#dataW = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/WS_'+str(para[pp])+'.npy')
 
-#dataall = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/S_'+str(para[pp])+'.npy')
+dataall = np.load('/automount/ags/velibor/gpmdata/dumpdata/npy/all'+str(para[pp])+'.npy')
 
-data = dataW
+data = dataall
 #gx = data[0,:]
 #gy = data[1,:]
 

@@ -996,3 +996,33 @@ good_overpasses_dpr_boxpol = {
     '27':('20170909021332', 0, 'neu',1.),
     '29':('20171126032331', 0, 'neu',1.),
 }
+
+def show_swath():
+    """
+    Simple Darstellung des DPR Swaths
+
+    w.i.p MS fehlt
+    """
+    import matplotlib.pyplot as pl
+    import numpy as np
+    swath_ku = np.arange(1,50,1)
+    pos_ku =  np.ones(swath_ku.shape)
+
+    swath_ka = np.arange(1+12,26+12,1)
+    pos_ka =  np.ones(swath_ka.shape)+0.1
+
+    print('Ka: ',len(swath_ka))
+    print('Ku: ',len(swath_ku))
+    print('Ku - Ka (DFR): ',len(swath_ku)-len(swath_ka))
+
+    pl.figure(figsize=(20,5))
+    pl.scatter(swath_ku,pos_ku, c='blue', s=200, label='Ku')
+    pl.scatter(swath_ka,pos_ka, c='red', s=200, label='Ka')
+
+    pl.scatter(swath_ku[12:26+11],pos_ku[12:26+11], c='black', s=200, label='DFR')
+    pl.scatter(swath_ku[12:26+11],pos_ku[12:26+11], c='red', s=20, marker='+')
+
+    pl.grid()
+    pl.legend()
+    pl.ylim(0.5,1.5)
+    pl.show()
