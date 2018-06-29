@@ -30,12 +30,18 @@ bonn_pos = boxpol_pos()
 bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
 blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 import os
+from pcc import plot_point
+
+# Koordinaten Godesberg
+glat, glon = 50.684722, 7.155
+# Koordinaten Niederbachem
+nlat, nlon = 50.647664, 7.181453
 
 #kometar
 
 t1 = clock()
 
-zeit = zt(2016,06,04,00,10,0,
+zeit = zt(2016,06,04,00,00,0,
           2016,06,04,23,55,0,
           steps=5)
 
@@ -167,6 +173,7 @@ for ij in range(len(zeit)):
         cb.ax.tick_params(labelsize=ff)
         plot_borders(ax1)
 
+
         plt.title('RADOLAN RY Rainrate: \n'+ radolan_zeit + 'UTC',fontsize=20)
         plt.tick_params(
             axis='both',
@@ -181,13 +188,16 @@ for ij in range(len(zeit)):
         plt.grid(color='r')
         plt.xlim(-420,390)
         plt.ylim(-4700, -3700)
+        # BOXPOL
+        #plt.xlim(-325,-100)
+        #plt.ylim(-4350, -4125)
 
         plt.tight_layout()
 
-
-
-
         plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
+        #plot_point(glon, glat, ax1, reproject=True,col='green', text='Bad Godesberg')
+        plot_point(nlon, nlat, ax1, reproject=True,col='red', text='Niederbachem')
+        ax1.legend(loc='lower right', numpoints=1, fontsize=12)
 
         ax2 = fig.add_subplot(122, aspect='equal')
         plt.pcolormesh(x, y, ZZ,vmin=0,vmax=50, cmap=cmap2, zorder=2)
@@ -208,15 +218,22 @@ for ij in range(len(zeit)):
             labelleft='off')
 
         plt.grid(color='r')
+        #Radolan
         plt.xlim(-420,390)
         plt.ylim(-4700, -3700)
+        #Boxpol
+        #plt.xlim(-325,-100)
+        #plt.ylim(-4350, -4125)
         plt.tight_layout()
 
         plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
+        #plot_point(glon, glat, ax2, reproject=True,col='green', text='Bad Godesberg')
+        plot_point(nlon, nlat, ax2, reproject=True,col='red', text='Niederbachem')
+        ax2.legend(loc='lower right', numpoints=1, fontsize=12)
 
-        #plt.savefig('/automount/ftp/velibor/20160604/r_'+ radolan_zeit_sav+ '.png')
-        #plt.close()
-        plt.show()
+        plt.savefig('/automount/ftp/velibor/20160604_v1/r_'+ radolan_zeit_sav+ '.png')
+        plt.close()
+        #plt.show()
         ##########################################################################
 
 

@@ -64,7 +64,7 @@ for i in range(len(zz)):
     print pfad_gpm_g
 
     gpmdpr = h5py.File(pfad_gpm_g, 'r')
-    sc = 'HS'
+    sc = 'NS'
     gprof_lat = np.array(gpmdpr[sc]['Latitude'])
     gprof_lon = np.array(gpmdpr[sc]['Longitude'])
 
@@ -351,6 +351,173 @@ for i in range(len(zz)):
     print slope, slope2
     print intercept, intercept2
 
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+
+###############################
+    def get_radar_locations():
+        radars = {}
+        radar = {'name': 'ASR Dresden', 'wmo': 10487, 'lon': 13.76347,
+                 'lat': 51.12404, 'alt': 261}
+        radars['ASD'] = radar#
+
+        radar = {'name': 'Boostedt', 'wmo': 10132, 'lon': 10.04687,
+                 'lat': 54.00438, 'alt': 124.56}
+        radars['BOO'] = radar#
+
+        radar = {'name': 'Dresden', 'wmo': 10488, 'lon': 13.76865, 'lat': 51.12465,
+                 'alt': 263.36}
+        radars['DRS'] = radar
+
+        radar = {'name': 'Eisberg', 'wmo': 10780, 'lon': 12.40278, 'lat': 49.54066,
+                 'alt': 798.79}
+        radars['EIS'] = radar
+
+        radar = {'name': 'Emden', 'wmo': 10204, 'lon': 7.02377, 'lat': 53.33872,
+                 'alt': 58}
+        radars['EMD'] = radar#
+
+        radar = {'name': 'Essen', 'wmo': 10410, 'lon': 6.96712, 'lat': 51.40563,
+                 'alt': 185.10}
+        radars['ESS'] = radar#
+
+        radar = {'name': 'Feldberg', 'wmo': 10908, 'lon': 8.00361, 'lat': 47.87361,
+                 'alt': 1516.10}
+        radars['FBG'] = radar#
+
+        radar = {'name': 'Flechtdorf', 'wmo': 10440, 'lon': 8.802, 'lat': 51.3112,
+                 'alt': 627.88}
+        radars['FLD'] = radar
+
+        radar = {'name': 'Hannover', 'wmo': 10339, 'lon': 9.69452, 'lat': 52.46008,
+                 'alt': 97.66}
+        radars['HNR'] = radar#
+
+        radar = {'name': 'Neuhaus', 'wmo': 10557, 'lon': 11.13504, 'lat': 50.50012,
+                 'alt': 878.04}
+        radars['NEU'] = radar#
+
+        radar = {'name': 'Neuheilenbach', 'wmo': 10605, 'lon': 6.54853,
+                 'lat': 50.10965, 'alt': 585.84}
+        radars['NHB'] = radar#
+
+        radar = {'name': 'Offenthal', 'wmo': 10629, 'lon': 8.71293, 'lat': 49.9847,
+                 'alt': 245.80}
+        radars['OFT'] = radar#
+
+        radar = {'name': 'Proetzel', 'wmo': 10392, 'lon': 13.85821,
+                 'lat': 52.64867, 'alt': 193.92}
+        radars['PRO'] = radar#
+
+        radar = {'name': 'Memmingen', 'wmo': 10950, 'lon': 10.21924,
+                 'lat': 48.04214, 'alt': 724.40}
+        radars['MEM'] = radar
+
+        radar = {'name': 'Rostock', 'wmo': 10169, 'lon': 12.05808, 'lat': 54.17566,
+                 'alt': 37}
+        radars['ROS'] = radar
+
+        radar = {'name': 'Isen', 'wmo': 10873, 'lon': 12.10177, 'lat': 48.1747,
+                 'alt': 677.77}
+        radars['ISN'] = radar#
+
+        radar = {'name': 'Tuerkheim', 'wmo': 10832, 'lon': 9.78278,
+                 'lat': 48.58528, 'alt': 767.62}
+        radars['TUR'] = radar#
+
+        radar = {'name': 'Ummendorf', 'wmo': 10356, 'lon': 11.17609,
+                 'lat': 52.16009, 'alt': 183}
+        radars['UMM'] = radar#
+
+        return radars
+
+    radars = get_radar_locations()
+    # range array 150 km
+    print("Max Range: ", rwattrs['maxrange'])
+    r = np.arange(1, 151) * 1000
+    # azimuth array 1 degree spacing
+    az = np.linspace(0, 360, 361)[0:-1]
+
+    """def plot_radar(radar, ax, proj):
+
+        site = (radar['lon'], radar['lat'], radar['alt'] )
+
+        # build polygons for maxrange rangering
+        polygons = wrl.georef.spherical_to_polyvert(r, az, 0,
+                                                    site,
+                                                    proj=proj)
+        polygons = polygons[..., 0:2]
+        polygons.shape = (len(az), len(r), 5, 2)
+        polygons = polygons[:, -1, :, :]
+
+        x_loc, y_loc = wrl.georef.reproject(site[0], site[1],
+                                            projection_source=proj_wgs,
+                                            projection_target=proj)
+
+
+        # create PolyCollections and add to respective axes
+        import matplotlib as mpl
+        polycoll = mpl.collections.PolyCollection(polygons, closed=True,
+                                                  edgecolors='r',
+                                                  facecolors='r')
+        ax.add_collection(polycoll, autolim=True)
+
+        # plot radar location and information text
+        ax.plot(x_loc, y_loc, 'r+')
+        ax.text(x_loc, y_loc, radar['name'], color='r')"""
+
+
+
+
+    ff = 20
+    cc = 1
+    fig = plt.figure(figsize=(12,12))
+    ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
+
+    pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
+
+    plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
+    plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
+    plt.plot(gpm_x[:,23], gpm_y[:,23], color='black', ls='--')
+
+    plot_borders(ax1)
+    plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
+
+    plt.grid(color='r')
+    plt.tick_params(
+        axis='both',
+        which='both',
+        bottom='off',
+        top='off',
+        labelbottom='off',
+        right='off',
+        left='off',
+        labelleft='off')
+    plt.xlim(-420,390)
+    plt.ylim(-4700, -3700)
+
+    for radar_id in radars.keys():
+        # get radar coords etc from dict
+        # repair Ummendorf ID
+        if radar_id == 'umd':
+            radar_id = 'umm'
+        rlon = radars[radar_id]['lon']
+
+        rlat = radars[radar_id]['lat']
+        import pcc
+
+        pcc.plot_radar2(rlon, rlat, ax1, reproject=True, cband=True,col='grey')
+
+    plt.tight_layout()
     plt.show()
 
 

@@ -427,6 +427,8 @@ def boxpol_pos():
     return pos_boxpol
 
 
+
+
 def plot_dem(ax):
     from matplotlib.colors import LogNorm
     from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -447,6 +449,90 @@ def plot_dem(ax):
     cb = plt.gcf().colorbar(dem, cax=cax1,
                            ticks=ticker.LogLocator(subs=range(10)))
     cb.set_label('terrain height [m]')
+
+def plot_point(x,y, ax, reproject=False, col=False, text=False):
+     # Plot der Radar Range von Bonn
+    import wradlib as wrl
+    import numpy as np
+    from osgeo import osr
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+
+    proj_stereo = wrl.georef.create_osr("dwd-radolan")
+    proj_wgs = osr.SpatialReference()
+    proj_wgs.ImportFromEPSG(4326)
+    x_loc, y_loc = (x, y)
+
+    if reproject:
+
+        # reproject lonlat radar location coordinates to
+        # polar stereographic projection
+
+        x_loc, y_loc = wrl.georef.reproject(x_loc, y_loc,
+                                            projection_source=proj_wgs,
+                                            projection_target=proj_stereo)
+
+    ax.plot(x_loc, y_loc, 'rv', markersize=10, mew=2, color=col, label=text, mfc='none')
+    #ax.text(x_loc, y_loc, text, color=col, fontsize= 20)
+    #ax.legend(loc='upper right', scatterpoints=1)
+
+def plot_radar2(bx,by, ax, reproject=False, cband=False, col=False):
+    # Plot der Radar Range von Bonn
+    import wradlib as wrl
+    import numpy as np
+    from osgeo import osr
+    import matplotlib as mpl
+
+    proj_stereo = wrl.georef.create_osr("dwd-radolan")
+    proj_wgs = osr.SpatialReference()
+    proj_wgs.ImportFromEPSG(4326)
+    x_loc, y_loc = (bx, by)
+
+
+    r = np.arange(1, 101) * 1000
+
+    if cband==True:
+        r = np.arange(1, 151) * 1000
+
+    # azimuth array 1 degree spacing
+    az = np.linspace(0, 360, 361)[0:-1]
+
+    # build polygons for maxrange rangering
+    polygons = wrl.georef.polar2polyvert(r, az,
+                                         (x_loc, y_loc))
+    polygons.shape = (len(az), len(r), 5, 2)
+    polygons = polygons[:, -1, :, :]
+
+
+
+
+    if reproject:
+        # reproject to radolan polar stereographic projection
+        polygons = wrl.georef.reproject(polygons,
+                                        projection_source=proj_wgs,
+                                        projection_target=proj_stereo)
+
+        # reproject lonlat radar location coordinates to
+        # polar stereographic projection
+        x_loc, y_loc = wrl.georef.reproject(x_loc, y_loc,
+                                            projection_source=proj_wgs,
+                                            projection_target=proj_stereo)
+
+
+
+    # create PolyCollections and add to respective axes
+    polycoll = mpl.collections.PolyCollection(polygons, closed=True,
+                                              edgecolors=col,
+                                              facecolors=col,
+                                              zorder=2,
+                                              alpha=0.7, lw=0.3)
+
+    ax.add_collection(polycoll, autolim=True)
+
+    # plot radar location and information text
+    #print np.unique(polygons)
+    #ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
+    #ax.text(x_loc, y_loc, 'BoXPol', color='k', fontsize=10)
 
 
 def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
@@ -504,7 +590,7 @@ def plot_radar(bx,by, ax, reproject=False, cband=False, col=False):
 
     # plot radar location and information text
     #print np.unique(polygons)
-    ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
+    #ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
     #ax.text(x_loc, y_loc, 'BoXPol', color='k', fontsize=10)
 
 
