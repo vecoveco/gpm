@@ -32,7 +32,7 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
     #from pcc import get_miub_cmap
     #my_cmap2 = get_miub_cmap()
 
-
+    mrr_mean = np.array([])
     # Bonn 40
     # Roleber 42
     # Bergheim 41
@@ -76,6 +76,8 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
             y = MRR1[0,1:32]
             z = np.array(MRR1[:,32:],dtype=float)
 
+            print (z.shape)
+
 
             plt.subplot(3,1,iii+1)
             plt.pcolormesh(x,y,z.T,vmin=0,vmax=30, cmap=get_miub_cmap())
@@ -91,9 +93,13 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
             fig.autofmt_xdate()
             import matplotlib.dates as mdates
             #fig.autofmt_xdate = mdates.DateFormatter('%Y-%m-%d')
+            #mrr_mean = np.append(mrr_mean, z)
+            #print (mrr_mean.shape)
+
     plt.tight_layout()
     plt.show()
 
 
-plot_mrr1(t_start='2014-12-13 13:30', time_delta=60)
+plot_mrr1(t_start='2017-05-19 10:00', time_delta=120)
+
 #plot_mrr1(t_start='2016-10-01 17:30', time_delta=60)
