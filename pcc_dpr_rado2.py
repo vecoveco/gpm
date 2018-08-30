@@ -44,7 +44,8 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917, 20161001, 20161024,
                20170113, 20170203,20170223])
 '''
-zz = np.array(['20161007'])
+zz = np.array(['20150128'])
+
 for i in range(len(zz)):
     ZP = str(zz[i])
     #year, m, d, ht, mt, st = ZP[0:4], ZP[4:6], ZP[6:8], ZP[8:10], ZP[10:12], ZP[12:14]
@@ -59,7 +60,8 @@ for i in range(len(zz)):
     #pfad_gpm = glob.glob(pfad2)
     #pfad_gpm_g = pfad_gpm[0]
 
-    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118."+str(year)+str(m)+str(d)+"*.HDF5")[0]
+    #pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118."+str(year)+str(m)+str(d)+"*.HDF5")[0]
+    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dprV7/2A.GPM.DPR.V7-20170308."+str(year)+str(m)+str(d)+"*.HDF5")[0]
 
     print pfad_gpm_g
 
@@ -69,14 +71,14 @@ for i in range(len(zz)):
 
     gprof_pp = np.array(gpmdpr['NS']['SLV']['zFactorCorrectedNearSurface'])
     #gprof_pp = np.array(gpmdpr['NS']['SLV']['precipRateNearSurface'])
-    #g_1 = np.array(gpmdpr['NS']['VER']['sigmaZeroNPCorrected'])
-    #g_2 = np.array(gpmdpr['NS']['PRE']['zFactorMeasured'])
-    #g_3 = np.array(gpmdpr['NS']['PRE']['binRealSurface'])
+    g_1 = np.array(gpmdpr['NS']['FLG']['qualityFlag'])
+    g_2 = np.array(gpmdpr['NS']['FLG']['qualityData'])
+    g_3 = np.array(gpmdpr['NS']['SLV']['qualitySLV'])
 
     gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
-    gprof_pp[gprof_pp==-9999.9]= np.nan
-    gprof_pia[gprof_pia==-9999.9]= np.nan
+    gprof_pp[gprof_pp ==-9999.9]= np.nan
+    gprof_pia[gprof_pia ==-9999.9]= np.nan
 
     print gprof_pp.shape, gprof_pia.shape
     #gprof_pp = gprof_pp + wradlib.trafo.idecibel(gprof_pia)
@@ -122,10 +124,16 @@ for i in range(len(zz)):
     x = radolan_grid_xy[:,:,0]
     y = radolan_grid_xy[:,:,1]
     rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
-    #rwdata[rwdata < 0] = np.nan
+
+    #rwdata[rwdata <= 15] = -9999
+    #print ('Min RadolaN: ',np.nanmin(rwdata))
+    #rwdata = np.log10(rwdata)
     from satlib import read_rado
     #x1,y1,r1 = read_rado('201502270820')
     #rwdata = (rwdata+r1)/2
+    #from wradlib.trafo import idecibel
+    #from wradlib.trafo import decibel
+    #rwdata = idecibel(rwdata)
 
 
 
@@ -142,10 +150,8 @@ for i in range(len(zz)):
     gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
     grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
-    #rwdata[rwdata <= 0] = np.nan
+
     #rwdata = np.log10(rwdata)
-    from wradlib.trafo import idecibel, decibel
-    rwdata = idecibel(rwdata)
 
     ## INTERLOLATION
     ## --------------
@@ -158,20 +164,28 @@ for i in range(len(zz)):
 
     mask = ~np.isnan(rwdata)
 
-    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=400)
+    result = wrl.ipol.interpolate(xy, grid_gpm_xy, rwdata.reshape(900*900,1), wrl.ipol.Idw, nnearest=8)
 
     result = np.ma.masked_invalid(result)
 
     rrr = result.reshape(gpm_x.shape)
 
-    rrr = decibel(rrr)
-    rwdata = decibel(rwdata)
+    #rrr = decibel(rrr)
+    #rwdata = decibel(rwdata)
+    #rrr = 10**rrr
+    #rwdata = 10**rwdata
+
 
 
     ## Interpolation of the binary Grid
     ## ------------------------------
-    res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=4)
+    ry_h = np.load("/automount/ags/velibor/data/radolan_dx/RY_meanH.npy")
+    print ('-------------------------------->', ry_h.shape)
+    res_bin = wrl.ipol.interpolate(xy, grid_gpm_xy, rn.reshape(900*900,1), wrl.ipol.Idw, nnearest=8)
     res_bin = res_bin.reshape(gpm_x.shape)
+
+    ry_hi = wrl.ipol.interpolate(xy, grid_gpm_xy, ry_h.reshape(900*900,1), wrl.ipol.Idw, nnearest=8)
+    ry_hi = ry_hi.reshape(gpm_x.shape)
 
     res_bin[res_bin!=0]= 1 # Randkorrektur
 
@@ -179,6 +193,10 @@ for i in range(len(zz)):
     rand_y_oben = -3759.6447242655722
     rand_x_rechts = 375.5378330781441
 
+
+    ry_hi[np.where(gpm_y < rand_y_unten)] = np.nan
+    ry_hi[np.where(gpm_y > rand_y_oben)] = np.nan
+    ry_hi[np.where(gpm_x > rand_x_rechts)] = np.nan
 
     rrr[np.where(gpm_y < rand_y_unten)] = np.nan
     rrr[np.where(gpm_y > rand_y_oben)] = np.nan
@@ -190,7 +208,9 @@ for i in range(len(zz)):
     res_bin[res_bin == 0] = np.nan #check nur 1 un NaN
 
     ggg = gprof_pp_b * res_bin
+    ry_hi = ry_hi * res_bin
 
+    print ('-------------------------------->', ry_hi.shape)
 
     ## Dynamischer Threshold
     THref = np.nanmax([np.nanmin(rrr),np.nanmin(ggg)])
@@ -212,7 +232,7 @@ for i in range(len(zz)):
     fig = plt.figure(figsize=(12,12))
     ax1 = fig.add_subplot(221, aspect='equal')#------------------------------------
 
-    pm1 = plt.pcolormesh(x, y, idecibel(rwdata), cmap=my_cmap, vmax=10000, zorder=2)
+    pm1 = plt.pcolormesh(x, y, rwdata, cmap=my_cmap, vmin=0.01, vmax=50, zorder=2)
 
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
@@ -221,6 +241,7 @@ for i in range(len(zz)):
     cb.ax.tick_params(labelsize=ff)
 
     plot_borders(ax1)
+    print bonnlat, bonnlon
     plot_radar(bonnlon, bonnlat, ax1, reproject=True, cband=False,col='black')
 
     plt.title('RADOLAN Reflectivity: \n'+ radolan_zeit + ' UTC',fontsize=ff)
@@ -265,15 +286,15 @@ for i in range(len(zz)):
 
     ax2 = fig.add_subplot(223, aspect='equal')#------------------------------------
 
-    pm3 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(rrr),
-                         cmap=my_cmap, vmin=0.01, vmax=50,zorder=2)
+    pm3 = plt.pcolormesh(gpm_x, gpm_y,np.ma.masked_invalid(ry_hi),
+                         cmap='jet', vmin=1000, vmax=3000,zorder=2)
     plt.plot(gpm_x[:,0],gpm_y[:,0], color='black',lw=1)
     plt.plot(gpm_x[:,-1],gpm_y[:,-1], color='black',lw=1)
     cb = plt.colorbar(shrink=cc)
-    cb.set_label("Reflectivity [dBZ]",fontsize=ff)
+    cb.set_label("Hight in m",fontsize=ff)
     cb.ax.tick_params(labelsize=ff)
 
-    plt.title('RADOLAN Reflectivity Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
+    plt.title('RADOLAN Height Interpoliert: \n'+ radolan_zeit + ' UTC',fontsize=ff) #RW Product Polar Stereo
     plot_borders(ax2)
     plot_radar(bonnlon, bonnlat, ax2, reproject=True, cband=False,col='black')
     plt.grid(color='r')
@@ -299,8 +320,8 @@ for i in range(len(zz)):
     from pcc import skill_score
     SS = skill_score(ggg,rrr,th=TH_ref)
 
-    ax4.scatter(ggg, rrr, label='Reflectivity [dBZ]', color='grey', alpha=0.6)
-
+    ax4.scatter(ggg, rrr,c=ry_hi,s=30,label='Reflectivity [dBZ]', color='black', alpha=0.9)
+    plt.colorbar()
     r_value_s, p_value_s = stats.spearmanr(ggg[maske],rrr[maske])
 
     text = ('f(x) = ' + str(round(slope,3)) + 'x + ' + str(round(intercept,3)) +
@@ -341,7 +362,7 @@ for i in range(len(zz)):
                               fill=False, ls='--', label='Std')
     ax4.add_patch(ell)
 
-    plt.legend(loc='lower right', fontsize=10, scatterpoints=1, numpoints=1, shadow=True)
+    #plt.legend(loc='lower right', fontsize=10, scatterpoints= 1, numpoints=1, shadow=True)
 
     plt.xlim(0,50)
     plt.ylim(0,50)
@@ -363,13 +384,17 @@ for i in range(len(zz)):
     #from satlib import cp_dist
     #cp_dist(ggg[maske],rrr[maske])
 
-    from satlib import validation_plot
-    validation_plot(ggg,rrr)
+    #from satlib import validation_plot
+    #validation_plot(ggg,rrr,15)
 
+    plt.scatter(ggg, rrr, c=ry_hi, s=50, vmin=300, vmax=3000)
+    plt.colorbar()
+    plt.xlabel('GPM DPR Reflectivity [dBZ]',fontsize=ff)
+    plt.ylabel('RADOLAN Reflectivity [dBZ]',fontsize=ff)
+    plt.xticks(fontsize=ff)
+    plt.yticks(fontsize=ff)
+    plt.grid(color='r')
+    plt.xlim(10,50); plt.ylim(10,50)
+    plt.plot([10,50],[10,50])
 
-
-
-
-
-
-
+    plt.show()

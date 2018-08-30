@@ -1123,7 +1123,7 @@ def get_radar_locations():
     radar['lon'] = 13.76347
     radar['lat'] = 51.12404
     radar['alt'] = 261
-    radars['ASD'] = radar
+    radars['ASB'] = radar
 
     radar = {}
     radar['name'] = 'Boostedt'
