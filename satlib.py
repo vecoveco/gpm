@@ -846,12 +846,12 @@ def ipoli_radi(gr_grid, gr_data,sr_grid,radius):
         rr = np.sqrt((gr_grid[:,0] - x0)**2 + (gr_grid[:,1] - y0)**2)
         ## Todo: hier fehlt die Wichtung
         #print (gr_data[rr < radius])
-        #gr_ipoli_data[i] = np.nanmean(gr_data[rr < radius])
-        if gr_data[rr < radius].size!=0:
+        gr_ipoli_data[i] = np.nanmean(gr_data[rr < radius])
+        #if gr_data[rr < radius].size!=0:
 
-            gr_ipoli_data[i] = np.nanmax(gr_data[rr < radius])
-        else:
-            gr_ipoli_data[i] = np.nan
+        #    gr_ipoli_data[i] = np.nanmax(gr_data[rr < radius])
+        #else:
+        #    gr_ipoli_data[i] = np.nan
             # mein Pull Verfahren
             # pull_range = 1 #km
             # gr_ipoli_data[i] = np.nanmax(gr_data[rr < radius + pull_range])
@@ -944,6 +944,8 @@ plt.show()
 
 
 ax1.hist2d(A[maske_p],B[maske_p], bins=bin)'''
+
+
 
 
 # Overpass dict
