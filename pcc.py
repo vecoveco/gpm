@@ -531,7 +531,7 @@ def plot_radar2(bx,by, ax, reproject=False, cband=False, col=False):
 
     # plot radar location and information text
     #print np.unique(polygons)
-    #ax.plot(x_loc, y_loc, 'k+', markersize=15, mew=2)
+    #ax.plot(x_loc, y_loc, 'or', markersize=8, mew=2)
     #ax.text(x_loc, y_loc, 'BoXPol', color='k', fontsize=10)
 
 

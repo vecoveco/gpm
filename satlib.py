@@ -844,7 +844,7 @@ def ipoli_radi(gr_grid, gr_data,sr_grid,radius):
         x0, y0 = sr_grid[i,0], sr_grid[i,1]  ###########x y richtig?
 
         rr = np.sqrt((gr_grid[:,0] - x0)**2 + (gr_grid[:,1] - y0)**2)
-        ## Todo: hier fehlt die Wichtung
+        ## Todo:  Wichtung
         #print (gr_data[rr < radius])
         gr_ipoli_data[i] = np.nanmean(gr_data[rr < radius])
         #if gr_data[rr < radius].size!=0:
