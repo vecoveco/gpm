@@ -74,12 +74,15 @@ for i in range(len(zz)):
     g_2 = np.array(gpmdpr['NS']['FLG']['qualityData'])
     g_3 = np.array(gpmdpr['NS']['SLV']['qualitySLV'])
 
+    dpr_bbh=np.array(gpmdpr['NS']['CSF']['heightBB'], dtype=float)
+    dpr_bbh[dpr_bbh < 0] = np.nan
+
     gprof_pia = np.array(gpmdpr['NS']['SLV']['piaFinal'])
 
     gprof_pp[gprof_pp ==-9999.9]= np.nan
     gprof_pia[gprof_pia ==-9999.9]= np.nan
 
-    print gprof_pp.shape, gprof_pia.shape
+    print ('1.       ',gprof_pp.shape, gprof_lat.shape, gprof_lon.shape)
     #gprof_pp = gprof_pp + wradlib.trafo.idecibel(gprof_pia)
     #gprof_pp = gprof_pp + gprof_pia
 
@@ -141,6 +144,9 @@ for i in range(len(zz)):
 
 
     blon, blat, gprof_pp_b = cut_the_swath(gprof_lon,gprof_lat,gprof_pp, eu=0)
+    blon, blat, gprof_bbh_b = cut_the_swath(gprof_lon,gprof_lat,dpr_bbh, eu=0)
+
+    print ('2.       ',gprof_pp_b.shape, blat.shape, blon.shape, gprof_bbh_b.shape)
 
     proj_stereo = wrl.georef.create_osr("dwd-radolan")
     proj_wgs = osr.SpatialReference()
@@ -149,6 +155,7 @@ for i in range(len(zz)):
     gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
     grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
 
+    print ('3.       ',gprof_pp_b.shape, gpm_x.shape, gpm_y.shape)
 
     #rwdata = np.log10(rwdata)
 

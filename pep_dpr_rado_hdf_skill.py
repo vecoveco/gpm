@@ -134,6 +134,7 @@ for iii in scc:
 
 
                 ############################################# Cut the GPM Swath
+
                 blon, blat, gpmdpr_z_b = cut_the_swath(gprof_lon,gprof_lat,gpmdpr_z,eu=0)
                 blon, blat, gpmdpr_pp_b = cut_the_swath(gprof_lon,gprof_lat,gpmdpr_pp,eu=0)
                 blon, blat, dpr_pp_b = cut_the_swath(gprof_lon,gprof_lat,dpr_pp,eu=0)
@@ -150,6 +151,7 @@ for iii in scc:
 
                 gpm_x, gpm_y = wradlib.georef.reproject(blon, blat, projection_target=proj_stereo , projection_source=proj_wgs)
                 grid_xy = np.vstack((gpm_x.ravel(), gpm_y.ravel())).transpose()
+
 
                 ####################################### Neu
                 #rwdata2[rwdata2 <= 15] = -9999
