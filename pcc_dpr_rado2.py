@@ -55,7 +55,7 @@ zz = np.array([20140609, 20140610, 20140629, 20140826, 20140921, 20141007,
                20160607, 20160805, 20160904, 20160917,
                20170113])
 '''
-zz = np.array(['20150130'])
+zz = np.array(['20150227'])
 
 
 for i in range(len(zz)):
@@ -73,7 +73,7 @@ for i in range(len(zz)):
     #pfad_gpm_g = pfad_gpm[0]
 
     #pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dpr/2A.GPM.DPR.V6-20160118."+str(year)+str(m)+str(d)+"*.HDF5")[0]
-    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dprV7/2A.GPM.DPR.V7-20170308."+str(year)+str(m)+str(d)+"*.HDF5")[1]
+    pfad_gpm_g = glob.glob("/automount/ags/velibor/gpmdata/dprV7/2A.GPM.DPR.V7-20170308."+str(year)+str(m)+str(d)+"*.HDF5")[0]
 
     print pfad_gpm_g
 
