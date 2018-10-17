@@ -369,7 +369,7 @@ def plot_borders(ax):
     countries = ['Germany']#,'France','Denmark', 'Netherlands', 'Poland']
     # open the input data source and get the layer
     filename = wradlib.util.get_wradlib_data_file('/automount/db01/python/data/NED/10m/cultural/10m_cultural/10m_cultural/ne_10m_admin_0_countries.shp')
-    dataset, inLayer = wradlib.io.open_shape(filename)
+    dataset, inLayer = wradlib.io.open_vector(filename)
     # iterate over countries, filter accordingly, get coordinates and plot
     for item in countries:
         #print item
@@ -377,7 +377,7 @@ def plot_borders(ax):
         fattr = "(name='"+item+"')"
         inLayer.SetAttributeFilter(fattr)
         # get borders and names
-        borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
+        borders, keys = wradlib.georef.get_vector_coordinates(inLayer, key='name')
 
         for j in range(borders.shape[0]):
             bu = np.array(borders[j].shape)
@@ -1018,7 +1018,18 @@ def get_time_of_gpm(gpm_lon, gpm_lat, gpm_time):
     gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y.%m.%d -- %H:%M:%S")
     return gpm_dt
 
-
+def get_time_of_gpm2(gpm_lon, gpm_lat, gpm_time):
+    #Todo: Verbesser Momentan Mitte von Swath in RADOLAN, Besser Mitte oder auch ausenpunkte
+    mitte = gpm_lon.shape[1]/2 # midel swath
+    ii = np.where(((gpm_lon[:,mitte]<16) & (gpm_lon[:,mitte]>4)) & ((gpm_lat[:,mitte]<56) & (gpm_lat[:,mitte] > 46)))
+    gpm_year = int(np.nanmedian(np.array(gpm_time['Year'])[ii]))
+    gpm_month = int(np.nanmedian(np.array(gpm_time['Month'])[ii]))
+    gpm_day = int(np.nanmedian(np.array(gpm_time['DayOfMonth'])[ii]))
+    gpm_hour = int(np.nanmedian(np.array(gpm_time['Hour'])[ii]))
+    gpm_min = int(np.nanmedian(np.array(gpm_time['Minute'])[ii]))
+    gpm_sek = int(np.nanmedian(np.array(gpm_time['Second'])[ii]))
+    gpm_dt = dt.datetime(gpm_year,gpm_month, gpm_day, gpm_hour, gpm_min, gpm_sek).strftime("%Y.%m.%d -- %H:%M:%S")
+    return gpm_dt
 
 def plot_scatter(est, ref):
     import matplotlib.pyplot as plt
