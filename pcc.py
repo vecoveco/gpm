@@ -149,7 +149,7 @@ def skill_score(estimate, reference, th=None):
 
     H, M, F, C, N = float(H), float(M), float(F), float(C), float(N)
 
-    E = 1/N * (((H + M)*(H + F)) +
+    E = 1./N * (((H + M)*(H + F)) +
                        ((C + M) * (C + F)))
     #Entdekungswahrscheinlichkeit
     POD = H/(H + M)
