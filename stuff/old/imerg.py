@@ -13,7 +13,7 @@ import pandas as pd
 from scipy import stats
 import wradlib as wrl
 import matplotlib as mpl
-
+"""
 def plot_borders(ax):
 
     from osgeo import osr
@@ -25,7 +25,7 @@ def plot_borders(ax):
     dataset, inLayer = wradlib.io.open_shape(filename)
     borders, keys = wradlib.georef.get_shape_coordinates(inLayer, key='name')
     wradlib.vis.add_lines(ax, borders, color='black', lw=1, zorder=4)
-    ax.autoscale()
+    ax.autoscale()"""
 
 ## Einlesen von IMERG GPM global
 ## -----------------------------
@@ -36,7 +36,9 @@ pfad = ('/home/velibor/GPMDATA/arthurhou.pps.eosdis.nasa.gov/gpmdata/2014/06/09/
 pfad_imerg_raw = sorted(glob.glob(pfad))
 print pfad_imerg_raw
 #Todo: Schleife  Tage
-for ii in range(0,len(pfad_imerg_raw),1):
+#for ii in range(0,len(pfad_imerg_raw),1):
+for ii in range(0,2,1):
+
     pfad_imerg = pfad_imerg_raw[ii]
     #pfadg = ('/user/velibor/SHKGPM/data/imerg/2A*.HDF5')
     #pfadg_imerg = sorted(glob.glob(pfadg))
@@ -88,7 +90,7 @@ for ii in range(0,len(pfad_imerg_raw),1):
     pm2 = plt.pcolormesh(gpmi_lon, gpmi_lat, np.ma.masked_invalid(gpmi_pre),vmin=0,vmax=10)#,vmin=0,vmax=maxv)
     cbar = plt.colorbar(pm2, shrink=0.75)
     cbar.set_label("IMERG RainRate [mm/h]")
-    plot_borders(ax)
+    #plot_borders(ax)
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.xlim(limit[0], limit[1])
@@ -110,8 +112,9 @@ for ii in range(0,len(pfad_imerg_raw),1):
     #plt.show()
 
     plt.tight_layout()
-    plt.savefig('/home/velibor/GPMPLOT/3B' + str(pfad_imerg[-39:-15]) + '.png')
-    plt.close()
+    #plt.savefig('/home/velibor/GPMPLOT/3B' + str(pfad_imerg[-39:-15]) + '.png')
+    #plt.close()
+    plt.show()
     print (pfad_imerg[-39:-15])
 
 

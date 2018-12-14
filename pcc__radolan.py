@@ -35,8 +35,8 @@ import os
 
 t1 = clock()
 
-zeit = zt(2018,03,12,03,55,0,
-          2018,03,12,04,00,0,
+zeit = zt(2013,05,28,00,00,0,
+          2013,05,28,23,55,0,
           steps=5)
 
 
@@ -78,7 +78,8 @@ for ij in range(len(zeit)):
 
         if os.path.getsize(rw_filename) != 0:
 
-            rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
+            rwdata, rwattrs = wradlib.io.read_radolan_composite(rw_filename)
+            print(rwattrs['datetime'])
 
             rwdata = np.ma.masked_equal(rwdata, -9999) / 2 - 32.5
             radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
@@ -114,9 +115,12 @@ for ij in range(len(zeit)):
             ry_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 
         if os.path.getsize(ry_filename) != 0:
-            rydata, ryattrs = wradlib.io.read_RADOLAN_composite(ry_filename)
+            rydata, ryattrs = wradlib.io.read_radolan_composite(ry_filename)
 
             rydata = np.ma.masked_equal(rydata, -9999)
+
+            radolan_zeit = ryattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
+            radolan_zeit_sav = ryattrs['datetime'].strftime("%Y%m%d-%H%M%S")
 
             radolan_grid_xy = wradlib.georef.get_radolan_grid(900,900)
             x = radolan_grid_xy[:,:,0]
@@ -139,13 +143,13 @@ for ij in range(len(zeit)):
     elif ((RX==1) & (RY==0)):
         # Wenn kein RY vorhanden MP
         # Marshall and Palmer 1948
-        RR = wradlib.zr.z2r(wradlib.trafo.idecibel(rwdata), a=200., b=1.6)
+        RR = wradlib.zr.z_to_r(wradlib.trafo.idecibel(rwdata), a=200., b=1.6)
         ploty = 1
 
     elif ((RX==0) & (RY==1)):
         # Wenn kein RY vorhanden MP
         # Marshall and Palmer 1948
-        ZZ = wradlib.zr.r2z(wradlib.trafo.idecibel(rydata), a=200., b=1.6)
+        ZZ = wradlib.zr.r_to_z(wradlib.trafo.idecibel(rydata), a=200., b=1.6)
         ploty = 1
 
     else:# (RX==0 & RY==0):
@@ -187,7 +191,7 @@ for ij in range(len(zeit)):
 
 
 
-        plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
+        #plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
 
         ax2 = fig.add_subplot(122, aspect='equal')
         plt.pcolormesh(x, y, ZZ,vmin=0,vmax=50, cmap=cmap2, zorder=2)
@@ -212,11 +216,13 @@ for ij in range(len(zeit)):
         plt.ylim(-4700, -3700)
         plt.tight_layout()
 
-        plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
+        #plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
 
         #plt.savefig('/automount/ags/velibor/plot/radolan/convective/r_'+ radolan_zeit_sav+ '.png')
-        #plt.close()
-        plt.show()
+        plt.savefig('/automount/ags/velibor/plot/radolan/20130528/'+ radolan_zeit_sav+ '.png')
+        print ('Plot saved!')
+        plt.close()
+        #plt.show()
         ##########################################################################
 
 

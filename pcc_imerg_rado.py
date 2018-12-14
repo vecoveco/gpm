@@ -48,7 +48,9 @@ G_all_MI = []
 pfad2 = ('/home/velibor/shkgpm/data/imerg/'+str(year)+str(m)+str(d)+'/*.HDF5')
 pfad_gpm = sorted(glob.glob(pfad2))
 
-for jjj in range(len(pfad_gpm)):
+#for jjj in range(len(pfad_gpm)):
+for jjj in range(4,6):
+
     pfad_gpm_g = pfad_gpm[jjj]
     imerg_zeit = pfad_gpm_g[62:86]
     print 'Imerg_Zeit:  ',imerg_zeit
@@ -62,6 +64,7 @@ for jjj in range(len(pfad_gpm)):
     #gpm_pp=np.array(gpmimerg['Grid']['HQprecipitation'])
     gpm_pp=np.array(gpmimerg['Grid']['precipitationCal'])
     gpm_pp_ir=np.array(gpmimerg['Grid']['IRprecipitation'])
+    #gpm_pp_ir=np.array(gpmimerg['Grid']['precipitationUncal'])
     gpm_pp_mi=np.array(gpmimerg['Grid']['HQprecipitation'])
 
     gpm_pp[gpm_pp==-9999.9]= np.nan
@@ -126,7 +129,7 @@ for jjj in range(len(pfad_gpm)):
     except EnvironmentError:
         rw_filename = wradlib.util.get_wradlib_data_file(pfad_radolan)
 
-    rwdata, rwattrs = wradlib.io.read_RADOLAN_composite(rw_filename)
+    rwdata, rwattrs = wradlib.io.read_radolan_composite(rw_filename)
 
     radolan_zeit = rwattrs['datetime'].strftime("%Y.%m.%d -- %H:%M:%S")
 
@@ -169,10 +172,10 @@ for jjj in range(len(pfad_gpm)):
     rrr = result.reshape(gx.shape)
 
     Z = wradlib.trafo.idecibel(rrr)
-    rrr = wradlib.zr.z2r(Z, a=200., b=1.6)
+    rrr = wradlib.zr.z_to_r(Z, a=200., b=1.6)
 
     Z2 = wradlib.trafo.idecibel(rwdata)
-    rwdata = wradlib.zr.z2r(Z2, a=200., b=1.6)
+    rwdata = wradlib.zr.z_to_r(Z2, a=200., b=1.6)
 
      ## Interpolation of the binary Grid
     ## ------------------------------
@@ -211,10 +214,10 @@ for jjj in range(len(pfad_gpm)):
     fig = plt.figure(figsize=(16,12))
     ax11 = fig.add_subplot(242, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon,gpm_lat,np.ma.masked_invalid(gpm_pp),
-                         vmin=0.1, vmax=10,cmap=my_cmap)
+                         vmin=0.1, vmax=20,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
-    plot_world(ax11,limit[0],limit[1],limit[2],limit[3])
+    #plot_world(ax11,limit[0],limit[1],limit[2],limit[3])
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('IMERG Multisat Gaug Calibration :\n ' + imerg_zeit)
@@ -225,10 +228,10 @@ for jjj in range(len(pfad_gpm)):
 
     ax12 = fig.add_subplot(241, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon, gpm_lat,np.ma.masked_invalid(rrr),
-                         vmin=0.1, vmax=10,cmap=my_cmap)
+                         vmin=0.1, vmax=20,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
-    plot_world(ax12,limit[0],limit[1],limit[2],limit[3])
+    #plot_world(ax12,limit[0],limit[1],limit[2],limit[3])
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('RADOLAN IMERG GRID: \n' + ZP +'--' + ht+':'+mt)
@@ -238,10 +241,10 @@ for jjj in range(len(pfad_gpm)):
 
     ax13 = fig.add_subplot(243, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon,gpm_lat,np.ma.masked_invalid(gpm_pp_ir),
-                         vmin=0.1, vmax=10,cmap=my_cmap)
+                         vmin=0.1, vmax=20,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
-    plot_world(ax13,limit[0],limit[1],limit[2],limit[3])
+    #plot_world(ax13,limit[0],limit[1],limit[2],limit[3])
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('IMERG IR : \n' + imerg_zeit)
@@ -251,10 +254,10 @@ for jjj in range(len(pfad_gpm)):
 
     ax14 = fig.add_subplot(244, aspect='equal')
     pm2 = plt.pcolormesh(gpm_lon,gpm_lat,np.ma.masked_invalid(gpm_pp_mi),
-                         vmin=0.1, vmax=10,cmap=my_cmap)
+                         vmin=0.1, vmax=20,cmap=my_cmap)
     cbar = plt.colorbar(pm2, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
-    plot_world(ax14,limit[0],limit[1],limit[2],limit[3])
+    #plot_world(ax14,limit[0],limit[1],limit[2],limit[3])
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('IMERG Microwave : \n' + imerg_zeit)
@@ -264,10 +267,10 @@ for jjj in range(len(pfad_gpm)):
 
     ax15 = fig.add_subplot(245, aspect='equal')
     pm25 = plt.pcolormesh(xx, yy,rwdata,
-                         vmin=0.1, vmax=10,cmap=my_cmap)
+                         vmin=0.1, vmax=20,cmap=my_cmap)
     cbar = plt.colorbar(pm25, shrink=0.75, orientation='horizontal')
     cbar.set_label("RainRate [mm/h]")
-    plot_world(ax15,limit[0],limit[1],limit[2],limit[3])
+    #plot_world(ax15,limit[0],limit[1],limit[2],limit[3])
     plt.xlabel("lon")
     plt.ylabel("lat")
     plt.title('RADOLAN: \n' + ZP +'--' + ht+':'+mt)
@@ -331,16 +334,16 @@ for jjj in range(len(pfad_gpm)):
     plt.grid()
 
     plt.tight_layout()
-    plt.savefig('/home/velibor/shkgpm/plot/imerg/test_imerg_'+imerg_zeit + '.png' )
+    #plt.savefig('/home/velibor/shkgpm/plot/imerg/test_imerg_'+imerg_zeit + '.png' )
     #plt.show()
-    plt.close()
-
-    R_all.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
-    G_all_HQ.append(gpm_pp.reshape(gpm_pp.shape[0]*gpm_pp.shape[1]))
-    G_all_IR.append(gpm_pp_ir.reshape(gpm_pp_ir.shape[0]*gpm_pp_ir.shape[1]))
+    #plt.close()
+    plt.show()
+    #R_all.append(rrr.reshape(rrr.shape[0]*rrr.shape[1]))
+    #G_all_HQ.append(gpm_pp.reshape(gpm_pp.shape[0]*gpm_pp.shape[1]))
+    #G_all_IR.append(gpm_pp_ir.reshape(gpm_pp_ir.shape[0]*gpm_pp_ir.shape[1]))
     #G_all_MI.append(gpm_pp_mi.reshape(gpm_pp_mi.shape[0]*gpm_pp_mi.shape[1]))
 
-
+"""
 #print R_all.shape, G_all_HQ.shape, G_all_IR.shape, G_all_MI.shape
 G_all_HQ = np.concatenate(G_all_HQ,axis=0)
 G_all_IR = np.concatenate(G_all_IR,axis=0)
@@ -382,4 +385,4 @@ plt.grid()
 
 plt.savefig('/home/velibor/shkgpm/plot/imerg/neu/all_gpm_imerg_radolan_'+ZP + '.png' )
 #plt.show()
-plt.close()
+plt.close()"""
