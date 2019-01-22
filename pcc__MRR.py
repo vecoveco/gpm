@@ -100,6 +100,6 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
     plt.show()
 
 
-plot_mrr1(t_start='2017-05-19 10:00', time_delta=120)
+plot_mrr1(t_start='2017-05-19 00:00', time_delta=60*24)
 
 #plot_mrr1(t_start='2016-10-01 17:30', time_delta=60)
