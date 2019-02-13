@@ -399,6 +399,66 @@ def plot_borders(ax):
 
             wradlib.vis.add_lines(ax, bord_xy, color='black', lw=2, zorder=3)
     ax.autoscale()
+
+
+
+def get_borders():
+    # Landesgrenzen Deutschlands
+    from osgeo import osr
+    import wradlib as wrl
+    import wradlib
+    import numpy as np
+
+    gxy = np.array([])
+    wgs84 = osr.SpatialReference()
+    wgs84.ImportFromEPSG(4326)
+    india = osr.SpatialReference()
+    # asia south albers equal area conic
+    india.ImportFromEPSG(102028)
+
+    proj_gk = osr.SpatialReference()
+    proj_gk.ImportFromEPSG(31466)
+    proj_ll = osr.SpatialReference()
+    proj_ll.ImportFromEPSG(4326)
+    gk3 = wradlib.georef.epsg_to_osr(31467)
+    proj_stereo = wrl.georef.create_osr("dwd-radolan")
+    proj_wgs = osr.SpatialReference()
+    proj_wgs.ImportFromEPSG(4326)
+
+    # country list
+    countries = ['Germany']#,'France','Denmark', 'Netherlands', 'Poland']
+    # open the input data source and get the layer
+    filename = wradlib.util.get_wradlib_data_file('/automount/db01/python/data/NED/10m/cultural/10m_cultural/10m_cultural/ne_10m_admin_0_countries.shp')
+    dataset, inLayer = wradlib.io.open_vector(filename)
+    # iterate over countries, filter accordingly, get coordinates and plot
+    for item in countries:
+        #print item
+        # SQL-like selection syntax
+        fattr = "(name='"+item+"')"
+        inLayer.SetAttributeFilter(fattr)
+        # get borders and names
+        borders, keys = wradlib.georef.get_vector_coordinates(inLayer, key='name')
+
+        for j in range(borders.shape[0]):
+            bu = np.array(borders[j].shape)
+            a = np.array(bu.shape)
+
+            if a==1:
+                for i in range(0,borders[j].shape[0],1):
+                    bordx, bordy = wrl.georef.reproject(borders[j][i][:,0], borders[j][i][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
+                    bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
+
+                    np.append(gxy,bord_xy)
+            if a==2:    #richtig
+                bordx, bordy = wrl.georef.reproject(borders[j][:,0], borders[j][:,1], projection_source=proj_wgs, projection_target=proj_stereo)
+                bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
+
+                np.append(gxy,bord_xy)
+
+            bord_xy = np.vstack((bordx.ravel(), bordy.ravel())).transpose()
+
+            np.append(gxy,bord_xy)
+    return gxy
 '''
 def plot_dem(ax):
     filename = wrl.util.get_wradlib_data_file('geo/bangladesh.tif')
