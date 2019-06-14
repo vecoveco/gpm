@@ -30,20 +30,18 @@ bonn_pos = boxpol_pos()
 bx, by = bonn_pos['gkx_ppi'], bonn_pos['gky_ppi']
 blat, blon = bonn_pos['lat_ppi'], bonn_pos['lon_ppi']
 import os
+from osgeo import osr
+import matplotlib as mpl
+norm = plt.matplotlib.colors.LogNorm()
 
-#kometar
 
 t1 = clock()
 
-zeit = zt(2013,05,28,00,00,0,
-          2013,05,28,23,55,0,
+zeit = zt(2019,04,23,23,55,0,
+          2019,04,30,23,55,0,
           steps=5)
 
 
-#att = ['RX','RY']
-#df0 = pd.DataFrame(columns=att)
-#csv_name = '/automount/ags/velibor/plot/radolan/test/rxy_'+ zeit[0]+'-'+zeit[-1]+ '.csv'
-#df0.to_csv(csv_name)
 
 
 for ij in range(len(zeit)):
@@ -165,11 +163,13 @@ for ij in range(len(zeit)):
         fig = plt.figure(figsize=(14,8))
 
         ax1 = fig.add_subplot(121, aspect='equal')
-        plt.pcolormesh(x, y, RR, cmap=my_cmap,vmin=0.1,vmax=10, zorder=2)
+        plt.pcolormesh(x, y, RR, cmap=my_cmap,vmin=0.1,vmax=10, zorder=0, norm=norm)
         cb = plt.colorbar(shrink=0.5, extend='both')
         cb.set_label("Rainrate (mm/h)",fontsize=ff)
         cb.ax.tick_params(labelsize=ff)
         plot_borders(ax1)
+        #plot_all_cband2(ax1)
+        #plot_all_radar_position(ax1)
 
         plt.title('RADOLAN RY Rainrate: \n'+ radolan_zeit + 'UTC',fontsize=20)
         plt.tick_params(
@@ -194,7 +194,7 @@ for ij in range(len(zeit)):
         #plot_radar(blon, blat, ax1, reproject=True, cband=False,col='black')
 
         ax2 = fig.add_subplot(122, aspect='equal')
-        plt.pcolormesh(x, y, ZZ,vmin=0,vmax=50, cmap=cmap2, zorder=2)
+        plt.pcolormesh(x, y, ZZ,vmin=-35,vmax=50, cmap=cmap2, zorder=0)
         cb = plt.colorbar(shrink=0.5, extend='both')
         cb.set_label("Reflectivity (dBZ)",fontsize=ff)
         cb.ax.tick_params(labelsize=ff)
@@ -219,7 +219,7 @@ for ij in range(len(zeit)):
         #plot_radar(blon, blat, ax2, reproject=True, cband=False,col='black')
 
         #plt.savefig('/automount/ags/velibor/plot/radolan/convective/r_'+ radolan_zeit_sav+ '.png')
-        plt.savefig('/automount/ags/velibor/plot/radolan/20130528/'+ radolan_zeit_sav+ '.png')
+        plt.savefig('/automount/ags/velibor/plot/radolan/20151023/'+ radolan_zeit_sav+ '.png')
         print ('Plot saved!')
         plt.close()
         #plt.show()
@@ -230,7 +230,7 @@ for ij in range(len(zeit)):
 
 
     else:
-        print ('kein Plot!')
+        print ('kein Plot wegen fehlender Dateien!')
         pass
 
 

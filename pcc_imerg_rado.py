@@ -63,6 +63,7 @@ for jjj in range(4,6):
 
     #gpm_pp=np.array(gpmimerg['Grid']['HQprecipitation'])
     gpm_pp=np.array(gpmimerg['Grid']['precipitationCal'])
+
     gpm_pp_ir=np.array(gpmimerg['Grid']['IRprecipitation'])
     #gpm_pp_ir=np.array(gpmimerg['Grid']['precipitationUncal'])
     gpm_pp_mi=np.array(gpmimerg['Grid']['HQprecipitation'])
@@ -70,6 +71,7 @@ for jjj in range(4,6):
     gpm_pp[gpm_pp==-9999.9]= np.nan
     gpm_pp_ir[gpm_pp_ir==-9999.9]= np.nan
     gpm_pp_mi[gpm_pp_mi==-9999.9]= np.nan
+
     gpm_pp = np.transpose(gpm_pp)
     gpm_pp_ir = np.transpose(gpm_pp_ir)
     gpm_pp_mi = np.transpose(gpm_pp_mi)
@@ -122,7 +124,10 @@ for jjj in range(4,6):
             str(m)+'/'+ str(year)+'-'+str(m)+'-'+str(d)+'/raa01-'+r_pro+'_10000-'+
             str(ye)+str(m)+ str(d)+str(ht)+str(mt)+'-dwd---bin.gz')
 
+
     pfad_radolan = pfad[:-3]
+
+    #pfad_radolan = '/automount/radar/dwd/rw/2014/2014-10/2014-10-07/raa01-rw_10000-1410070250-dwd---bin.gz'
 
     try:
         rw_filename = wradlib.util.get_wradlib_data_file(pfad)

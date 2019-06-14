@@ -67,7 +67,8 @@ for ij in range(len(zeit)):
 
 
     ppi=h5py.File(boxpol_filename,'r')
-    data, attrs = wradlib.io.read_GAMIC_hdf5(boxpol_filename)
+    #data, attrs = wradlib.io.read_GAMIC_hdf5(boxpol_filename)
+    data, attrs = wradlib.io.read_gamic_hdf5(boxpol_filename)
 
     print data[u'SCAN0'].keys()
     print attrs['VOL'].keys()
@@ -88,15 +89,18 @@ for ij in range(len(zeit)):
     lat_ppi = attrs['VOL']['Latitude']
     alt_ppi = attrs['VOL']['Height']
 
+    print(np.nanmin(lon_ppi), np.nanmax(lon_ppi))
+    print(np.nanmin(lat_ppi), np.nanmax(lat_ppi))
+
 
     #Z = wradlib.trafo.idecibel(ZH)
     #R = wradlib.zr.z2r(Z, a=200., b=1.6)
 
     #### PLOT
-    fig = plt.figure(figsize=(16,12))
+    #fig = plt.figure(figsize=(16,12))
     fft = 15
-    fig.suptitle('Date: '+ ZP)
-    fig.add_subplot(231, aspect='equal')
+    #fig.suptitle('Date: '+ ZP)
+    #fig.add_subplot(231, aspect='equal')
     ax1, pm1 = wradlib.vis.plot_ppi(zh,r,az, vmin=0, vmax=50, cmap=cmap2)
     cbar = plt.colorbar(pm1, shrink=0.75)
     cbar.set_label("zh (dBz)")
@@ -113,7 +117,9 @@ for ij in range(len(zeit)):
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
     plt.grid()
-
+    plt.tight_layout()
+    plt.show()
+"""
     fig.add_subplot(232, aspect='equal')
     ax2, pm2 = wradlib.vis.plot_ppi(zv,r,az, vmin=0, vmax=50, cmap=cmap2)
     cbar = plt.colorbar(pm2, shrink=0.75)
@@ -203,8 +209,7 @@ for ij in range(len(zeit)):
     plt.title(' BoXPol PPI: '+ ZP ,fontsize=fft)
     plt.xlim((-101000,101000))
     plt.ylim((-101000,101000))
-    plt.grid()
+    plt.grid()"""
 
-    plt.tight_layout()
-    plt.show()
+
 

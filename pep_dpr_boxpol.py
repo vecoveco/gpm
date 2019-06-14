@@ -88,7 +88,7 @@ except:
 #---------------------------
 
 ppi=h5py.File(ppi_datapath,'r')
-data, attrs = wradlib.io.read_GAMIC_hdf5(ppi_datapath)
+data, attrs = wradlib.io.read_gamic_hdf5(ppi_datapath)
 
 ZH0 = data['SCAN0']['ZH']['data']
 PHIDP = data['SCAN0']['PHIDP']['data']
@@ -101,7 +101,7 @@ rho = data['SCAN0']['RHOHV']['data']
 
 R = ZH0
 R[151:165]=np.nan
-
+"""
 print ("________ATTCORR______")
 pia_harrison = wrl.atten.correctAttenuationHB(
     R,
@@ -111,7 +111,7 @@ pia_harrison = wrl.atten.correctAttenuationHB(
 pia_harrison[pia_harrison > 4.8] = 4.8
 
 print ("________ATTCORR2______")
-R = R + pia_harrison
+R = R + pia_harrison"""
 
 print ("________CLUTTER______")
 rho_th  = 0.85
@@ -144,7 +144,8 @@ proj_wgs.ImportFromEPSG(4326)
 
 dpr_lon, dpr_lat = wradlib.georef.reproject(dpr_lon, dpr_lat, projection_target=proj_stereo , projection_source=proj_wgs)
 blon, blat = wradlib.georef.reproject(blon0, blat0, projection_target=proj_stereo , projection_source=proj_wgs)
-
+print(np.nanmin(blon), np.nanmax(blon))
+print(np.nanmin(blat), np.nanmax(blat))
 
 # Dpr zuschneiden
 #-----------------
@@ -275,7 +276,7 @@ plt.title('r:'+str(round(r_value,3))+'  +  '+str(round(std_err,3)))
 plt.colorbar()
 plt.grid()
 
-plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
+#plt.savefig('/automount/ags/velibor/plot/boxpol/boxpol_vs_DPR/boxdpr_'+ZP)
 plt.show()
 
 
