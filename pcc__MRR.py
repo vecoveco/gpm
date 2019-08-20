@@ -87,12 +87,13 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
             #pl.pcolormesh(x,y,np.ma.masked_where(np.isnan(z.T),z.T))
             plt.colorbar(label='Z in DBz')
             plt.ylim(min(y),max(y))
-            plt.title(name_mrr[iii]+' MRR1 from ' + t_start.isoformat() + ' to ' + t_stop.isoformat())
+            plt.title(name_mrr[iii]+' MRR von ' + t_start.isoformat() + ' to ' + t_stop.isoformat())
             plt.ylabel('Height in m')
             plt.grid()
             fig.autofmt_xdate()
-            import matplotlib.dates as mdates
-            #fig.autofmt_xdate = mdates.DateFormatter('%Y-%m-%d')
+            #import matplotlib.dates as mdates
+            #
+            # fig.autofmt_xdate = mdates.DateFormatter('%Y-%m-%d')
             #mrr_mean = np.append(mrr_mean, z)
             #print (mrr_mean.shape)
 
@@ -100,6 +101,7 @@ def plot_mrr1(t_start='2016-10-07 02:35', time_delta=10):
     plt.show()
 
 
-plot_mrr1(t_start='2016-06-25 00:00', time_delta=60*24)
+#plot_mrr1(t_start='2014-10-07 00:00', time_delta=60*5)
+plot_mrr1(t_start='2014-10-07 00:00', time_delta=60*3)
 
 #plot_mrr1(t_start='2016-10-01 17:30', time_delta=60)
